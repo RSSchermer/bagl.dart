@@ -16,7 +16,7 @@ abstract class Vertex {
   ///
   /// Throws [ArgumentError] if the specified attribute name can not be
   /// represented on this vertex.
-  void operator[]=(String attributeName, dynamic value);
+  void operator []=(String attributeName, dynamic value);
 
 //  dynamic noSuchMethod(Invocation invocation) {
 //    var memberName = invocation.memberName.toString();
@@ -38,6 +38,4 @@ abstract class VertexSet extends Iterable<Vertex> {
   Map<String, VertexAttribute> attributes;
 }
 
-class StaticVertexSet extends Iterable<Vertex> {
-
-}
+class StaticVertexSet extends Iterable<Vertex> {}

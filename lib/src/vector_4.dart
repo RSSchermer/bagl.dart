@@ -3,12 +3,16 @@ part of bagl;
 class Vector4 extends GenericMatrix<Vector4, Matrix> {
   final Float32List storage;
 
-  factory Vector4(double x, double y, double z, double w) =>
-      new Vector4.fromFloat32List(new Float32List(4)
-        ..[0] = x
-        ..[1] = y
-        ..[2] = z
-        ..[3] = w);
+  factory Vector4(double x, double y, double z, double w) {
+    final values = new Float32List(4);
+
+    values[0] = x;
+    values[1] = y;
+    values[2] = z;
+    values[3] = w;
+
+    return new Vector4.fromFloat32List(values);
+  }
 
   factory Vector4.fromList(List<double> values) =>
       new Vector4.fromFloat32List(new Float32List.fromList(values));

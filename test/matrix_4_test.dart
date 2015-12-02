@@ -12,10 +12,10 @@ void main() {
                                9.0, 10.0, 11.0, 12.0,
                               13.0, 14.0, 15.0, 16.0);
 
-          expect(m.valueAt(0, 0), equals(1.0));
-          expect(m.valueAt(1, 1), equals(6.0));
-          expect(m.valueAt(2, 2), equals(11.0));
-          expect(m.valueAt(3, 3), equals(16.0));
+          expect(m.values.toList(), equals([ 1.0,  2.0,  3.0,  4.0,
+                                             5.0,  6.0,  7.0,  8.0,
+                                             9.0, 10.0, 11.0, 12.0,
+                                            13.0, 14.0, 15.0, 16.0]));
         });
       });
 
@@ -35,21 +35,48 @@ void main() {
 
       group('fromFloat32List', () {
         test('throws an error when the list has more than 16 items', () {
-          var list = new Float32List(15);
+          var list = new Float32List(17);
 
           expect(() => new Matrix4.fromList(list), throwsArgumentError);
         });
 
         test('throws an error when the list has less than 16 items', () {
-          var list = new Float32List(17);
+          var list = new Float32List(15);
 
           expect(() => new Matrix4.fromList(list), throwsArgumentError);
         });
       });
+
+      test('constant', () {
+        var m = new Matrix4.constant(1.0);
+
+        expect(m.values.toList(), equals([1.0, 1.0, 1.0, 1.0,
+                                          1.0, 1.0, 1.0, 1.0,
+                                          1.0, 1.0, 1.0, 1.0,
+                                          1.0, 1.0, 1.0, 1.0]));
+      });
+
+      test('zero', () {
+        var m = new Matrix4.zero();
+
+        expect(m.values.toList(), equals([0.0, 0.0, 0.0, 0.0,
+                                          0.0, 0.0, 0.0, 0.0,
+                                          0.0, 0.0, 0.0, 0.0,
+                                          0.0, 0.0, 0.0, 0.0]));
+      });
+
+      test('identity', () {
+        var m = new Matrix4.identity();
+
+        expect(m.values.toList(), equals([1.0, 0.0, 0.0, 0.0,
+                                          0.0, 1.0, 0.0, 0.0,
+                                          0.0, 0.0, 1.0, 0.0,
+                                          0.0, 0.0, 0.0, 1.0]));
+      });
     });
 
     group('matrixProduct', () {
-      test('with a Matrix4 results in a new Matrix4', () {
+      group('with a Matrix4', () {
         var m1 = new Matrix4( 1.0,  2.0,  3.0,  4.0,
                               5.0,  6.0,  7.0,  8.0,
                               9.0, 10.0, 11.0, 12.0,
@@ -61,10 +88,19 @@ void main() {
                              13.0, 14.0, 15.0, 16.0);
         var product = m1 * m2;
 
-        expect(product is Matrix4, isTrue);
+        test('results in a new Matrix4', () {
+          expect(product is Matrix4, isTrue);
+        });
+
+        test('results in a new matrix with the correct values', () {
+          expect(product.values.toList(), equals([ 90.0, 100.0, 110.0, 120.0,
+                                                  202.0, 228.0, 254.0, 280.0,
+                                                  314.0, 356.0, 398.0, 440.0,
+                                                  426.0, 484.0, 542.0, 600.0]));
+        });
       });
 
-      test('with a Vector4 results in a new Vector4', () {
+      group('with a Vector4', () {
         var m = new Matrix4( 1.0,  2.0,  3.0,  4.0,
                              5.0,  6.0,  7.0,  8.0,
                              9.0, 10.0, 11.0, 12.0,
@@ -72,7 +108,13 @@ void main() {
         var v = new Vector4(1.0, 2.0, 3.0, 4.0);
         var product = m * v;
 
-        expect(product is Vector4, isTrue);
+        test('results in a new Vector4', () {
+          expect(product is Vector4, isTrue);
+        });
+
+        test('results in a new matrix with the correct values', () {
+          expect(product.values.toList(), equals([30.0, 70.0, 110.0, 150.0]));
+        });
       });
     });
 
@@ -83,7 +125,10 @@ void main() {
                              9.0, 10.0, 11.0, 12.0,
                             13.0, 14.0, 15.0, 16.0);
 
+        expect(m[0], equals([1.0, 2.0, 3.0, 4.0]));
+        expect(m[1], equals([5.0, 6.0, 7.0, 8.0]));
         expect(m[2], equals([9.0, 10.0, 11.0, 12.0]));
+        expect(m[3], equals([13.0, 14.0, 15.0, 16.0]));
       });
     });
   });

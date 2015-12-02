@@ -3,12 +3,16 @@ part of bagl;
 class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
   final Float32List storage;
 
-  factory Matrix2(double val0, double val1, double val2, double val3) =>
-      new Matrix2.fromFloat32List(new Float32List(4)
-        ..[0] = val0
-        ..[1] = val1
-        ..[2] = val2
-        ..[3] = val3);
+  factory Matrix2(double val0, double val1, double val2, double val3) {
+    final values = new Float32List(4);
+
+    values[0] = val0;
+    values[1] = val1;
+    values[2] = val2;
+    values[3] = val3;
+
+    return new Matrix2.fromFloat32List(values);
+  }
 
   factory Matrix2.fromList(List<double> values) =>
       new Matrix2.fromFloat32List(new Float32List.fromList(values));
@@ -27,11 +31,16 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
 
   factory Matrix2.zero() => new Matrix2.fromFloat32List(new Float32List(4));
 
-  factory Matrix2.identity() => new Matrix2.fromFloat32List(new Float32List(4)
-    ..[0] = 1.0
-    ..[1] = 0.0
-    ..[2] = 0.0
-    ..[3] = 1.0);
+  factory Matrix2.identity() {
+    final values = new Float32List(4);
+
+    values[0] = 1.0;
+    values[1] = 0.0;
+    values[2] = 0.0;
+    values[3] = 1.0;
+
+    return new Matrix2.fromFloat32List(values);
+  }
 
   Matrix2 withValues(Float32List newValues) =>
       new Matrix2.fromFloat32List(newValues);
@@ -53,11 +62,14 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
       final n10 = bStorage[2];
       final n11 = bStorage[3];
 
-      return new Matrix2.fromFloat32List(new Float32List(4)
-        ..[0] = (m00 * n00) + (m01 * n10)
-        ..[1] = (m00 * n01) + (m01 * n11)
-        ..[2] = (m10 * n00) + (m11 * n10)
-        ..[3] = (m10 * n01) + (m11 * n11));
+      final values = new Float32List(4);
+
+      values[0] = (m00 * n00) + (m01 * n10);
+      values[1] = (m00 * n01) + (m01 * n11);
+      values[2] = (m10 * n00) + (m11 * n10);
+      values[3] = (m10 * n01) + (m11 * n11);
+
+      return new Matrix2.fromFloat32List(values);
     } else if (B is Vector2) {
       final bStorage = B.storage;
 
@@ -65,10 +77,12 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
       final n1 = bStorage[1];
 
       final s = storage;
+      final values = new Float32List(2);
 
-      return new Vector2.fromFloat32List(new Float32List(2)
-        ..[0] = (s[0] * n0) + (s[1] * n1)
-        ..[1] = (s[2] * n0) + (s[3] * n1));
+      values[0] = (s[0] * n0) + (s[1] * n1);
+      values[1] = (s[2] * n0) + (s[3] * n1);
+
+      return new Vector2.fromFloat32List(values);
     } else {
       return super.matrixProduct(B);
     }
