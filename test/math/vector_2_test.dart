@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:bagl/bagl.dart';
+import 'package:bagl/math.dart';
 import 'dart:typed_data';
 
 void main() {
@@ -55,9 +55,14 @@ void main() {
     });
 
     group('[] operator', () {
-      test('returns the correct value', () {
-        var v = new Vector2(1.0, 2.0);
+      var v = new Vector2(1.0, 2.0);
 
+      test('throws RangError if the index is out of bounds', () {
+        expect(() => v[-1], throwsRangeError);
+        expect(() => v[2], throwsRangeError);
+      });
+
+      test('returns the correct value', () {
         expect(v[0], equals(1.0));
         expect(v[1], equals(2.0));
       });

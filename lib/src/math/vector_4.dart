@@ -1,4 +1,4 @@
-part of bagl;
+part of math;
 
 class Vector4 extends GenericMatrix<Vector4, Matrix> {
   final Float32List storage;
@@ -56,5 +56,9 @@ class Vector4 extends GenericMatrix<Vector4, Matrix> {
     RangeError.checkValidIndex(index, this, 'index', 4);
 
     return storage[index];
+  }
+
+  String toString() {
+    return 'Vector4(${values.toString()})';
   }
 }

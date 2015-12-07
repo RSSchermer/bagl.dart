@@ -1,4 +1,4 @@
-part of bagl;
+part of math;
 
 class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
   final Float32List storage;
@@ -89,4 +89,8 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
   }
 
   List<double> operator [](int index) => rowAt(index);
+
+  String toString() {
+    return 'Matrix2(${values.toString()})';
+  }
 }

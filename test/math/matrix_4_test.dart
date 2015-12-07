@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:bagl/bagl.dart';
+import 'package:bagl/math.dart';
 import 'dart:typed_data';
 
 void main() {
@@ -119,12 +119,17 @@ void main() {
     });
 
     group('[] operator', () {
-      test('returns the correct row', () {
-        var m = new Matrix4( 1.0,  2.0,  3.0,  4.0,
-                             5.0,  6.0,  7.0,  8.0,
-                             9.0, 10.0, 11.0, 12.0,
-                            13.0, 14.0, 15.0, 16.0);
+      var m = new Matrix4( 1.0,  2.0,  3.0,  4.0,
+                           5.0,  6.0,  7.0,  8.0,
+                           9.0, 10.0, 11.0, 12.0,
+                          13.0, 14.0, 15.0, 16.0);
 
+      test('throws RangError if the index is out of bounds', () {
+        expect(() => m[-1], throwsRangeError);
+        expect(() => m[4], throwsRangeError);
+      });
+
+      test('returns the correct row', () {
         expect(m[0], equals([1.0, 2.0, 3.0, 4.0]));
         expect(m[1], equals([5.0, 6.0, 7.0, 8.0]));
         expect(m[2], equals([9.0, 10.0, 11.0, 12.0]));
