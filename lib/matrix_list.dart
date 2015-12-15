@@ -1,4 +1,4 @@
-/// Math helpers and data structures for 2D and 3D graphics.
+/// Matrix lists as typed data views on byte buffers.
 library matrix_list;
 
 import 'dart:collection';

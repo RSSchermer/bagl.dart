@@ -1,4 +1,4 @@
-part of bagl;
+part of vertex_data;
 
 /// Dynamic vertex data structure.
 ///

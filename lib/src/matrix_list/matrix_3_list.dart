@@ -44,7 +44,7 @@ class Matrix3List extends ListBase<Matrix3>
   /// of buffer.
   Matrix3List.view(ByteBuffer buffer, [int offsetInBytes = 0, int length])
       : length = length ??
-      (buffer.lengthInBytes - offsetInBytes) ~/ _elementSizeInBytes,
+            (buffer.lengthInBytes - offsetInBytes) ~/ _elementSizeInBytes,
         _storage = new Float32List.view(
             buffer, offsetInBytes, length * _elementSizeInFloats);
 
