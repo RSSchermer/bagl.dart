@@ -103,7 +103,14 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     return new AttributeDataFrame(newStorage, rowLength);
   }
 
-  // TODO: implement withoutRows(List<int> indices)
+  /// Creates a new attribute data frame as a view on a new byte buffer without
+  /// the rows at the specified indices.
+  ///
+  /// This method is much more efficient than calling [withoutRow] repeatedly
+  /// to remove multiple rows from the attribute data frame.
+  ///
+  /// Throws a [RangeError] if one of the specified row indices is smaller than
+  /// 0 or greater than the total number of rows in the attribute data frame.
   AttributeDataFrame withoutRows(List<int> indices) {
     // Algorithm first sorts the indices that are to be removed, then loops over
     // these indices to look for gaps in between indices. If gap is encountered
@@ -111,11 +118,15 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
 
     indices.sort();
 
-    var uniqueIndexCount = 1;
+    var uniqueIndexCount = 0;
 
-    for (var i = 0; i < indices.length; i++) {
-      if (i > 0 && indices[i] != indices[i - 1]) {
-        uniqueIndexCount++;
+    if (indices.isNotEmpty) {
+      uniqueIndexCount = 1;
+
+      for (var i = 1; i < indices.length; i++) {
+        if (indices[i] != indices[i - 1]) {
+          uniqueIndexCount++;
+        }
       }
     }
 
@@ -135,9 +146,9 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
         final gapSizeInRows = index - lastRemovedRow - 1;
         final start = copiedRowCount * rowLength;
         final end = start + gapSizeInRows * rowLength;
-        final offset = (lastRemovedRow + 1) * rowLength;
+        final skipCount = (lastRemovedRow + 1) * rowLength;
 
-        newStorage.setRange(start, end, _storage, offset);
+        newStorage.setRange(start, end, _storage, skipCount);
         copiedRowCount += gapSizeInRows;
       }
 
@@ -149,9 +160,9 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     // storage buffer.
     if (lastRemovedRow < length - 1) {
       final start = copiedRowCount * rowLength;
-      final offset = (lastRemovedRow + 1) * rowLength;
+      final skipCount = (lastRemovedRow + 1) * rowLength;
 
-      newStorage.setRange(start, newSize, _storage, offset);
+      newStorage.setRange(start, newSize, _storage, skipCount);
     }
 
     return new AttributeDataFrame.fromFloat32List(newStorage, rowLength);
@@ -198,7 +209,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     final aRowLength = rowLength;
     final bRowLength = attributeDataFrame.rowLength;
     final bStorage = attributeDataFrame._storage;
-    final s = new Float32List(rowCount * (aRowLength + bRowLength));
+    final newStorage = new Float32List(rowCount * (aRowLength + bRowLength));
     var counter = 0;
 
     for (var i = 0; i < rowCount; i++) {
@@ -206,17 +217,18 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       final n = i * bRowLength;
 
       for (var j = 0; j < aRowLength; j++) {
-        s[counter] = _storage[m + j];
+        newStorage[counter] = _storage[m + j];
         counter++;
       }
 
       for (var k = 0; k < bRowLength; k++) {
-        s[counter] = bStorage[n + k];
+        newStorage[counter] = bStorage[n + k];
         counter++;
       }
     }
 
-    return new AttributeDataFrame.fromFloat32List(s, aRowLength + bRowLength);
+    return new AttributeDataFrame.fromFloat32List(
+        newStorage, aRowLength + bRowLength);
   }
 
   /// Creates a new attribute data frame from a range of rows and (optionally) a
@@ -291,7 +303,19 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     }
   }
 
-  // TODO: implement subFrameView
+  AttributeDataFrame subFrameView(int rowStart, [int rowEnd]) {
+    rowEnd ??= length;
+
+    RangeError.checkValueInInterval(rowStart, 0, length, 'rowStart');
+    RangeError.checkValueInInterval(rowEnd, 0, length, 'rowEnd');
+
+    final offset =
+        offsetInBytes + rowStart * rowLength * Float32List.BYTES_PER_ELEMENT;
+    final newLength = (rowEnd - rowStart) * rowLength;
+    final newStorage = new Float32List.view(buffer, offset, newLength);
+
+    return new AttributeDataFrame.fromFloat32List(newStorage, rowLength);
+  }
 
   /// Returns a view of the data row at the given index.
   ///
@@ -364,6 +388,8 @@ class AttributeDataRowView extends IterableBase<double> {
 
   /// Sets the value at the specified index to the given value.
   void operator []=(int index, double value) {
+    RangeError.checkValidIndex(index, this);
+
     _storagePointer[_rowDataOffset + index] = value;
   }
 }

@@ -119,6 +119,7 @@ void main() {
 
       test('throws a RangeError when the index list contains an out of bounds index', () {
         expect(() => frame.withoutRows([1, 2, 8]), throwsRangeError);
+        expect(() => frame.withoutRows([1, 2, -1]), throwsRangeError);
       });
 
       group('with a list of valid indices', () {
@@ -133,6 +134,21 @@ void main() {
           expect(withoutRows[1], equals([2.0, 2.0, 2.0]));
           expect(withoutRows[2], equals([5.0, 5.0, 5.0]));
           expect(withoutRows[3], equals([7.0, 7.0, 7.0]));
+        });
+      });
+
+      group('with a list of valid indices including a duplicate index', () {
+        var withoutRows = frame.withoutRows([0, 3, 4, 4, 7]);
+
+        test('returns a new frame with the correct length', () {
+          expect(withoutRows.length, equals(4));
+        });
+
+        test('returns a new frame with the correct values', () {
+          expect(withoutRows[0], equals([1.0, 1.0, 1.0]));
+          expect(withoutRows[1], equals([2.0, 2.0, 2.0]));
+          expect(withoutRows[2], equals([5.0, 5.0, 5.0]));
+          expect(withoutRows[3], equals([6.0, 6.0, 6.0]));
         });
       });
     });
@@ -285,6 +301,201 @@ void main() {
           expect(subFrame[0], pairWiseDifferenceLessThan([1.1, 1.2], 0.00001));
           expect(subFrame[1], pairWiseDifferenceLessThan([2.1, 2.2], 0.00001));
         });
+      });
+    });
+
+    group('subFrameView', () {
+      var frame = new AttributeDataFrame([
+        0.0, 0.1, 0.2, 0.3,
+        1.0, 1.1, 1.2, 1.3,
+        2.0, 2.1, 2.2, 2.3,
+        3.0, 3.1, 3.2, 3.3
+      ], 4);
+
+      test('throws a RangeError if rowStart is out of bounds', () {
+        expect(() => frame.subFrameView(-1), throwsRangeError);
+        expect(() => frame.subFrameView(5), throwsRangeError);
+      });
+
+      test('throws a RangeError if rowEnd is out of bounds', () {
+        expect(() => frame.subFrameView(0, -1), throwsRangeError);
+        expect(() => frame.subFrameView(0, 5), throwsRangeError);
+      });
+
+      group('with a valid rowStart', () {
+        var subFrameView = frame.subFrameView(1);
+
+        test('returns a new frame with the correct length (up till the end of the viewed frame)', () {
+          expect(subFrameView.length, equals(3));
+        });
+
+        test('returns a new frame with the correct values (up till the end of the viewed frame)', () {
+          expect(subFrameView[0], pairWiseDifferenceLessThan([1.0, 1.1, 1.2, 1.3], 0.00001));
+          expect(subFrameView[1], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(subFrameView[2], pairWiseDifferenceLessThan([3.0, 3.1, 3.2, 3.3], 0.00001));
+        });
+      });
+
+      group('with a valid row range', () {
+        var subFrameView = frame.subFrameView(1, 3);
+
+        test('returns a new frame with the correct length', () {
+          expect(subFrameView.length, equals(2));
+        });
+
+        test('returns a new frame with the correct values', () {
+          expect(subFrameView[0], pairWiseDifferenceLessThan([1.0, 1.1, 1.2, 1.3], 0.00001));
+          expect(subFrameView[1], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
+        });
+      });
+
+      group('on another attribute data frame view (with an offset on the underlying byte buffer)', () {
+        var subFrameView = frame.subFrameView(1);
+        var viewOnView = subFrameView.subFrameView(1);
+
+        test('returns a new frame with the correct length', () {
+          expect(viewOnView.length, equals(2));
+        });
+
+        test('returns a new frame with the correct values', () {
+          expect(viewOnView[0], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(viewOnView[1], pairWiseDifferenceLessThan([3.0, 3.1, 3.2, 3.3], 0.00001));
+        });
+      });
+    });
+  });
+
+  group('AttributeDataFrameIterator', () {
+    var frame = new AttributeDataFrame([
+      0.0, 0.0, 0.0,
+      1.0, 1.0, 1.0,
+      2.0, 2.0, 2.0
+    ], 3);
+    var iterator = new AttributeDataFrameIterator(frame);
+
+    test('current is null initially', () {
+      expect(iterator.current, isNull);
+    });
+
+    group('when iterator over in a while loop', () {
+      var loopCount = 0;
+      var rows = [];
+
+      while (iterator.moveNext()) {
+        loopCount++;
+        rows.add(iterator.current);
+      }
+
+      test('loops the correct number of times', () {
+        expect(loopCount, equals(3));
+      });
+
+      test('returns the correct current value on each iteration', () {
+        expect(rows[0], equals([0.0, 0.0, 0.0]));
+        expect(rows[1], equals([1.0, 1.0, 1.0]));
+        expect(rows[2], equals([2.0, 2.0, 2.0]));
+      });
+
+      test('returns null as the current value after iterating', () {
+        expect(iterator.current, isNull);
+      });
+
+      test('returns false on moveNext after iterating', () {
+        expect(iterator.moveNext(), isFalse);
+      });
+    });
+  });
+
+  group('AttributeDataFrameRowView', () {
+    var frame = new AttributeDataFrame([
+      0.0, 0.1, 0.2,
+      1.0, 1.1, 1.2,
+      2.0, 2.1, 2.2
+    ], 3);
+
+    var rowView = new AttributeDataRowView(frame, 1);
+
+    group('default constructor', () {
+      test('throws a RangeError when the row index is out of bounds', () {
+        expect(() => new AttributeDataRowView(frame, -1), throwsRangeError);
+        expect(() => new AttributeDataRowView(frame, 3), throwsRangeError);
+      });
+    });
+
+    group('elementAt', () {
+      test('throws a RangeError when the index is out of bounds', () {
+        expect(() => rowView.elementAt(-1), throwsRangeError);
+        expect(() => rowView.elementAt(3), throwsRangeError);
+      });
+
+      test('returns the correct value with a valid index', () {
+        expect(rowView.elementAt(1) - 1.1, lessThan(0.0001));
+      });
+    });
+
+    group('[] operator', () {
+      test('throws a RangeError when the index is out of bounds', () {
+        expect(() => rowView[-1], throwsRangeError);
+        expect(() => rowView[3], throwsRangeError);
+      });
+
+      test('returns the correct value with a valid index', () {
+        expect(rowView[1] - 1.1, lessThan(0.0001));
+      });
+    });
+
+    group('[]= operator', () {
+      test('throws a RangeError when the index is out of bounds', () {
+        expect(() => rowView[-1] = 0.0, throwsRangeError);
+        expect(() => rowView[3] = 0.0, throwsRangeError);
+      });
+
+      test('updates the correct value on the frame', () {
+        rowView[1] = 8.0;
+
+        expect(frame[1][1], equals(8.0));
+      });
+    });
+  });
+
+  group('AttributeDataRowViewIterator', () {
+    var frame = new AttributeDataFrame([
+      0.0, 0.1, 0.2,
+      1.0, 1.1, 1.2,
+      2.0, 2.1, 2.2
+    ], 3);
+    var rowView = new AttributeDataRowView(frame, 1);
+    var iterator = new AttributeDataRowViewIterator(rowView);
+
+    test('current is null initially', () {
+      expect(iterator.current, isNull);
+    });
+
+    group('when iterator over in a while loop', () {
+      var loopCount = 0;
+      var rows = [];
+
+      while (iterator.moveNext()) {
+        loopCount++;
+        rows.add(iterator.current);
+      }
+
+      test('loops the correct number of times', () {
+        expect(loopCount, equals(3));
+      });
+
+      test('returns the correct current value on each iteration', () {
+        expect(rows[0] - 1.0, lessThan(0.0001));
+        expect(rows[1] - 1.1, lessThan(0.0001));
+        expect(rows[2] - 1.2, lessThan(0.0001));
+      });
+
+      test('returns null as the current value after iterating', () {
+        expect(iterator.current, isNull);
+      });
+
+      test('returns false on moveNext after iterating', () {
+        expect(iterator.moveNext(), isFalse);
       });
     });
   });
