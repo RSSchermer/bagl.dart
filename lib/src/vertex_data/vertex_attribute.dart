@@ -61,9 +61,9 @@ abstract class VertexAttribute<AttributeType> {
     if (size + offset > frame.rowLength) {
       throw new ArgumentError(
           'The sum of size of the attribute data ($size) and the offset of the '
-              'data relative to the start of a row ($offset), must not be greater '
-              'the length of rows in the attribute data frame '
-              '(${frame.rowLength}).');
+          'data relative to the start of a row ($offset), must not be greater '
+          'the length of rows in the attribute data frame '
+          '(${frame.rowLength}).');
     }
 
     _storage = frame._storage;
@@ -91,7 +91,7 @@ abstract class VertexAttribute<AttributeType> {
     if (row.frame != frame) {
       throw new ArgumentError(
           'Can only extract an attribute value from a row that belongs to the '
-              'same attribute data frame as this pointer is defined on.');
+          'same attribute data frame as this pointer is defined on.');
     }
 
     return extractValueAtRow(row.index);
@@ -105,7 +105,7 @@ abstract class VertexAttribute<AttributeType> {
     if (row.frame != frame) {
       throw new ArgumentError(
           'Can set an attribute value on a row that belongs to the same '
-              'attribute data frame as this pointer is defined on.');
+          'attribute data frame as this pointer is defined on.');
     }
 
     setValueAtRow(row.index, value);
