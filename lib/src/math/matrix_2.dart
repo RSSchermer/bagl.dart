@@ -1,8 +1,33 @@
 part of math;
 
+/// A 2 by 2 square matrix.
+///
+///     // Instantiates the following matrix:
+///     //
+///     //    1.0 2.0
+///     //    3.0 4.0
+///     //
+///     var matrix = new Matrix2(
+///       1.0, 2.0,
+///       3.0, 4.0
+///     );
+///
 class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
   final Float32List storage;
 
+  /// Instantiates a new [Matrix2] from the given values, partitioned into rows
+  /// of length 2.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 2.0
+  ///     //    3.0 4.0
+  ///     //
+  ///     var matrix = new Matrix2(
+  ///       1.0, 2.0,
+  ///       3.0, 4.0
+  ///     );
+  ///
   factory Matrix2(double val0, double val1, double val2, double val3) {
     final values = new Float32List(4);
 
@@ -14,9 +39,27 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
     return new Matrix2.fromFloat32List(values);
   }
 
+  /// Instantiates a new [Matrix2] from the given [Float32List], partitioned
+  /// into rows of length 2.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 2.0
+  ///     //    3.0 4.0
+  ///     //
+  ///     var matrix = new Matrix2([
+  ///       1.0, 2.0,
+  ///       3.0, 4.0
+  ///     ]);
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 4.
   factory Matrix2.fromList(List<double> values) =>
       new Matrix2.fromFloat32List(new Float32List.fromList(values));
 
+  /// Instantiates a new [Matrix2] from the given list, partitioned into rows
+  /// of length 2.
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 4.
   Matrix2.fromFloat32List(Float32List values)
       : storage = values,
         super.fromFloat32List(values, 2) {
@@ -26,11 +69,39 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
     }
   }
 
+  /// Instantiates a new [Matrix2] where every position is set to the given
+  /// value.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    2.0 2.0
+  ///     //    2.0 2.0
+  ///     //
+  ///     var matrix = new Matrix2.constant(2);
+  ///
   factory Matrix2.constant(double value) =>
       new Matrix2.fromFloat32List(new Float32List(4)..fillRange(0, 4, value));
 
+  /// Instantiates a new [Matrix2] where every position is set to zero.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    0.0 0.0
+  ///     //    0.0 0.0
+  ///     //
+  ///     var matrix = new Matrix2.zero();
+  ///
   factory Matrix2.zero() => new Matrix2.fromFloat32List(new Float32List(4));
 
+  /// Instantiates a new [Matrix2] as an identity matrix.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 0.0
+  ///     //    0.0 1.0
+  ///     //
+  ///     var matrix = new Matrix2.identity();
+  ///
   factory Matrix2.identity() {
     final values = new Float32List(4);
 
@@ -88,6 +159,9 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
     }
   }
 
+  /// Returns the row at the specified index.
+  ///
+  /// Throws a [RangeError] if the specified index is out of bounds.
   List<double> operator [](int index) => rowAt(index);
 
   String toString() {

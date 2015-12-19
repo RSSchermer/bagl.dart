@@ -1,8 +1,37 @@
 part of math;
 
+/// A 3 by 3 square matrix.
+///
+///     // Instantiates the following matrix:
+///     //
+///     //    1.0 2.0 3.0
+///     //    4.0 5.0 6.0
+///     //    7.0 8.0 9.0
+///     //
+///     var matrix = new Matrix3(
+///       1.0, 2.0, 3.0,
+///       4.0, 5.0, 6.0,
+///       7.0, 8.0, 9.0
+///     );
+///
 class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
   final Float32List storage;
 
+  /// Instantiates a new [Matrix3] from the given values, partitioned into rows
+  /// of length 3.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 2.0 3.0
+  ///     //    4.0 5.0 6.0
+  ///     //    7.0 8.0 9.0
+  ///     //
+  ///     var matrix = new Matrix3(
+  ///       1.0, 2.0, 3.0,
+  ///       4.0, 5.0, 6.0,
+  ///       7.0, 8.0, 9.0
+  ///     );
+  ///
   factory Matrix3(double val0, double val1, double val2, double val3,
       double val4, double val5, double val6, double val7, double val8) {
     final values = new Float32List(9);
@@ -20,9 +49,29 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
     return new Matrix3.fromFloat32List(values);
   }
 
+  /// Instantiates a new [Matrix3] from the given list, partitioned into rows
+  /// of length 3.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 2.0 3.0
+  ///     //    4.0 5.0 6.0
+  ///     //    7.0 8.0 9.0
+  ///     //
+  ///     var matrix = new Matrix3([
+  ///       1.0, 2.0, 3.0,
+  ///       4.0, 5.0, 6.0,
+  ///       7.0, 8.0, 9.0
+  ///     ]);
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 9.
   factory Matrix3.fromList(List<double> values) =>
       new Matrix3.fromFloat32List(new Float32List.fromList(values));
 
+  /// Instantiates a new [Matrix3] from the given [Float32List], partitioned
+  /// into rows of length 3.
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 9.
   Matrix3.fromFloat32List(Float32List values)
       : storage = values,
         super.fromFloat32List(values, 3) {
@@ -32,11 +81,42 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
     }
   }
 
+  /// Instantiates a new [Matrix3] where every position is set to the given
+  /// value.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0
+  ///     //
+  ///     var matrix = new Matrix3.constant(2);
+  ///
   factory Matrix3.constant(double value) =>
       new Matrix3.fromFloat32List(new Float32List(9)..fillRange(0, 9, value));
 
+  /// Instantiates a new [Matrix3] where every position is set to zero.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0
+  ///     //
+  ///     var matrix = new Matrix3.zero();
+  ///
   factory Matrix3.zero() => new Matrix3.fromFloat32List(new Float32List(9));
 
+  /// Instantiates a new [Matrix3] as an identity matrix.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 0.0 0.0
+  ///     //    0.0 1.0 0.0
+  ///     //    0.0 0.0 1.0
+  ///     //
+  ///     var matrix = new Matrix3.identity();
+  ///
   factory Matrix3.identity() {
     final values = new Float32List(9);
 
@@ -116,6 +196,9 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
     }
   }
 
+  /// Returns the row at the specified index.
+  ///
+  /// Throws a [RangeError] if the specified index is out of bounds.
   List<double> operator [](int index) => rowAt(index);
 
   String toString() {

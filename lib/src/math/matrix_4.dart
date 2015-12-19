@@ -1,8 +1,41 @@
 part of math;
 
+/// A 4 by 4 square matrix.
+///
+///     // Instantiates the following matrix:
+///     //
+///     //     1.0  2.0  3.0  4.0
+///     //     5.0  6.0  7.0  8.0
+///     //     9.0 10.0 11.0 12.0
+///     //    13.0 14.0 15.0 16.0
+///     //
+///     var matrix = new Matrix4(
+///        1.0,  2.0,  3.0,  4.0,
+///        5.0,  6.0,  7.0,  8.0,
+///        9.0, 10.0, 11.0, 12.0,
+///       13.0, 14.0, 15.0, 16.0
+///     );
+///
 class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
   final Float32List storage;
 
+  /// Instantiates a new [Matrix4] from the given values, partitioned into rows
+  /// of length 4.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //     1.0  2.0  3.0  4.0
+  ///     //     5.0  6.0  7.0  8.0
+  ///     //     9.0 10.0 11.0 12.0
+  ///     //    13.0 14.0 15.0 16.0
+  ///     //
+  ///     var matrix = new Matrix4(
+  ///        1.0,  2.0,  3.0,  4.0,
+  ///        5.0,  6.0,  7.0,  8.0,
+  ///        9.0, 10.0, 11.0, 12.0,
+  ///       13.0, 14.0, 15.0, 16.0
+  ///     );
+  ///
   factory Matrix4(
       double val0,
       double val1,
@@ -42,9 +75,31 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     return new Matrix4.fromFloat32List(values);
   }
 
+  /// Instantiates a new [Matrix4] from the given list, partitioned into rows
+  /// of length 4.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //     1.0  2.0  3.0  4.0
+  ///     //     5.0  6.0  7.0  8.0
+  ///     //     9.0 10.0 11.0 12.0
+  ///     //    13.0 14.0 15.0 16.0
+  ///     //
+  ///     var matrix = new Matrix4([
+  ///        1.0,  2.0,  3.0,  4.0,
+  ///        5.0,  6.0,  7.0,  8.0,
+  ///        9.0, 10.0, 11.0, 12.0,
+  ///       13.0, 14.0, 15.0, 16.0
+  ///     ]);
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 16.
   factory Matrix4.fromList(List<double> values) =>
       new Matrix4.fromFloat32List(new Float32List.fromList(values));
 
+  /// Instantiates a new [Matrix4] from the given [Float32List], partitioned
+  /// into rows of length 4.
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 16.
   Matrix4.fromFloat32List(Float32List values)
       : storage = values,
         super.fromFloat32List(values, 4) {
@@ -54,11 +109,45 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     }
   }
 
+  /// Instantiates a new [Matrix4] where every position is set to the given
+  /// value.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //
+  ///     var matrix = new Matrix4.constant(2);
+  ///
   factory Matrix4.constant(double value) =>
       new Matrix4.fromFloat32List(new Float32List(16)..fillRange(0, 16, value));
 
+  /// Instantiates a new [Matrix4] where every position is set to zero.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //
+  ///     var matrix = new Matrix4.zero();
+  ///
   factory Matrix4.zero() => new Matrix4.fromFloat32List(new Float32List(16));
 
+  /// Instantiates a new [Matrix4] as an identity matrix.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 0.0 0.0 0.0
+  ///     //    0.0 1.0 0.0 0.0
+  ///     //    0.0 0.0 1.0 0.0
+  ///     //    0.0 0.0 0.0 1.0
+  ///     //
+  ///     var matrix = new Matrix4.identity();
+  ///
   factory Matrix4.identity() {
     final values = new Float32List(16);
 
@@ -168,6 +257,9 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     }
   }
 
+  /// Returns the row at the specified index.
+  ///
+  /// Throws a [RangeError] if the specified index is out of bounds.
   List<double> operator [](int index) => rowAt(index);
 
   String toString() {
