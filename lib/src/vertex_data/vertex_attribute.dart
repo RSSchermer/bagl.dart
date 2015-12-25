@@ -70,6 +70,18 @@ abstract class VertexAttribute<AttributeType> {
     _rowCount = frame.length;
   }
 
+  /// The size in bytes of the sequence of numbers used to store an attribute of
+  /// this type.
+  int get sizeInBytes => size * Float32List.BYTES_PER_ELEMENT;
+
+  /// The size in bytes number of values that are to be skipped at the start of
+  /// a row before the sequence of values for this attribute starts.
+  ///
+  /// Note that the offset is defined relative to the start of a row, not
+  /// relative to the start of the entire storage list of the attribute data
+  /// frame.
+  int get offsetInBytes => offset * Float32List.BYTES_PER_ELEMENT;
+
   /// Extract the attribute value from the row with the given index.
   ///
   /// Throws a [RangeError] when the given row index is smaller than 0 or

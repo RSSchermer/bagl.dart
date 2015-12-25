@@ -111,20 +111,22 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   ///
   /// Throws a [RangeError] if one of the specified row indices is smaller than
   /// 0 or greater than the total number of rows in the attribute data frame.
-  AttributeDataFrame withoutRows(List<int> indices) {
+  AttributeDataFrame withoutRows(Iterable<int> indices) {
     // Algorithm first sorts the indices that are to be removed, then loops over
     // these indices to look for gaps in between indices. If gap is encountered
     // it copies the rows in the gap over to the new storage buffer in one go.
 
-    indices.sort();
+    final indexList = indices.toList();
+
+    indexList.sort();
 
     var uniqueIndexCount = 0;
 
-    if (indices.isNotEmpty) {
+    if (indexList.isNotEmpty) {
       uniqueIndexCount = 1;
 
-      for (var i = 1; i < indices.length; i++) {
-        if (indices[i] != indices[i - 1]) {
+      for (var i = 1; i < indexList.length; i++) {
+        if (indexList[i] != indexList[i - 1]) {
           uniqueIndexCount++;
         }
       }
@@ -136,7 +138,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     var lastRemovedRow = -1;
     var copiedRowCount = 0;
 
-    for (var index in indices) {
+    for (var index in indexList) {
       RangeError.checkValidIndex(index, this);
 
       // Check if there is a gap between the last removed row and the index of
@@ -174,7 +176,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// Returns a new attribute data frame as a view on a new byte buffer which
   /// contains the old frame's data with the additional data appended onto the
   /// end.
-  AttributeDataFrame withAppendedData(List<double> data) {
+  AttributeDataFrame withAppendedData(Iterable<double> data) {
     final newSize = _storage.length + data.length;
 
     // Note: Float32List.setRange compiles to very optimized javascript in
