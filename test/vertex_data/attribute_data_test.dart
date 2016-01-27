@@ -6,11 +6,11 @@ import '../helpers.dart';
 void main() {
   group('AttributeDataFrame', () {
     group('default constructor', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(3, [
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0
-      ], 3);
+      ]);
 
       test('instantiates a new frame with the correct length', () {
         expect(frame.length, equals(3));
@@ -29,7 +29,7 @@ void main() {
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0
       ]);
-      var frame = new AttributeDataFrame.fromFloat32List(values, 3);
+      var frame = new AttributeDataFrame.fromFloat32List(3, values);
 
       test('instantiates a new frame with the correct length', () {
         expect(frame.length, equals(3));
@@ -51,7 +51,7 @@ void main() {
         4.0, 4.0, 4.0
       ]);
 
-      var frame = new AttributeDataFrame.view(values.buffer, 3, 12, 3);
+      var frame = new AttributeDataFrame.view(3, values.buffer, 12, 3);
 
       test('instantiates a new frame with the correct length', () {
         expect(frame.length, equals(3));
@@ -65,11 +65,11 @@ void main() {
     });
 
     group('elementAt', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(3, [
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0
-      ], 3);
+      ]);
 
       test('throws a RangeError when the index is out of bounds', () {
         expect(() => frame.elementAt(-1), throwsRangeError);
@@ -78,12 +78,12 @@ void main() {
     });
 
     group('withoutRow', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(3, [
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0,
         3.0, 3.0, 3.0
-      ], 3);
+      ]);
 
       test('throws a RangeError when the index is out of bounds', () {
         expect(() => frame.withoutRow(-1), throwsRangeError);
@@ -106,7 +106,7 @@ void main() {
     });
 
     group('withoutRows', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(3, [
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0,
@@ -115,7 +115,7 @@ void main() {
         5.0, 5.0, 5.0,
         6.0, 6.0, 6.0,
         7.0, 7.0, 7.0
-      ], 3);
+      ]);
 
       test('throws a RangeError when the index list contains an out of bounds index', () {
         expect(() => frame.withoutRows([1, 2, 8]), throwsRangeError);
@@ -154,10 +154,10 @@ void main() {
     });
 
     group('withAppendedData', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(3,[
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0
-      ], 3).withAppendedData([
+      ]).withAppendedData([
         2.0, 2.0, 2.0,
         3.0, 3.0, 3.0
       ]);
@@ -175,29 +175,29 @@ void main() {
     });
 
     group('interleavedWith', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(3, [
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0,
         3.0, 3.0, 3.0
-      ], 3);
+      ]);
 
       test('with a frame of a different length throws an ArgumentError', () {
-        var otherFrame = new AttributeDataFrame([
+        var otherFrame = new AttributeDataFrame(3, [
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0,
           3.0, 3.0, 3.0,
           4.0, 4.0, 4.0
-        ], 3);
+        ]);
 
         expect(() => frame.interleavedWith(otherFrame), throwsArgumentError);
       });
 
       group('with a valid frame', () {
-        var otherFrame = new AttributeDataFrame([
+        var otherFrame = new AttributeDataFrame(3, [
           -1.0, -1.0, -1.0,
           -2.0, -2.0, -2.0,
           -3.0, -3.0, -3.0
-        ], 3);
+        ]);
         var interleaved = frame.interleavedWith(otherFrame);
 
         test('results in a new frame with the correct length', () {
@@ -213,12 +213,12 @@ void main() {
     });
 
     group('subFrame', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(4, [
         0.0, 0.1, 0.2, 0.3,
         1.0, 1.1, 1.2, 1.3,
         2.0, 2.1, 2.2, 2.3,
         3.0, 3.1, 3.2, 3.3
-      ], 4);
+      ]);
 
       test('throws a RangeError if rowStart is out of bounds', () {
         expect(() => frame.subFrame(-1), throwsRangeError);
@@ -305,12 +305,12 @@ void main() {
     });
 
     group('subFrameView', () {
-      var frame = new AttributeDataFrame([
+      var frame = new AttributeDataFrame(4, [
         0.0, 0.1, 0.2, 0.3,
         1.0, 1.1, 1.2, 1.3,
         2.0, 2.1, 2.2, 2.3,
         3.0, 3.1, 3.2, 3.3
-      ], 4);
+      ]);
 
       test('throws a RangeError if rowStart is out of bounds', () {
         expect(() => frame.subFrameView(-1), throwsRangeError);
@@ -366,11 +366,11 @@ void main() {
   });
 
   group('AttributeDataFrameIterator', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(3, [
       0.0, 0.0, 0.0,
       1.0, 1.0, 1.0,
       2.0, 2.0, 2.0
-    ], 3);
+    ]);
     var iterator = new AttributeDataFrameIterator(frame);
 
     test('current is null initially', () {
@@ -407,11 +407,11 @@ void main() {
   });
 
   group('AttributeDataFrameRowView', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(3, [
       0.0, 0.1, 0.2,
       1.0, 1.1, 1.2,
       2.0, 2.1, 2.2
-    ], 3);
+    ]);
 
     var rowView = new AttributeDataRowView(frame, 1);
 
@@ -459,11 +459,11 @@ void main() {
   });
 
   group('AttributeDataRowViewIterator', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(3, [
       0.0, 0.1, 0.2,
       1.0, 1.1, 1.2,
       2.0, 2.1, 2.2
-    ], 3);
+    ]);
     var rowView = new AttributeDataRowView(frame, 1);
     var iterator = new AttributeDataRowViewIterator(rowView);
 

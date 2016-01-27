@@ -11,7 +11,7 @@ part of vertex_data;
 /// The following is an example of an attribute data frame that stores data for
 /// a 2D position attribute, interleaved with data for RGB color values:
 ///
-///     var attributeData = new AttributeDataFrame([
+///     var attributeData = new AttributeDataFrame(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
@@ -32,37 +32,55 @@ part of vertex_data;
 /// data frame change the data in the byte buffer and vice versa.
 class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     with TypedData {
-  /// Typed [Float32List] view on the byte buffer in which this attribute data
-  /// frame's data is stored.
-  final Float32List _storage;
-
   /// The length of the rows in this attribute data frame as the number of
   /// float32 values (not the number of bytes).
   final int rowLength;
 
+  final int length;
+
+  /// Typed [Float32List] view on the byte buffer in which this attribute data
+  /// frame's data is stored.
+  final Float32List _storage;
+
   /// Creates a new attribute data frame, partitioned into rows of the
   /// specified row length.
   ///
-  ///     var attributeData = new AttributeDataFrame([
+  ///     var attributeData = new AttributeDataFrame(5, [
   ///        // Position    // Color
   ///        0.0,  0.5,     1.0, 0.0, 0.0,
   ///       -0.5, -0.5,     0.0, 1.0, 0.0,
   ///        0.5, -0.5,     0.0, 0.0, 1.0
-  ///     ], 5);
+  ///     ]);
   ///
-  factory AttributeDataFrame(List<double> data, int rowLength) =>
+  factory AttributeDataFrame(int rowLength, List<double> data) =>
       new AttributeDataFrame.fromFloat32List(
-          new Float32List.fromList(data), rowLength);
+          rowLength, new Float32List.fromList(data));
 
   /// Creates a new attribute data frame as a view on the given Float32List's
   /// byte buffer, partitioned into rows of the specified row length.
-  AttributeDataFrame.fromFloat32List(this._storage, this.rowLength);
+  AttributeDataFrame.fromFloat32List(int rowLength, Float32List data)
+      : rowLength = rowLength,
+        length = data.length ~/ rowLength,
+        _storage = data;
 
-  factory AttributeDataFrame.view(ByteBuffer buffer, int rowLength,
+  /// Creates an [AttributeDataFrame] view of the specified region in the byte
+  /// buffer.
+  ///
+  /// If the [offsetInBytes] index of the region is not specified, it defaults
+  /// to zero (the first byte in the byte buffer). If the [length] is not
+  /// specified, it defaults to `null`, which indicates that the view extends to
+  /// the end of the byte buffer.
+  ///
+  /// Throws RangeError if [offsetInBytes] or [length] are negative, or if
+  /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
+  /// of buffer.
+  ///
+  /// Throws ArgumentError if [offsetInBytes] is not a multiple of
+  /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
+  factory AttributeDataFrame.view(int rowLength, ByteBuffer buffer,
           [int offsetInBytes = 0, int length]) =>
-      new AttributeDataFrame.fromFloat32List(
-          new Float32List.view(buffer, offsetInBytes, length * rowLength),
-          rowLength);
+      new AttributeDataFrame.fromFloat32List(rowLength,
+          new Float32List.view(buffer, offsetInBytes, length * rowLength));
 
   ByteBuffer get buffer => _storage.buffer;
 
@@ -74,8 +92,6 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
 
   AttributeDataFrameIterator get iterator =>
       new AttributeDataFrameIterator(this);
-
-  int get length => _storage.length ~/ rowLength;
 
   AttributeDataRowView elementAt(int index) {
     RangeError.checkValidIndex(index, this);
@@ -100,7 +116,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       ..setRange(0, rowStartPos, _storage)
       ..setRange(rowStartPos, newSize, _storage, rowStartPos + rowLength);
 
-    return new AttributeDataFrame(newStorage, rowLength);
+    return new AttributeDataFrame(rowLength, newStorage);
   }
 
   /// Creates a new attribute data frame as a view on a new byte buffer without
@@ -167,7 +183,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       newStorage.setRange(start, newSize, _storage, skipCount);
     }
 
-    return new AttributeDataFrame.fromFloat32List(newStorage, rowLength);
+    return new AttributeDataFrame.fromFloat32List(rowLength, newStorage);
   }
 
   /// Returns a new attribute data frame with the given data appended onto the
@@ -185,7 +201,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       ..setRange(0, _storage.length, _storage)
       ..setRange(_storage.length, newSize, data);
 
-    return new AttributeDataFrame(newStorage, rowLength);
+    return new AttributeDataFrame(rowLength, newStorage);
   }
 
   /// Interleaves the data in this frame with the data in the given frame,
@@ -230,7 +246,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     }
 
     return new AttributeDataFrame.fromFloat32List(
-        newStorage, aRowLength + bRowLength);
+        aRowLength + bRowLength, newStorage);
   }
 
   /// Creates a new attribute data frame from a range of rows and (optionally) a
@@ -286,7 +302,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       final newStorage = new Float32List(newLength)
         ..setRange(0, newLength, _storage, skipCount);
 
-      return new AttributeDataFrame(newStorage, rowLength);
+      return new AttributeDataFrame(rowLength, newStorage);
     } else {
       final newRowLength = colEnd - colStart;
       final newStorage = new Float32List((rowEnd - rowStart) * newRowLength);
@@ -301,25 +317,50 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
         }
       }
 
-      return new AttributeDataFrame.fromFloat32List(newStorage, newRowLength);
+      return new AttributeDataFrame.fromFloat32List(newRowLength, newStorage);
     }
   }
 
+  /// Creates a new attribute data frame as a view on the current attribute
+  /// data frame.
+  ///
+  /// Creates an attribute data frame as a view on the current attribute
+  /// data frame, starting at [rowStart]. Optionally a [rowEnd] may be
+  /// specified. If omitted the view will extend to the end of the current
+  /// frame.
+  ///
+  /// The new attribute data frame acts as a view on the current frame, which
+  /// means that changes on the data in the current frame will affect the data
+  /// in the view and vice versa.
+  ///
+  /// See also [subFrame] which creates a new attribute data frame that is
+  /// independent of the current frame and allows specifying a column range in
+  /// addition to a row range.
+  ///
+  /// Throws a [RangeError] if the specified [rowStart] is out of bounds.
+  /// Throws a [RangeError] if the specified [rowEnd] is out of bounds.
+  /// Throws an [ArgumentError] if [rowEnd] is equal to or smaller than
+  /// [rowEnd].
   AttributeDataFrame subFrameView(int rowStart, [int rowEnd]) {
     rowEnd ??= length;
 
     RangeError.checkValueInInterval(rowStart, 0, length, 'rowStart');
     RangeError.checkValueInInterval(rowEnd, 0, length, 'rowEnd');
 
+    if (rowEnd <= rowStart) {
+      throw new ArgumentError(
+          'The ending row index must be greater than the starting row index.');
+    }
+
     final offset =
         offsetInBytes + rowStart * rowLength * Float32List.BYTES_PER_ELEMENT;
     final newLength = (rowEnd - rowStart) * rowLength;
     final newStorage = new Float32List.view(buffer, offset, newLength);
 
-    return new AttributeDataFrame.fromFloat32List(newStorage, rowLength);
+    return new AttributeDataFrame.fromFloat32List(rowLength, newStorage);
   }
 
-  /// Returns a view of the data row at the given index.
+  /// Returns a view of the data row at the given [index].
   ///
   /// Throws a [RangeError] if the index is out of bounds.
   AttributeDataRowView operator [](int index) => elementAt(index);
@@ -334,9 +375,9 @@ class AttributeDataFrameIterator extends Iterator<AttributeDataRowView> {
   int _currentRowIndex = -1;
 
   /// Instantiates a new iterator of the rows in the given attribute data frame.
-  AttributeDataFrameIterator(this.frame) {
-    _frameLength = frame.length;
-  }
+  AttributeDataFrameIterator(AttributeDataFrame frame)
+      : frame = frame,
+        _frameLength = frame.length;
 
   AttributeDataRowView get current {
     if (_currentRowIndex >= 0 && _currentRowIndex < _frameLength) {
@@ -361,28 +402,30 @@ class AttributeDataRowView extends IterableBase<double> {
   /// The index of the row in the attribute data frame.
   final int index;
 
-  Float32List _storagePointer;
+  final int length;
 
-  int _rowDataOffset;
+  final Float32List _storage;
+
+  final int _rowDataOffset;
 
   /// Creates a new attribute data row view of a row in the given attribute data
   /// frame, with the given index.
-  AttributeDataRowView(this.frame, this.index) {
+  AttributeDataRowView(AttributeDataFrame frame, int index)
+      : frame = frame,
+        index = index,
+        length = frame.rowLength,
+        _storage = frame._storage,
+        _rowDataOffset = frame.rowLength * index {
     RangeError.checkValidIndex(index, frame);
-
-    _storagePointer = frame._storage;
-    _rowDataOffset = frame.rowLength * index;
   }
 
   AttributeDataRowViewIterator get iterator =>
       new AttributeDataRowViewIterator(this);
 
-  int get length => frame.rowLength;
-
   double elementAt(int index) {
     RangeError.checkValidIndex(index, this);
 
-    return _storagePointer[_rowDataOffset + index];
+    return _storage[_rowDataOffset + index];
   }
 
   /// Returns the value at the specified index.
@@ -392,7 +435,7 @@ class AttributeDataRowView extends IterableBase<double> {
   void operator []=(int index, double value) {
     RangeError.checkValidIndex(index, this);
 
-    _storagePointer[_rowDataOffset + index] = value;
+    _storage[_rowDataOffset + index] = value;
   }
 }
 
@@ -400,24 +443,24 @@ class AttributeDataRowView extends IterableBase<double> {
 class AttributeDataRowViewIterator extends Iterator<double> {
   final AttributeDataRowView row;
 
-  Float32List _storagePointer;
+  final Float32List _storage;
 
-  int _rowLength;
+  final int _rowLength;
 
-  int _rowDataOffset;
+  final int _rowDataOffset;
 
   int _currentValueIndex = -1;
 
   /// Creates a new iterator over the values in an attribute data row view.
-  AttributeDataRowViewIterator(this.row) {
-    _storagePointer = row.frame._storage;
-    _rowLength = row.length;
-    _rowDataOffset = row._rowDataOffset;
-  }
+  AttributeDataRowViewIterator(AttributeDataRowView row)
+      : row = row,
+        _storage = row.frame._storage,
+        _rowLength = row.length,
+        _rowDataOffset = row._rowDataOffset;
 
   double get current {
     if (_currentValueIndex >= 0 && _currentValueIndex < _rowLength) {
-      return _storagePointer[_rowDataOffset + _currentValueIndex];
+      return _storage[_rowDataOffset + _currentValueIndex];
     } else {
       return null;
     }

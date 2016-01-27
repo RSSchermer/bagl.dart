@@ -5,11 +5,11 @@ import '../helpers.dart';
 
 void main() {
   group('Vector2Attribute', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(3, [
       0.0, 0.1, 0.2,
       1.0, 1.1, 1.2,
       2.0, 2.1, 2.2
-    ], 3);
+    ]);
     var attribute = new Vector2Attribute(frame, offset: 1);
 
     group('default constructor', () {
@@ -46,11 +46,11 @@ void main() {
 
     group('extractFrom', () {
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(3, [
           0.0, 0.1, 0.2,
           1.0, 1.1, 1.2,
           2.0, 2.1, 2.2
-        ], 3);
+        ]);
 
         expect(() => attribute.extractFrom(frame2[1]), throwsArgumentError);
       });
@@ -64,11 +64,11 @@ void main() {
       var value = new Vector2(9.1, 9.2);
 
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(3, [
           0.0, 0.1, 0.2,
           1.0, 1.1, 1.2,
           2.0, 2.1, 2.2
-        ], 3);
+        ]);
 
         expect(() => attribute.setOn(frame2[1], value), throwsArgumentError);
       });
@@ -82,11 +82,11 @@ void main() {
   });
 
   group('Vector3Attribute', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(4, [
       0.0, 0.1, 0.2, 0.3,
       1.0, 1.1, 1.2, 1.3,
       2.0, 2.1, 2.2, 2.3
-    ], 4);
+    ]);
     var attribute = new Vector3Attribute(frame, offset: 1);
 
     group('default constructor', () {
@@ -123,11 +123,11 @@ void main() {
 
     group('extractFrom', () {
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(4, [
           0.0, 0.1, 0.2, 0.3,
           1.0, 1.1, 1.2, 1.3,
           2.0, 2.1, 2.2, 2.3
-        ], 4);
+        ]);
 
         expect(() => attribute.extractFrom(frame2[1]), throwsArgumentError);
       });
@@ -141,11 +141,11 @@ void main() {
       var value = new Vector3(9.1, 9.2, 9.3);
 
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(4, [
           0.0, 0.1, 0.2, 0.3,
           1.0, 1.1, 1.2, 1.3,
           2.0, 2.1, 2.2, 2.3
-        ], 4);
+        ]);
 
         expect(() => attribute.setOn(frame2[1], value), throwsArgumentError);
       });
@@ -159,11 +159,11 @@ void main() {
   });
 
   group('Vector4Attribute', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(5, [
       0.0, 0.1, 0.2, 0.3, 0.4,
       1.0, 1.1, 1.2, 1.3, 1.4,
       2.0, 2.1, 2.2, 2.3, 2.4
-    ], 5);
+    ]);
     var attribute = new Vector4Attribute(frame, offset: 1);
 
     group('default constructor', () {
@@ -200,11 +200,11 @@ void main() {
 
     group('extractFrom', () {
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(5, [
           0.0, 0.1, 0.2, 0.3, 0.4,
           1.0, 1.1, 1.2, 1.3, 1.4,
           2.0, 2.1, 2.2, 2.3, 2.4
-        ], 5);
+        ]);
 
         expect(() => attribute.extractFrom(frame2[1]), throwsArgumentError);
       });
@@ -218,11 +218,11 @@ void main() {
       var value = new Vector4(9.1, 9.2, 9.3, 9.4);
 
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(5, [
           0.0, 0.1, 0.2, 0.3, 0.4,
           1.0, 1.1, 1.2, 1.3, 1.4,
           2.0, 2.1, 2.2, 2.3, 2.4
-        ], 5);
+        ]);
 
         expect(() => attribute.setOn(frame2[1], value), throwsArgumentError);
       });
@@ -236,11 +236,11 @@ void main() {
   });
 
   group('Matrix2Attribute', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(5, [
       0.0, 0.1, 0.2, 0.3, 0.4,
       1.0, 1.1, 1.2, 1.3, 1.4,
       2.0, 2.1, 2.2, 2.3, 2.4
-    ], 5);
+    ]);
     var attribute = new Matrix2Attribute(frame, offset: 1);
 
     group('default constructor', () {
@@ -277,11 +277,11 @@ void main() {
 
     group('extractFrom', () {
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(5, [
           0.0, 0.1, 0.2, 0.3, 0.4,
           1.0, 1.1, 1.2, 1.3, 1.4,
           2.0, 2.1, 2.2, 2.3, 2.4
-        ], 5);
+        ]);
 
         expect(() => attribute.extractFrom(frame2[1]), throwsArgumentError);
       });
@@ -295,11 +295,11 @@ void main() {
       var value = new Matrix2(9.1, 9.2, 9.3, 9.4);
 
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(5, [
           0.0, 0.1, 0.2, 0.3, 0.4,
           1.0, 1.1, 1.2, 1.3, 1.4,
           2.0, 2.1, 2.2, 2.3, 2.4
-        ], 5);
+        ]);
 
         expect(() => attribute.setOn(frame2[1], value), throwsArgumentError);
       });
@@ -313,11 +313,11 @@ void main() {
   });
 
   group('Matrix3Attribute', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(10, [
       0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
       1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09,
       2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09
-    ], 10);
+    ]);
     var attribute = new Matrix3Attribute(frame, offset: 1);
 
     group('default constructor', () {
@@ -366,11 +366,11 @@ void main() {
 
     group('extractFrom', () {
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(10, [
           0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
           1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09,
           2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09
-        ], 10);
+        ]);
 
         expect(() => attribute.extractFrom(frame2[1]), throwsArgumentError);
       });
@@ -392,11 +392,11 @@ void main() {
       );
 
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(10, [
           0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
           1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09,
           2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09
-        ], 10);
+        ]);
 
         expect(() => attribute.setOn(frame2[1], value), throwsArgumentError);
       });
@@ -414,11 +414,11 @@ void main() {
   });
 
   group('Matrix4Attribute', () {
-    var frame = new AttributeDataFrame([
+    var frame = new AttributeDataFrame(17, [
       0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
       1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16,
       2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16
-    ], 17);
+    ]);
     var attribute = new Matrix4Attribute(frame, offset: 1);
 
     group('default constructor', () {
@@ -470,11 +470,11 @@ void main() {
 
     group('extractFrom', () {
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(17, [
           0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
           1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16,
           2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16
-        ], 17);
+        ]);
 
         expect(() => attribute.extractFrom(frame2[1]), throwsArgumentError);
       });
@@ -498,11 +498,11 @@ void main() {
       );
 
       test('throws an ArgumentError when the given row is part of a different frame', () {
-        var frame2 = new AttributeDataFrame([
+        var frame2 = new AttributeDataFrame(17, [
           0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
           1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16,
           2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16
-        ], 17);
+        ]);
 
         expect(() => attribute.setOn(frame2[1], value), throwsArgumentError);
       });

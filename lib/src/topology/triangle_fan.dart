@@ -1,4 +1,4 @@
-part of typed_index_data;
+part of geometry;
 
 class TriangleFan extends IterableBase<Triangle> with TypedData {
 

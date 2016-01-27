@@ -15,12 +15,12 @@ part of vertex_data;
 ///
 ///     // An attribute data frame partitioned into rows of length 5. Used to
 ///     // store interleaved position and color data.
-///     var attributeDataFrame = new AttributeDataFrame([
+///     var attributeDataFrame = new AttributeDataFrame(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
 ///        0.5, -0.5,     0.0, 0.0, 1.0
-///     ], 5);
+///     ]);
 ///
 ///     // The color attribute value in an attribute data row as a Vector3. The
 ///     // offset for the color data in a row is 2.

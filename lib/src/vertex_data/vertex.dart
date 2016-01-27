@@ -15,6 +15,10 @@ abstract class Vertex {
   /// Whether or not an attribute with the given name exists.
   bool hasAttribute(String attributeName);
 
+  /// Returns a map of the vertex attributes where the keys are the attribute
+  /// names.
+  Map<String, dynamic> toMap();
+
   /// Returns the value of the attribute with the given name.
   operator [](String attributeName);
 

@@ -1,4 +1,4 @@
-part of typed_index_data;
+part of geometry;
 
 class TriangleStrip extends IterableBase<Triangle> with TypedData {
 
