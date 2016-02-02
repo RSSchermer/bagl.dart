@@ -122,6 +122,12 @@ abstract class VertexAttribute<AttributeType> {
 
     setValueAtRow(row.index, value);
   }
+
+  /// Creates a new instance of the attribute of a different frame.
+  ///
+  /// Optionally, a new [offset] may be specified.
+  VertexAttribute<AttributeType> onFrame(AttributeDataFrame frame,
+      {int offset});
 }
 
 /// Defines a float attribute on an [AttributeDataFrame].
@@ -155,6 +161,9 @@ class FloatAttribute extends VertexAttribute<double> {
 
     _storage[rowIndex * frame.rowLength + offset] = value;
   }
+
+  FloatAttribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new FloatAttribute(frame, offset: offset ?? this.offset);
 }
 
 /// Defines a [Vector2] attribute on an [AttributeDataFrame].
@@ -192,6 +201,9 @@ class Vector2Attribute extends VertexAttribute<Vector2> {
 
     _storage.setRange(s, s + 2, value.storage);
   }
+
+  Vector2Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new Vector2Attribute(frame, offset: offset ?? this.offset);
 }
 
 /// Defines a [Vector3] attribute on an [AttributeDataFrame].
@@ -229,6 +241,9 @@ class Vector3Attribute extends VertexAttribute<Vector3> {
 
     _storage.setRange(s, s + 3, value.storage);
   }
+
+  Vector3Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new Vector3Attribute(frame, offset: offset ?? this.offset);
 }
 
 /// Defines a [Vector4] attribute on an [AttributeDataFrame].
@@ -267,6 +282,9 @@ class Vector4Attribute extends VertexAttribute<Vector4> {
 
     _storage.setRange(s, s + 4, value.storage);
   }
+
+  Vector4Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new Vector4Attribute(frame, offset: offset ?? this.offset);
 }
 
 /// Defines a [Matrix2] attribute on an [AttributeDataFrame].
@@ -305,6 +323,9 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
 
     _storage.setRange(s, s + 4, value.storage);
   }
+
+  Matrix2Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new Matrix2Attribute(frame, offset: offset ?? this.offset);
 }
 
 /// Defines a [Matrix3] attribute on an [AttributeDataFrame].
@@ -351,6 +372,9 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
 
     _storage.setRange(s, s + 9, value.storage);
   }
+
+  Matrix3Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new Matrix3Attribute(frame, offset: offset ?? this.offset);
 }
 
 /// Defines a [Matrix4] attribute on an [AttributeDataFrame].
@@ -404,4 +428,7 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
 
     _storage.setRange(s, s + 16, value.storage);
   }
+
+  Matrix4Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
+      new Matrix4Attribute(frame, offset: offset ?? this.offset);
 }

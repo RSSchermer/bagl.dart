@@ -16,7 +16,7 @@ part of vertex_data;
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
 ///        0.5, -0.5,     0.0, 0.0, 1.0
-///     ], 5);
+///     ]);
 ///
 /// Note, that not all attributes for a [VertexSet] need to be interleaved in
 /// the same attribute data frame; the attribute data for different attributes

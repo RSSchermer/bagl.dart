@@ -1,9 +1,12 @@
 part of geometry;
 
+/// Describes a collection of [Triangle]s.
+///
+///
 class Triangles extends IterableBase<TrianglesTriangleView> {
   final IndexedVertexCollection vertices;
 
-  /// The index data as a typed [UInt16List] view on the data buffer.
+  /// The index data as a typed [Uint16List] view on the data buffer.
   final Uint16List indexData;
 
   final int length;
