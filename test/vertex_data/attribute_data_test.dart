@@ -17,9 +17,9 @@ void main() {
       });
 
       test('instantiates a new frame with the correct values', () {
-        expect(frame[0], equals([0.0, 0.0, 0.0]));
-        expect(frame[1], equals([1.0, 1.0, 1.0]));
-        expect(frame[2], equals([2.0, 2.0, 2.0]));
+        expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(frame[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+        expect(frame[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
       });
     });
 
@@ -36,9 +36,9 @@ void main() {
       });
 
       test('instantiates a new frame with the correct values', () {
-        expect(frame[0], equals([0.0, 0.0, 0.0]));
-        expect(frame[1], equals([1.0, 1.0, 1.0]));
-        expect(frame[2], equals([2.0, 2.0, 2.0]));
+        expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(frame[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+        expect(frame[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
       });
     });
 
@@ -58,9 +58,9 @@ void main() {
       });
 
       test('instantiates a new frame with the correct values', () {
-        expect(frame[0], equals([1.0, 1.0, 1.0]));
-        expect(frame[1], equals([2.0, 2.0, 2.0]));
-        expect(frame[2], equals([3.0, 3.0, 3.0]));
+        expect(frame[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+        expect(frame[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+        expect(frame[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
       });
     });
 
@@ -98,9 +98,9 @@ void main() {
         });
 
         test('returns a new frame with the correct row removed', () {
-          expect(withoutRow2[0], equals([0.0, 0.0, 0.0]));
-          expect(withoutRow2[1], equals([1.0, 1.0, 1.0]));
-          expect(withoutRow2[2], equals([3.0, 3.0, 3.0]));
+          expect(withoutRow2[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+          expect(withoutRow2[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+          expect(withoutRow2[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
         });
       });
     });
@@ -130,10 +130,10 @@ void main() {
         });
 
         test('returns a new frame with the correct values', () {
-          expect(withoutRows[0], equals([0.0, 0.0, 0.0]));
-          expect(withoutRows[1], equals([2.0, 2.0, 2.0]));
-          expect(withoutRows[2], equals([5.0, 5.0, 5.0]));
-          expect(withoutRows[3], equals([7.0, 7.0, 7.0]));
+          expect(withoutRows[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+          expect(withoutRows[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+          expect(withoutRows[2], orderedCloseTo([5.0, 5.0, 5.0], 0.00001));
+          expect(withoutRows[3], orderedCloseTo([7.0, 7.0, 7.0], 0.00001));
         });
       });
 
@@ -145,10 +145,10 @@ void main() {
         });
 
         test('returns a new frame with the correct values', () {
-          expect(withoutRows[0], equals([1.0, 1.0, 1.0]));
-          expect(withoutRows[1], equals([2.0, 2.0, 2.0]));
-          expect(withoutRows[2], equals([5.0, 5.0, 5.0]));
-          expect(withoutRows[3], equals([6.0, 6.0, 6.0]));
+          expect(withoutRows[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+          expect(withoutRows[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+          expect(withoutRows[2], orderedCloseTo([5.0, 5.0, 5.0], 0.00001));
+          expect(withoutRows[3], orderedCloseTo([6.0, 6.0, 6.0], 0.00001));
         });
       });
     });
@@ -167,10 +167,10 @@ void main() {
       });
 
       test('retruns a new frame with the correct values', () {
-        expect(frame[0], equals([0.0, 0.0, 0.0]));
-        expect(frame[1], equals([1.0, 1.0, 1.0]));
-        expect(frame[2], equals([2.0, 2.0, 2.0]));
-        expect(frame[3], equals([3.0, 3.0, 3.0]));
+        expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(frame[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+        expect(frame[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+        expect(frame[3], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
       });
     });
 
@@ -205,9 +205,9 @@ void main() {
         });
 
         test('results in a new frame with the correct values', () {
-          expect(interleaved[0], equals([1.0, 1.0, 1.0, -1.0, -1.0, -1.0]));
-          expect(interleaved[1], equals([2.0, 2.0, 2.0, -2.0, -2.0, -2.0]));
-          expect(interleaved[2], equals([3.0, 3.0, 3.0, -3.0, -3.0, -3.0]));
+          expect(interleaved[0], orderedCloseTo([1.0, 1.0, 1.0, -1.0, -1.0, -1.0], 0.00001));
+          expect(interleaved[1], orderedCloseTo([2.0, 2.0, 2.0, -2.0, -2.0, -2.0], 0.00001));
+          expect(interleaved[2], orderedCloseTo([3.0, 3.0, 3.0, -3.0, -3.0, -3.0], 0.00001));
         });
       });
     });
@@ -258,9 +258,9 @@ void main() {
         });
 
         test('returns a new frame with the correct values (up till the end of the old frame)', () {
-          expect(subFrame[0], pairWiseDifferenceLessThan([1.0, 1.1, 1.2, 1.3], 0.00001));
-          expect(subFrame[1], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
-          expect(subFrame[2], pairWiseDifferenceLessThan([3.0, 3.1, 3.2, 3.3], 0.00001));
+          expect(subFrame[0], orderedCloseTo([1.0, 1.1, 1.2, 1.3], 0.00001));
+          expect(subFrame[1], orderedCloseTo([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(subFrame[2], orderedCloseTo([3.0, 3.1, 3.2, 3.3], 0.00001));
         });
       });
 
@@ -272,8 +272,8 @@ void main() {
         });
 
         test('returns a new frame with the correct values', () {
-          expect(subFrame[0], pairWiseDifferenceLessThan([1.0, 1.1, 1.2, 1.3], 0.00001));
-          expect(subFrame[1], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(subFrame[0], orderedCloseTo([1.0, 1.1, 1.2, 1.3], 0.00001));
+          expect(subFrame[1], orderedCloseTo([2.0, 2.1, 2.2, 2.3], 0.00001));
         });
       });
 
@@ -285,8 +285,8 @@ void main() {
         });
 
         test('returns a new frame with the correct values (up till the last column of the old frame)', () {
-          expect(subFrame[0], pairWiseDifferenceLessThan([1.1, 1.2, 1.3], 0.00001));
-          expect(subFrame[1], pairWiseDifferenceLessThan([2.1, 2.2, 2.3], 0.00001));
+          expect(subFrame[0], orderedCloseTo([1.1, 1.2, 1.3], 0.00001));
+          expect(subFrame[1], orderedCloseTo([2.1, 2.2, 2.3], 0.00001));
         });
       });
 
@@ -298,8 +298,8 @@ void main() {
         });
 
         test('returns a new frame with the correct values', () {
-          expect(subFrame[0], pairWiseDifferenceLessThan([1.1, 1.2], 0.00001));
-          expect(subFrame[1], pairWiseDifferenceLessThan([2.1, 2.2], 0.00001));
+          expect(subFrame[0], orderedCloseTo([1.1, 1.2], 0.00001));
+          expect(subFrame[1], orderedCloseTo([2.1, 2.2], 0.00001));
         });
       });
     });
@@ -330,9 +330,9 @@ void main() {
         });
 
         test('returns a new frame with the correct values (up till the end of the viewed frame)', () {
-          expect(subFrameView[0], pairWiseDifferenceLessThan([1.0, 1.1, 1.2, 1.3], 0.00001));
-          expect(subFrameView[1], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
-          expect(subFrameView[2], pairWiseDifferenceLessThan([3.0, 3.1, 3.2, 3.3], 0.00001));
+          expect(subFrameView[0], orderedCloseTo([1.0, 1.1, 1.2, 1.3], 0.00001));
+          expect(subFrameView[1], orderedCloseTo([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(subFrameView[2], orderedCloseTo([3.0, 3.1, 3.2, 3.3], 0.00001));
         });
       });
 
@@ -344,8 +344,8 @@ void main() {
         });
 
         test('returns a new frame with the correct values', () {
-          expect(subFrameView[0], pairWiseDifferenceLessThan([1.0, 1.1, 1.2, 1.3], 0.00001));
-          expect(subFrameView[1], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(subFrameView[0], orderedCloseTo([1.0, 1.1, 1.2, 1.3], 0.00001));
+          expect(subFrameView[1], orderedCloseTo([2.0, 2.1, 2.2, 2.3], 0.00001));
         });
       });
 
@@ -358,8 +358,8 @@ void main() {
         });
 
         test('returns a new frame with the correct values', () {
-          expect(viewOnView[0], pairWiseDifferenceLessThan([2.0, 2.1, 2.2, 2.3], 0.00001));
-          expect(viewOnView[1], pairWiseDifferenceLessThan([3.0, 3.1, 3.2, 3.3], 0.00001));
+          expect(viewOnView[0], orderedCloseTo([2.0, 2.1, 2.2, 2.3], 0.00001));
+          expect(viewOnView[1], orderedCloseTo([3.0, 3.1, 3.2, 3.3], 0.00001));
         });
       });
     });
@@ -391,9 +391,9 @@ void main() {
       });
 
       test('returns the correct current value on each iteration', () {
-        expect(rows[0], equals([0.0, 0.0, 0.0]));
-        expect(rows[1], equals([1.0, 1.0, 1.0]));
-        expect(rows[2], equals([2.0, 2.0, 2.0]));
+        expect(rows[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(rows[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+        expect(rows[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
       });
 
       test('returns null as the current value after iterating', () {
@@ -429,7 +429,7 @@ void main() {
       });
 
       test('returns the correct value with a valid index', () {
-        expect(rowView.elementAt(1) - 1.1, lessThan(0.0001));
+        expect(rowView.elementAt(1), closeTo(1.1, 0.0001));
       });
     });
 
@@ -440,7 +440,7 @@ void main() {
       });
 
       test('returns the correct value with a valid index', () {
-        expect(rowView[1] - 1.1, lessThan(0.0001));
+        expect(rowView[1], closeTo(1.1, 0.0001));
       });
     });
 
@@ -453,7 +453,7 @@ void main() {
       test('updates the correct value on the frame', () {
         rowView[1] = 8.0;
 
-        expect(frame[1][1], equals(8.0));
+        expect(frame[1][1], closeTo(8.0, 0.00001));
       });
     });
   });
@@ -485,9 +485,9 @@ void main() {
       });
 
       test('returns the correct current value on each iteration', () {
-        expect(rows[0] - 1.0, lessThan(0.0001));
-        expect(rows[1] - 1.1, lessThan(0.0001));
-        expect(rows[2] - 1.2, lessThan(0.0001));
+        expect(rows[0], closeTo(1.0, 0.00001));
+        expect(rows[1], closeTo(1.1, 0.00001));
+        expect(rows[2], closeTo(1.2, 0.00001));
       });
 
       test('returns null as the current value after iterating', () {

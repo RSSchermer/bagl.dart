@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
 import 'dart:typed_data';
+import '../helpers.dart';
 
 void main() {
   group('Matrix3', () {
@@ -11,9 +12,9 @@ void main() {
                               4.0, 5.0, 6.0, 
                               7.0, 8.0, 9.0);
 
-          expect(m.values.toList(), equals([1.0, 2.0, 3.0,
-                                            4.0, 5.0, 6.0,
-                                            7.0, 8.0, 9.0]));
+          expect(m.values, orderedCloseTo([1.0, 2.0, 3.0,
+                                           4.0, 5.0, 6.0,
+                                           7.0, 8.0, 9.0], 0.00001));
         });
       });
 
@@ -48,25 +49,25 @@ void main() {
       test('constant', () {
         var m = new Matrix3.constant(1.0);
 
-        expect(m.values.toList(), equals([1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0]));
+        expect(m.values, orderedCloseTo([1.0, 1.0, 1.0,
+                                         1.0, 1.0, 1.0,
+                                         1.0, 1.0, 1.0], 0.00001));
       });
 
       test('zero', () {
         var m = new Matrix3.zero();
 
-        expect(m.values.toList(), equals([0.0, 0.0, 0.0,
-                                          0.0, 0.0, 0.0,
-                                          0.0, 0.0, 0.0]));
+        expect(m.values, orderedCloseTo([0.0, 0.0, 0.0,
+                                         0.0, 0.0, 0.0,
+                                         0.0, 0.0, 0.0], 0.00001));
       });
 
       test('identity', () {
         var m = new Matrix3.identity();
 
-        expect(m.values.toList(), equals([1.0, 0.0, 0.0,
-                                          0.0, 1.0, 0.0,
-                                          0.0, 0.0, 1.0,]));
+        expect(m.values, orderedCloseTo([1.0, 0.0, 0.0,
+                                         0.0, 1.0, 0.0,
+                                         0.0, 0.0, 1.0,], 0.00001));
       });
     });
 
@@ -86,9 +87,9 @@ void main() {
         });
 
         test('results in a new matrix with the correct values', () {
-          expect(product.values.toList(), equals([ 30.0,  36.0,  42.0,
-                                                   66.0,  81.0,  96.0,
-                                                  102.0, 126.0, 150.0]));
+          expect(product.values, orderedCloseTo([ 30.0,  36.0,  42.0,
+                                                  66.0,  81.0,  96.0,
+                                                 102.0, 126.0, 150.0], 0.00001));
         });
       });
 
@@ -104,7 +105,7 @@ void main() {
         });
 
         test('results in a new matrix with the correct values', () {
-          expect(product.values.toList(), equals([14.0, 32.0, 50.0]));
+          expect(product.values, orderedCloseTo([14.0, 32.0, 50.0], 0.00001));
         });
       });
     });
@@ -120,9 +121,9 @@ void main() {
       });
 
       test('returns the correct row', () {
-        expect(m[0], equals([1.0, 2.0, 3.0]));
-        expect(m[1], equals([4.0, 5.0, 6.0]));
-        expect(m[2], equals([7.0, 8.0, 9.0]));
+        expect(m[0], orderedCloseTo([1.0, 2.0, 3.0], 0.00001));
+        expect(m[1], orderedCloseTo([4.0, 5.0, 6.0], 0.00001));
+        expect(m[2], orderedCloseTo([7.0, 8.0, 9.0], 0.00001));
       });
     });
   });

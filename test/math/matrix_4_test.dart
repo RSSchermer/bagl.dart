@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
 import 'dart:typed_data';
+import '../helpers.dart';
 
 void main() {
   group('Matrix4', () {
@@ -12,10 +13,10 @@ void main() {
                                9.0, 10.0, 11.0, 12.0,
                               13.0, 14.0, 15.0, 16.0);
 
-          expect(m.values.toList(), equals([ 1.0,  2.0,  3.0,  4.0,
-                                             5.0,  6.0,  7.0,  8.0,
-                                             9.0, 10.0, 11.0, 12.0,
-                                            13.0, 14.0, 15.0, 16.0]));
+          expect(m.values, orderedCloseTo([ 1.0,  2.0,  3.0,  4.0,
+                                            5.0,  6.0,  7.0,  8.0,
+                                            9.0, 10.0, 11.0, 12.0,
+                                           13.0, 14.0, 15.0, 16.0], 0.00001));
         });
       });
 
@@ -50,28 +51,28 @@ void main() {
       test('constant', () {
         var m = new Matrix4.constant(1.0);
 
-        expect(m.values.toList(), equals([1.0, 1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0, 1.0]));
+        expect(m.values, orderedCloseTo([1.0, 1.0, 1.0, 1.0,
+                                         1.0, 1.0, 1.0, 1.0,
+                                         1.0, 1.0, 1.0, 1.0,
+                                         1.0, 1.0, 1.0, 1.0], 0.00001));
       });
 
       test('zero', () {
         var m = new Matrix4.zero();
 
-        expect(m.values.toList(), equals([0.0, 0.0, 0.0, 0.0,
-                                          0.0, 0.0, 0.0, 0.0,
-                                          0.0, 0.0, 0.0, 0.0,
-                                          0.0, 0.0, 0.0, 0.0]));
+        expect(m.values, orderedCloseTo([0.0, 0.0, 0.0, 0.0,
+                                         0.0, 0.0, 0.0, 0.0,
+                                         0.0, 0.0, 0.0, 0.0,
+                                         0.0, 0.0, 0.0, 0.0], 0.00001));
       });
 
       test('identity', () {
         var m = new Matrix4.identity();
 
-        expect(m.values.toList(), equals([1.0, 0.0, 0.0, 0.0,
-                                          0.0, 1.0, 0.0, 0.0,
-                                          0.0, 0.0, 1.0, 0.0,
-                                          0.0, 0.0, 0.0, 1.0]));
+        expect(m.values, orderedCloseTo([1.0, 0.0, 0.0, 0.0,
+                                         0.0, 1.0, 0.0, 0.0,
+                                         0.0, 0.0, 1.0, 0.0,
+                                         0.0, 0.0, 0.0, 1.0], 0.00001));
       });
     });
 
@@ -93,10 +94,10 @@ void main() {
         });
 
         test('results in a new matrix with the correct values', () {
-          expect(product.values.toList(), equals([ 90.0, 100.0, 110.0, 120.0,
-                                                  202.0, 228.0, 254.0, 280.0,
-                                                  314.0, 356.0, 398.0, 440.0,
-                                                  426.0, 484.0, 542.0, 600.0]));
+          expect(product.values, orderedCloseTo([ 90.0, 100.0, 110.0, 120.0,
+                                                 202.0, 228.0, 254.0, 280.0,
+                                                 314.0, 356.0, 398.0, 440.0,
+                                                 426.0, 484.0, 542.0, 600.0], 0.00001));
         });
       });
 
@@ -113,7 +114,7 @@ void main() {
         });
 
         test('results in a new matrix with the correct values', () {
-          expect(product.values.toList(), equals([30.0, 70.0, 110.0, 150.0]));
+          expect(product.values, orderedCloseTo([30.0, 70.0, 110.0, 150.0], 0.00001));
         });
       });
     });
@@ -130,10 +131,10 @@ void main() {
       });
 
       test('returns the correct row', () {
-        expect(m[0], equals([1.0, 2.0, 3.0, 4.0]));
-        expect(m[1], equals([5.0, 6.0, 7.0, 8.0]));
-        expect(m[2], equals([9.0, 10.0, 11.0, 12.0]));
-        expect(m[3], equals([13.0, 14.0, 15.0, 16.0]));
+        expect(m[0], orderedCloseTo([1.0, 2.0, 3.0, 4.0], 0.00001));
+        expect(m[1], orderedCloseTo([5.0, 6.0, 7.0, 8.0], 0.00001));
+        expect(m[2], orderedCloseTo([9.0, 10.0, 11.0, 12.0], 0.00001));
+        expect(m[3], orderedCloseTo([13.0, 14.0, 15.0, 16.0], 0.00001));
       });
     });
   });
