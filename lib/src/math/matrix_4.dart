@@ -257,6 +257,118 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     }
   }
 
+  /// Returns the value in the first column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c0 => storage[0];
+
+  /// Returns the value in the second column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c1 => storage[1];
+
+  /// Returns the value in the third column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c2 => storage[2];
+
+  /// Returns the value in the fourth column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c3 => storage[3];
+
+  /// Returns the value in the first column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c0 => storage[4];
+
+  /// Returns the value in the second column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c1 => storage[5];
+
+  /// Returns the value in the third column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c2 => storage[6];
+
+  /// Returns the value in the fourth column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c3 => storage[7];
+
+  /// Returns the value in the first column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c0 => storage[8];
+
+  /// Returns the value in the second column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c1 => storage[9];
+
+  /// Returns the value in the third column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c2 => storage[10];
+
+  /// Returns the value in the fourth column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c3 => storage[11];
+
+  /// Returns the value in the first column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c0 => storage[12];
+
+  /// Returns the value in the second column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c1 => storage[13];
+
+  /// Returns the value in the third column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c2 => storage[14];
+
+  /// Returns the value in the fourth column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c3 => storage[15];
+
   /// Returns the row at the specified index.
   ///
   /// Throws a [RangeError] if the specified index is out of bounds.

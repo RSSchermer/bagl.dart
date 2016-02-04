@@ -159,6 +159,34 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
     }
   }
 
+  /// Returns the value in the first column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c0 => storage[0];
+
+  /// Returns the value in the second column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c1 => storage[1];
+
+  /// Returns the value in the first column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c0 => storage[2];
+
+  /// Returns the value in the second column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c1 => storage[3];
+
   /// Returns the row at the specified index.
   ///
   /// Throws a [RangeError] if the specified index is out of bounds.

@@ -110,6 +110,48 @@ void main() {
       });
     });
 
+    group('value accessors', () {
+      var m = new Matrix3(1.0, 2.0, 3.0,
+                          4.0, 5.0, 6.0,
+                          7.0, 8.0, 9.0);
+
+      test('r0c0 returns the correct value', () {
+        expect(m.r0c0, closeTo(1.0, 0.00001));
+      });
+
+      test('r0c1 returns the correct value', () {
+        expect(m.r0c1, closeTo(2.0, 0.00001));
+      });
+
+      test('r0c2 returns the correct value', () {
+        expect(m.r0c2, closeTo(3.0, 0.00001));
+      });
+
+      test('r1c0 returns the correct value', () {
+        expect(m.r1c0, closeTo(4.0, 0.00001));
+      });
+
+      test('r1c1 returns the correct value', () {
+        expect(m.r1c1, closeTo(5.0, 0.00001));
+      });
+
+      test('r1c2 returns the correct value', () {
+        expect(m.r1c2, closeTo(6.0, 0.00001));
+      });
+
+      test('r2c0 returns the correct value', () {
+        expect(m.r2c0, closeTo(7.0, 0.00001));
+      });
+
+      test('r2c1 returns the correct value', () {
+        expect(m.r2c1, closeTo(8.0, 0.00001));
+      });
+
+      test('r2c2 returns the correct value', () {
+        expect(m.r2c2, closeTo(9.0, 0.00001));
+      });
+    });
+
     group('[] operator', () {
       var m = new Matrix3(1.0, 2.0, 3.0,
                           4.0, 5.0, 6.0,

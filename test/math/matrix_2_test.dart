@@ -100,6 +100,27 @@ void main() {
       });
     });
 
+    group('value accessors', () {
+      var m = new Matrix2(1.0, 2.0,
+                          3.0, 4.0);
+
+      test('r0c0 returns the correct value', () {
+        expect(m.r0c0, closeTo(1.0, 0.00001));
+      });
+
+      test('r0c1 returns the correct value', () {
+        expect(m.r0c1, closeTo(2.0, 0.00001));
+      });
+
+      test('r1c0 returns the correct value', () {
+        expect(m.r1c0, closeTo(3.0, 0.00001));
+      });
+
+      test('r1c1 returns the correct value', () {
+        expect(m.r1c1, closeTo(4.0, 0.00001));
+      });
+    });
+
     group('[] operator', () {
       var m = new Matrix2(1.0, 2.0,
                           3.0, 4.0);

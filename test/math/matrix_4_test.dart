@@ -119,6 +119,77 @@ void main() {
       });
     });
 
+    group('value accessors', () {
+      var m = new Matrix4( 1.0,  2.0,  3.0,  4.0,
+                           5.0,  6.0,  7.0,  8.0,
+                           9.0, 10.0, 11.0, 12.0,
+                          13.0, 14.0, 15.0, 16.0);
+
+      test('r0c0 returns the correct value', () {
+        expect(m.r0c0, closeTo(1.0, 0.00001));
+      });
+
+      test('r0c1 returns the correct value', () {
+        expect(m.r0c1, closeTo(2.0, 0.00001));
+      });
+
+      test('r0c2 returns the correct value', () {
+        expect(m.r0c2, closeTo(3.0, 0.00001));
+      });
+
+      test('r0c3 returns the correct value', () {
+        expect(m.r0c3, closeTo(4.0, 0.00001));
+      });
+
+      test('r1c0 returns the correct value', () {
+        expect(m.r1c0, closeTo(5.0, 0.00001));
+      });
+
+      test('r1c1 returns the correct value', () {
+        expect(m.r1c1, closeTo(6.0, 0.00001));
+      });
+
+      test('r1c2 returns the correct value', () {
+        expect(m.r1c2, closeTo(7.0, 0.00001));
+      });
+
+      test('r1c3 returns the correct value', () {
+        expect(m.r1c3, closeTo(8.0, 0.00001));
+      });
+
+      test('r2c0 returns the correct value', () {
+        expect(m.r2c0, closeTo(9.0, 0.00001));
+      });
+
+      test('r2c1 returns the correct value', () {
+        expect(m.r2c1, closeTo(10.0, 0.00001));
+      });
+
+      test('r2c2 returns the correct value', () {
+        expect(m.r2c2, closeTo(11.0, 0.00001));
+      });
+
+      test('r2c3 returns the correct value', () {
+        expect(m.r2c3, closeTo(12.0, 0.00001));
+      });
+
+      test('r3c0 returns the correct value', () {
+        expect(m.r3c0, closeTo(13.0, 0.00001));
+      });
+
+      test('r3c1 returns the correct value', () {
+        expect(m.r3c1, closeTo(14.0, 0.00001));
+      });
+
+      test('r3c2 returns the correct value', () {
+        expect(m.r3c2, closeTo(15.0, 0.00001));
+      });
+
+      test('r3c3 returns the correct value', () {
+        expect(m.r3c3, closeTo(16.0, 0.00001));
+      });
+    });
+
     group('[] operator', () {
       var m = new Matrix4( 1.0,  2.0,  3.0,  4.0,
                            5.0,  6.0,  7.0,  8.0,
