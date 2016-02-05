@@ -2,7 +2,7 @@ part of math;
 
 /// A column vector of length 3 (a 3 by 1 matrix).
 class Vector3 extends GenericMatrix<Vector3, Matrix> {
-  final Float32List storage;
+  final Float32List _storage;
 
   /// Instantiates a new [Vector3] with the specified values.
   factory Vector3(double x, double y, double z) {
@@ -25,7 +25,7 @@ class Vector3 extends GenericMatrix<Vector3, Matrix> {
   ///
   /// Throws an [ArgumentError] if the length does the list does not equal 3.
   Vector3.fromFloat32List(Float32List values)
-      : storage = values,
+      : _storage = values,
         super.fromFloat32List(values, 1) {
     if (values.length != 3) {
       throw new ArgumentError(
@@ -47,17 +47,17 @@ class Vector3 extends GenericMatrix<Vector3, Matrix> {
   Matrix transposeWithValues(Float32List newValues) =>
       new Matrix.fromFloat32List(newValues, 3);
 
-  double get x => storage[0];
-  double get y => storage[1];
-  double get z => storage[2];
+  double get x => _storage[0];
+  double get y => _storage[1];
+  double get z => _storage[2];
 
-  double get r => storage[0];
-  double get g => storage[1];
-  double get b => storage[2];
+  double get r => _storage[0];
+  double get g => _storage[1];
+  double get b => _storage[2];
 
-  double get s => storage[0];
-  double get t => storage[1];
-  double get p => storage[2];
+  double get s => _storage[0];
+  double get t => _storage[1];
+  double get p => _storage[2];
 
   /// Returns the value at the specified index.
   ///
@@ -65,7 +65,7 @@ class Vector3 extends GenericMatrix<Vector3, Matrix> {
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 3);
 
-    return storage[index];
+    return _storage[index];
   }
 
   String toString() {

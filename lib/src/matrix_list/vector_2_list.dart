@@ -26,8 +26,11 @@ class Vector2List extends ListBase<Vector2>
     _storage = new Float32List(_elementSizeInFloats * length);
 
     for (var i = 0; i < length; i++) {
-      _storage.setRange(i * _elementSizeInFloats,
-          (i + 1) * _elementSizeInFloats, elements[i].storage);
+      final s = i * _elementSizeInFloats;
+      final value = elements[i];
+
+      _storage[s] = value.x;
+      _storage[s + 1] = value.y;
     }
   }
 
@@ -68,6 +71,7 @@ class Vector2List extends ListBase<Vector2>
 
     var s = index * _elementSizeInFloats;
 
-    _storage.setRange(s, s + _elementSizeInFloats, value.storage);
+    _storage[s] = value.x;
+    _storage[s + 1] = value.y;
   }
 }

@@ -26,8 +26,13 @@ class Matrix2List extends ListBase<Matrix2>
     _storage = new Float32List(_elementSizeInFloats * length);
 
     for (var i = 0; i < length; i++) {
-      _storage.setRange(i * _elementSizeInFloats,
-          (i + 1) * _elementSizeInFloats, elements[i].storage);
+      final s = i * _elementSizeInFloats;
+      final value = elements[i];
+
+      _storage[s] = value.r0c0;
+      _storage[s + 1] = value.r0c1;
+      _storage[s + 2] = value.r1c0;
+      _storage[s + 3] = value.r1c1;
     }
   }
 
@@ -68,6 +73,9 @@ class Matrix2List extends ListBase<Matrix2>
 
     var s = index * _elementSizeInFloats;
 
-    _storage.setRange(s, s + _elementSizeInFloats, value.storage);
+    _storage[s] = value.r0c0;
+    _storage[s + 1] = value.r0c1;
+    _storage[s + 2] = value.r1c0;
+    _storage[s + 3] = value.r1c1;
   }
 }

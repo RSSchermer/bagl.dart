@@ -15,7 +15,7 @@ part of math;
 ///     );
 ///
 class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
-  final Float32List storage;
+  final Float32List _storage;
 
   /// Instantiates a new [Matrix3] from the given values, partitioned into rows
   /// of length 3.
@@ -73,7 +73,7 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
   ///
   /// Throws an [ArgumentError] if the list does not have a length of 9.
   Matrix3.fromFloat32List(Float32List values)
-      : storage = values,
+      : _storage = values,
         super.fromFloat32List(values, 3) {
     if (values.length != 9) {
       throw new ArgumentError(
@@ -141,17 +141,17 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
 
   matrixProduct(GenericMatrix B) {
     if (B is Matrix3) {
-      final m00 = storage[0];
-      final m01 = storage[1];
-      final m02 = storage[2];
-      final m10 = storage[3];
-      final m11 = storage[4];
-      final m12 = storage[5];
-      final m20 = storage[6];
-      final m21 = storage[7];
-      final m22 = storage[8];
+      final m00 = _storage[0];
+      final m01 = _storage[1];
+      final m02 = _storage[2];
+      final m10 = _storage[3];
+      final m11 = _storage[4];
+      final m12 = _storage[5];
+      final m20 = _storage[6];
+      final m21 = _storage[7];
+      final m22 = _storage[8];
 
-      final bStorage = B.storage;
+      final bStorage = B._storage;
 
       final n00 = bStorage[0];
       final n01 = bStorage[1];
@@ -177,13 +177,13 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
 
       return new Matrix3.fromFloat32List(values);
     } else if (B is Vector3) {
-      final bStorage = B.storage;
+      final bStorage = B._storage;
 
       final n0 = bStorage[0];
       final n1 = bStorage[1];
       final n2 = bStorage[2];
 
-      final s = storage;
+      final s = _storage;
       final values = new Float32List(3);
 
       values[0] = (s[0] * n0) + (s[1] * n1) + (s[2] * n2);
@@ -201,63 +201,63 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c0 => storage[0];
+  double get r0c0 => _storage[0];
 
   /// Returns the value in the second column of the first row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c1 => storage[1];
+  double get r0c1 => _storage[1];
 
   /// Returns the value in the third column of the first row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c2 => storage[2];
+  double get r0c2 => _storage[2];
 
   /// Returns the value in the first column of the second row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c0 => storage[3];
+  double get r1c0 => _storage[3];
 
   /// Returns the value in the second column of the second row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c1 => storage[4];
+  double get r1c1 => _storage[4];
 
   /// Returns the value in the third column of the second row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c2 => storage[5];
+  double get r1c2 => _storage[5];
 
   /// Returns the value in the first column of the third row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r2c0 => storage[6];
+  double get r2c0 => _storage[6];
 
   /// Returns the value in the second column of the third row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r2c1 => storage[7];
+  double get r2c1 => _storage[7];
 
   /// Returns the value in the third column of the third row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r2c2 => storage[8];
+  double get r2c2 => _storage[8];
 
   /// Returns the row at the specified index.
   ///

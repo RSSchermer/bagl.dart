@@ -13,7 +13,7 @@ part of math;
 ///     );
 ///
 class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
-  final Float32List storage;
+  final Float32List _storage;
 
   /// Instantiates a new [Matrix2] from the given values, partitioned into rows
   /// of length 2.
@@ -61,7 +61,7 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
   ///
   /// Throws an [ArgumentError] if the list does not have a length of 4.
   Matrix2.fromFloat32List(Float32List values)
-      : storage = values,
+      : _storage = values,
         super.fromFloat32List(values, 2) {
     if (values.length != 4) {
       throw new ArgumentError(
@@ -121,12 +121,12 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
 
   matrixProduct(GenericMatrix B) {
     if (B is Matrix2) {
-      final m00 = storage[0];
-      final m01 = storage[1];
-      final m10 = storage[2];
-      final m11 = storage[3];
+      final m00 = _storage[0];
+      final m01 = _storage[1];
+      final m10 = _storage[2];
+      final m11 = _storage[3];
 
-      final bStorage = B.storage;
+      final bStorage = B._storage;
 
       final n00 = bStorage[0];
       final n01 = bStorage[1];
@@ -142,12 +142,12 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
 
       return new Matrix2.fromFloat32List(values);
     } else if (B is Vector2) {
-      final bStorage = B.storage;
+      final bStorage = B._storage;
 
       final n0 = bStorage[0];
       final n1 = bStorage[1];
 
-      final s = storage;
+      final s = _storage;
       final values = new Float32List(2);
 
       values[0] = (s[0] * n0) + (s[1] * n1);
@@ -164,28 +164,28 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c0 => storage[0];
+  double get r0c0 => _storage[0];
 
   /// Returns the value in the second column of the first row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c1 => storage[1];
+  double get r0c1 => _storage[1];
 
   /// Returns the value in the first column of the second row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c0 => storage[2];
+  double get r1c0 => _storage[2];
 
   /// Returns the value in the second column of the second row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c1 => storage[3];
+  double get r1c1 => _storage[3];
 
   /// Returns the row at the specified index.
   ///

@@ -26,8 +26,25 @@ class Matrix4List extends ListBase<Matrix4>
     _storage = new Float32List(_elementSizeInFloats * length);
 
     for (var i = 0; i < length; i++) {
-      _storage.setRange(i * _elementSizeInFloats,
-          (i + 1) * _elementSizeInFloats, elements[i].storage);
+      final s = i * _elementSizeInFloats;
+      final value = elements[i];
+
+      _storage[s] = value.r0c0;
+      _storage[s + 1] = value.r0c1;
+      _storage[s + 2] = value.r0c2;
+      _storage[s + 3] = value.r0c3;
+      _storage[s + 4] = value.r1c0;
+      _storage[s + 5] = value.r1c1;
+      _storage[s + 6] = value.r1c2;
+      _storage[s + 7] = value.r1c3;
+      _storage[s + 8] = value.r2c0;
+      _storage[s + 9] = value.r2c1;
+      _storage[s + 10] = value.r2c2;
+      _storage[s + 11] = value.r2c3;
+      _storage[s + 12] = value.r3c0;
+      _storage[s + 13] = value.r3c1;
+      _storage[s + 14] = value.r3c2;
+      _storage[s + 15] = value.r3c3;
     }
   }
 
@@ -68,6 +85,21 @@ class Matrix4List extends ListBase<Matrix4>
 
     var s = index * _elementSizeInFloats;
 
-    _storage.setRange(s, s + _elementSizeInFloats, value.storage);
+    _storage[s] = value.r0c0;
+    _storage[s + 1] = value.r0c1;
+    _storage[s + 2] = value.r0c2;
+    _storage[s + 3] = value.r0c3;
+    _storage[s + 4] = value.r1c0;
+    _storage[s + 5] = value.r1c1;
+    _storage[s + 6] = value.r1c2;
+    _storage[s + 7] = value.r1c3;
+    _storage[s + 8] = value.r2c0;
+    _storage[s + 9] = value.r2c1;
+    _storage[s + 10] = value.r2c2;
+    _storage[s + 11] = value.r2c3;
+    _storage[s + 12] = value.r3c0;
+    _storage[s + 13] = value.r3c1;
+    _storage[s + 14] = value.r3c2;
+    _storage[s + 15] = value.r3c3;
   }
 }

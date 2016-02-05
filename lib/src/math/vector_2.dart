@@ -2,7 +2,7 @@ part of math;
 
 /// A column vector of length 2 (a 2 by 1 matrix).
 class Vector2 extends GenericMatrix<Vector2, Matrix> {
-  final Float32List storage;
+  final Float32List _storage;
 
   /// Instantiates a new [Vector2] with the specified values.
   factory Vector2(double x, double y) {
@@ -24,7 +24,7 @@ class Vector2 extends GenericMatrix<Vector2, Matrix> {
   ///
   /// Throws an [ArgumentError] if the length does the list does not equal 2.
   Vector2.fromFloat32List(Float32List values)
-      : storage = values,
+      : _storage = values,
         super.fromFloat32List(values, 1) {
     if (values.length != 2) {
       throw new ArgumentError(
@@ -46,14 +46,14 @@ class Vector2 extends GenericMatrix<Vector2, Matrix> {
   Matrix transposeWithValues(Float32List newValues) =>
       new Matrix.fromFloat32List(newValues, 2);
 
-  double get x => storage[0];
-  double get y => storage[1];
+  double get x => _storage[0];
+  double get y => _storage[1];
 
-  double get r => storage[0];
-  double get g => storage[1];
+  double get r => _storage[0];
+  double get g => _storage[1];
 
-  double get s => storage[0];
-  double get t => storage[1];
+  double get s => _storage[0];
+  double get t => _storage[1];
 
   /// Returns the value at the specified index.
   ///
@@ -61,7 +61,7 @@ class Vector2 extends GenericMatrix<Vector2, Matrix> {
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 2);
 
-    return storage[index];
+    return _storage[index];
   }
 
   String toString() {
