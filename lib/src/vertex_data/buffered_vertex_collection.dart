@@ -68,6 +68,8 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
   /// by the attribute names.
   final Map<String, VertexAttribute> attributes;
 
+  final int length;
+
   /// Instantiates a new [BufferedVertexCollection] from a collection of
   /// vertices.
   ///
@@ -260,7 +262,18 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
   /// This allows different objects to share data on specific attributes. For
   /// example, two objects might share the same position data, but each uses
   /// different color data.
-  BufferedVertexCollection.fromAttributeData(this.attributes);
+  BufferedVertexCollection.fromAttributeData(Map<String, VertexAttribute> attributes)
+      : attributes = attributes,
+        length = attributes.values.first.frame.length {
+    attributes.forEach((name, attribute) {
+      if (attribute.frame.length != length) {
+        throw new ArgumentError(
+            'The attribute named "$name" is defined on a frame of a different '
+            'length than the attribute named "${attributes.keys.first}". All '
+            'attributes must be defined on frames of equal length.');
+      }
+    });
+  }
 
   Iterator<BufferedVertexView> get iterator =>
       new BufferedVertexCollectionIterator(this);
@@ -283,6 +296,9 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
   }
 
   BufferedVertexCollection subCollection(int start, [int end]) {
+    RangeError.checkValidIndex(start, this);
+    RangeError.checkValidRange(start, end, length);
+
     // Create map of old frames to corresponding new frames.
     final oldNewFrameMap = new Map<AttributeDataFrame, AttributeDataFrame>();
 
