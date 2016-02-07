@@ -378,7 +378,7 @@ class BufferedVertexView implements Vertex {
       (name) => vertexCollection.attributes[name].extractValueAtRow(index));
 
   Map<String, dynamic> toMap() {
-    final map = new Map();
+    final map = new Map<String, dynamic>();
 
     attributeNames.forEach((attribute) {
       map[attribute] = this[attribute];
@@ -388,7 +388,7 @@ class BufferedVertexView implements Vertex {
   }
 
   operator [](String attributeName) =>
-      vertexCollection.attributes[attributeName].extractValueAtRow(index);
+      vertexCollection.attributes[attributeName]?.extractValueAtRow(index);
 
   /// Sets attribute with the specified [attributeName] to the given [value].
   ///
