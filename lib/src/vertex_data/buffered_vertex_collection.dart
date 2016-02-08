@@ -262,7 +262,8 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
   /// This allows different objects to share data on specific attributes. For
   /// example, two objects might share the same position data, but each uses
   /// different color data.
-  BufferedVertexCollection.fromAttributeData(Map<String, VertexAttribute> attributes)
+  BufferedVertexCollection.fromAttributeData(
+      Map<String, VertexAttribute> attributes)
       : attributes = attributes,
         length = attributes.values.first.frame.length {
     attributes.forEach((name, attribute) {
@@ -400,7 +401,17 @@ class BufferedVertexView implements Vertex {
   /// the given [attributeName].
   /// Throws an [ArgumentError] if the [value] is not of a valid type.
   void operator []=(String attributeName, value) {
-    vertexCollection.attributes[attributeName].setValueAtRow(index, value);
+    final attribute = vertexCollection.attributes[attributeName];
+
+    if (attribute == null) {
+      throw new ArgumentError(
+          'Tried to set an attribute named "$attributeName" to a new value, '
+          'but no attribute with that name is present on the vertex view. Only '
+          'existing attributes can be updated on a vertex view, no new '
+          'attribute can be created.');
+    } else {
+      attribute.setValueAtRow(index, value);
+    }
   }
 }
 
@@ -521,7 +532,7 @@ class BufferedVertexCollectionBuilder
           new BufferedVertexCollection.fromAttributeData(newAttributeMap);
 
       // Set the attribute data for the appended vertices
-      var currentRow = baseCollection.length + 1;
+      var currentRow = baseCollection.length - _omittedVertexIndices.length;
 
       _appendedVertices.forEach((vertex) {
         newAttributeMap.forEach((name, attribute) {
@@ -533,11 +544,21 @@ class BufferedVertexCollectionBuilder
                 'the same attributes as the vertices in the buffered vertex '
                 'collection.');
           } else {
-            attribute.setValueAtRow(currentRow, vertex[name]);
+            try {
+              attribute.setValueAtRow(currentRow, vertex[name]);
+            } on TypeError {
+              throw new StateError(
+                  'Tried to append a vertex that declares the attribute named '
+                  '"$name" to have value "${vertex[name]}" of type '
+                  '"${vertex[name].runtimeType}", but this value type is not '
+                  'consistent with the value type used by existing vertices '
+                  'for this attribute. All vertices must use a consistent '
+                  'value type for an attribute.');
+            }
           }
-
-          currentRow++;
         });
+
+        currentRow++;
       });
 
       return vertices;
