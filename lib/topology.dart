@@ -1,5 +1,5 @@
-/// Data structures describing renderable vertex topologies.
-library geometry;
+/// Data structures for the description of renderable vertex topologies.
+library topology;
 
 import 'dart:collection';
 import 'dart:typed_data';
