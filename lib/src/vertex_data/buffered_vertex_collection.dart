@@ -1,11 +1,13 @@
 part of vertex_data;
 
-/// Defines an [IndexedVertexCollection] as a view on buffered attribute data.
+/// Describes a collection as a view on buffered attribute data.
 ///
 /// Changes to the buffered attribute data will change the vertices in this
-/// collection and vice versa.
+/// collection and vice versa. Vertices are ordered and uniquely identified by
+/// consecutive integer indices starting at 0.
 ///
-/// A [BufferedVertexCollection] can be instantiated a collection of vertices:
+/// A [BufferedVertexCollection] can be instantiated from an existing collection
+/// of vertices:
 ///
 ///     var vertices = new BufferedVertexCollection([
 ///       new Vertex({
@@ -62,8 +64,7 @@ part of vertex_data;
 ///
 /// See [BufferedVertexCollectionBuilder] for further details on using the
 /// builder to create a new modified version of a [BufferedVertexCollection].
-class BufferedVertexCollection extends IterableBase<BufferedVertexView>
-    implements IndexedVertexCollection {
+class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   /// Map of the [VertexAttribute]s defined on the buffered vertex data, keyed
   /// by the attribute names.
   final Map<String, VertexAttribute> attributes;
@@ -279,8 +280,11 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
   Iterator<BufferedVertexView> get iterator =>
       new BufferedVertexCollectionIterator(this);
 
+  /// The names of the attributes defined for the vertices in this collection.
   Iterable<String> get attributeNames => attributes.keys;
 
+  /// Returns `true` if the vertices in this collection have an attribute with
+  /// the given [name], `false` otherwise.
   bool hasAttribute(String name) => attributes.containsKey(name);
 
   Set<AttributeDataFrame> get attributeDataFrames =>
@@ -288,6 +292,9 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
 
   BufferedVertexView elementAt(int index) => this[index];
 
+  /// Returns the index of the given [vertex] in this vertex collection.
+  ///
+  /// Returns -1 if [vertex] is not found in this vertex collection.
   int indexOf(Vertex vertex) {
     if (vertex is BufferedVertexView && vertex.vertexCollection == this) {
       return vertex.index;
@@ -296,6 +303,12 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
     }
   }
 
+  /// Returns a new vertex collection from [start] inclusive to [end] exclusive.
+  ///
+  /// If [end] is omitted, the [length] of this collection is used.
+  ///
+  /// Throws an [ArgumentError] if [start] is outside of the range `0..length`
+  /// or if [end] is outside of the range `start..length`.
   BufferedVertexCollection subCollection(int start, [int end]) {
     RangeError.checkValidIndex(start, this);
     RangeError.checkValidRange(start, end, length);
@@ -319,9 +332,21 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView>
     return new BufferedVertexCollection.fromAttributeData(newAttributeMap);
   }
 
+  /// Returns a builder which can be used to create a modified version of this
+  /// vertex collection.
+  ///
+  ///     var modified = vertices.toBuilder()
+  ///         ..omit(someVertex)
+  ///         ..appendAll(newVertices)
+  ///         .build();
+  ///
+  /// See [IndexedVertexCollectionBuilder].
   BufferedVertexCollectionBuilder toBuilder() =>
       new BufferedVertexCollectionBuilder.fromBaseCollection(this);
 
+  /// Returns the vertex at the specified [index].
+  ///
+  /// Throws a [RangeError] when the [index] is out of bounds.
   BufferedVertexView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
@@ -435,8 +460,7 @@ class BufferedVertexView implements Vertex {
 ///         ..appendAll(newVertices)
 ///         .build();
 ///
-class BufferedVertexCollectionBuilder
-    implements IndexedVertexCollectionBuilder {
+class BufferedVertexCollectionBuilder {
   /// The base collection used as the starting point by the builder.
   final BufferedVertexCollection baseCollection;
 
@@ -451,14 +475,33 @@ class BufferedVertexCollectionBuilder
   /// [BufferedVertexCollection] as a base.
   BufferedVertexCollectionBuilder.fromBaseCollection(this.baseCollection);
 
+  /// Adds the [vertex] to the collection of vertices that are to be appended
+  /// onto new vertex collections build with this builder.
+  ///
+  /// See [appendAll] for adding multiple vertices at once.
   void append(Vertex vertex) {
     _appendedVertices.add(vertex);
   }
 
+  /// Adds the [vertices] to the collection of vertices that are to be appended
+  /// onto new vertex collections build with this builder.
+  ///
+  /// See [append] for adding a single vertex.
   void appendAll(Iterable<Vertex> vertices) {
     _appendedVertices.addAll(vertices);
   }
 
+  /// Instructs this builder to omit the [vertex] from new vertex collections
+  /// created with the builder.
+  ///
+  /// If an existing vertex collection is used as a base for this builder and
+  /// the [vertex] is present in this base collection, then the builder will
+  /// omit the [vertex] from any new vertex collection instances it builds.
+  ///
+  /// Returns `true` if the vertex was in the base collection, `false`
+  /// otherwise.
+  ///
+  /// See [omitAll] for omitting multiple vertices at once.
   bool omit(Vertex vertex) {
     if (baseCollection != null &&
         vertex is BufferedVertexView &&
@@ -471,6 +514,17 @@ class BufferedVertexCollectionBuilder
     }
   }
 
+  /// Instructs this builder to omit the vertex at the given [index] from new
+  /// vertex collections created with the builder.
+  ///
+  /// If an existing vertex collection is used as a base for this builder, then
+  /// the builder will omit the vertex at the given [index] from any new vertex
+  /// collection instances it builds.
+  ///
+  /// Throws a [RangeError] if the [index] is not a valid index for the base
+  /// collection.
+  /// Throws an [UnsupportedError] if no base collection base specified for the
+  /// builder.
   void omitAt(int index) {
     if (baseCollection == null) {
       throw new UnsupportedError(
@@ -482,6 +536,15 @@ class BufferedVertexCollectionBuilder
     }
   }
 
+  /// Instructs this builder to omit the [vertices] from new vertex collections
+  /// created with the builder.
+  ///
+  /// If an existing vertex collection is used as a base for this builder and
+  /// any of the [vertices] are present in this base collection, then the
+  /// builder will omit these [vertices] from any new vertex collection
+  /// instances it builds.
+  ///
+  /// See [omit] for omitting a single vertex.
   void omitAll(Iterable<Vertex> vertices) {
     if (baseCollection != null) {
       vertices.forEach((vertex) {
@@ -493,6 +556,16 @@ class BufferedVertexCollectionBuilder
     }
   }
 
+  /// Instantiates a new vertex collection using on the build instructions
+  /// provided to the builder.
+  ///
+  /// For example:
+  ///
+  ///     var newCollection = oldCollection.toBuilder()
+  ///         ..omit(someVertex)
+  ///         ..appendAll(newVertices)
+  ///         .build();
+  ///
   BufferedVertexCollection build() {
     if (baseCollection == null) {
       return new BufferedVertexCollection(_appendedVertices);

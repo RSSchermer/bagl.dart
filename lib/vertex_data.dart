@@ -11,5 +11,4 @@ export 'vertex.dart';
 
 part 'src/vertex_data/attribute_data_frame.dart';
 part 'src/vertex_data/buffered_vertex_collection.dart';
-part 'src/vertex_data/indexed_vertex_collection.dart';
 part 'src/vertex_data/vertex_attribute.dart';
