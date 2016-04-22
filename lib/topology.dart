@@ -4,7 +4,7 @@ library topology;
 import 'dart:collection';
 import 'dart:typed_data';
 
-import 'vertex_data.dart';
+import 'buffered_vertex_data.dart';
 
 part 'src/topology/line_loop.dart';
 part 'src/topology/line_strip.dart';

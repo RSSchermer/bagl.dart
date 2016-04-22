@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
-import 'package:bagl/vertex_data.dart';
+import 'package:bagl/buffered_vertex_data.dart';
 import '../helpers.dart';
 
 void main () {

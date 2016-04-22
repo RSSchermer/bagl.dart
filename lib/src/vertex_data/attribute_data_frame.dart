@@ -1,4 +1,4 @@
-part of vertex_data;
+part of buffered_vertex_data;
 
 /// Vertex attribute data frame as a view on a byte buffer.
 ///

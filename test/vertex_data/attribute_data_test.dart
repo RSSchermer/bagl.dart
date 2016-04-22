@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:bagl/vertex_data.dart';
+import 'package:bagl/buffered_vertex_data.dart';
 import 'dart:typed_data';
 import '../helpers.dart';
 

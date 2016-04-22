@@ -1,4 +1,4 @@
-part of vertex_data;
+part of buffered_vertex_data;
 
 /// Describes a collection as a view on buffered attribute data.
 ///

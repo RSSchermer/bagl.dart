@@ -1,4 +1,4 @@
-part of vertex_data;
+part of buffered_vertex_data;
 
 /// Base class for defining attributes of a certain type on an
 /// [AttributeDataFrom].
