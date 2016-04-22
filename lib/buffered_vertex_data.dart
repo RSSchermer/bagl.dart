@@ -1,4 +1,4 @@
-/// Data structures for viewing and managing vertex data.
+/// Data structures for viewing and managing buffered vertex data.
 library buffered_vertex_data;
 
 import 'dart:collection';
