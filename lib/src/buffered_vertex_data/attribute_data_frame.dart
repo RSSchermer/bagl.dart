@@ -38,6 +38,17 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
 
   final int length;
 
+  /// Whether or not the attribute data frame is marked as dynamic.
+  ///
+  /// When `true` it signals to the rendering back-end that the data in the
+  /// attribute data frame is intended to be modified regularly, allowing the
+  /// rendering back-end to optimize for this.
+  ///
+  /// Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an attribute data frame
+  /// that is not marked as dynamic can still be modified.
+  final bool isDynamic;
+
   /// Typed [Float32List] view on the byte buffer in which this attribute data
   /// frame's data is stored.
   final Float32List _storage;
@@ -52,15 +63,36 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   ///        0.5, -0.5,     0.0, 0.0, 1.0
   ///     ]);
   ///
-  factory AttributeDataFrame(int rowLength, List<double> data) =>
+  /// Optionally, the [dynamic] parameter may be specified. When `true` it
+  /// signals to the rendering back-end that the data in the attribute data
+  /// frame is intended to be modified regularly, allowing the rendering
+  /// back-end to optimize for this.
+  ///
+  /// Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an attribute data frame
+  /// that is not marked as dynamic can still be modified.
+  factory AttributeDataFrame(int rowLength, List<double> data,
+          {bool dynamic: false}) =>
       new AttributeDataFrame.fromFloat32List(
-          rowLength, new Float32List.fromList(data));
+          rowLength, new Float32List.fromList(data),
+          dynamic: dynamic);
 
   /// Creates a new attribute data frame as a view on the given Float32List's
   /// byte buffer, partitioned into rows of the specified row length.
-  AttributeDataFrame.fromFloat32List(int rowLength, Float32List data)
+  ///
+  /// Optionally, the [dynamic] parameter may be specified. When `true` it
+  /// signals to the rendering back-end that the data in the attribute data
+  /// frame is intended to be modified regularly, allowing the rendering
+  /// back-end to optimize for this.
+  ///
+  /// Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an attribute data frame
+  /// that is not marked as dynamic can still be modified.
+  AttributeDataFrame.fromFloat32List(int rowLength, Float32List data,
+      {bool dynamic: false})
       : rowLength = rowLength,
         length = data.length ~/ rowLength,
+        isDynamic = dynamic,
         _storage = data;
 
   /// Creates an [AttributeDataFrame] view of the specified region in the byte
@@ -80,7 +112,39 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   factory AttributeDataFrame.view(int rowLength, ByteBuffer buffer,
           [int offsetInBytes = 0, int length]) =>
       new AttributeDataFrame.fromFloat32List(rowLength,
-          new Float32List.view(buffer, offsetInBytes, length * rowLength));
+          new Float32List.view(buffer, offsetInBytes, length * rowLength),
+          dynamic: false);
+
+  // TODO: when Dart support optional positional and named parameters on the
+  // same method, merge dynamicView into view.
+
+  /// Creates an [AttributeDataFrame] view of the specified region in the byte
+  /// buffer that is marked as dynamic.
+  ///
+  /// If the [offsetInBytes] index of the region is not specified, it defaults
+  /// to zero (the first byte in the byte buffer). If the [length] is not
+  /// specified, it defaults to `null`, which indicates that the view extends to
+  /// the end of the byte buffer.
+  ///
+  /// When a frame is marked as dynamic it signals to the rendering back-end
+  /// that the data in the attribute data frame is intended to be modified
+  /// regularly, allowing the rendering back-end to optimize for this.
+  ///
+  /// Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an attribute data frame
+  /// that is not marked as dynamic can still be modified.
+  ///
+  /// Throws RangeError if [offsetInBytes] or [length] are negative, or if
+  /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
+  /// of buffer.
+  ///
+  /// Throws ArgumentError if [offsetInBytes] is not a multiple of
+  /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
+  factory AttributeDataFrame.dynamicView(int rowLength, ByteBuffer buffer,
+          [int offsetInBytes = 0, int length]) =>
+      new AttributeDataFrame.fromFloat32List(rowLength,
+          new Float32List.view(buffer, offsetInBytes, length * rowLength),
+          dynamic: true);
 
   ByteBuffer get buffer => _storage.buffer;
 
@@ -116,7 +180,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       ..setRange(0, rowStartPos, _storage)
       ..setRange(rowStartPos, newSize, _storage, rowStartPos + rowLength);
 
-    return new AttributeDataFrame(rowLength, newStorage);
+    return new AttributeDataFrame(rowLength, newStorage, dynamic: isDynamic);
   }
 
   /// Creates a new attribute data frame as a view on a new byte buffer without
@@ -183,7 +247,8 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       newStorage.setRange(start, newSize, _storage, skipCount);
     }
 
-    return new AttributeDataFrame.fromFloat32List(rowLength, newStorage);
+    return new AttributeDataFrame.fromFloat32List(rowLength, newStorage,
+        dynamic: isDynamic);
   }
 
   /// Returns a new attribute data frame with the given data appended onto the
@@ -201,7 +266,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       ..setRange(0, _storage.length, _storage)
       ..setRange(_storage.length, newSize, data);
 
-    return new AttributeDataFrame(rowLength, newStorage);
+    return new AttributeDataFrame(rowLength, newStorage, dynamic: isDynamic);
   }
 
   /// Interleaves the data in this frame with the data in the given frame,
@@ -246,7 +311,8 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     }
 
     return new AttributeDataFrame.fromFloat32List(
-        aRowLength + bRowLength, newStorage);
+        aRowLength + bRowLength, newStorage,
+        dynamic: isDynamic);
   }
 
   /// Creates a new attribute data frame from a range of rows and (optionally) a
@@ -317,7 +383,8 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
         }
       }
 
-      return new AttributeDataFrame.fromFloat32List(newRowLength, newStorage);
+      return new AttributeDataFrame.fromFloat32List(newRowLength, newStorage,
+          dynamic: isDynamic);
     }
   }
 
@@ -357,8 +424,43 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     final newLength = (rowEnd - rowStart) * rowLength;
     final newStorage = new Float32List.view(buffer, offset, newLength);
 
-    return new AttributeDataFrame.fromFloat32List(rowLength, newStorage);
+    return new AttributeDataFrame.fromFloat32List(rowLength, newStorage,
+        dynamic: isDynamic);
   }
+
+  /// Returns a copy of attribute data frame that is marked as dynamic.
+  ///
+  /// No new buffer is created, the copy views the same buffer as this current
+  /// attribute data frame. Changes made to the buffered data through the copy
+  /// will affect this current attribute data frame and vice versa.
+  ///
+  /// When a frame is marked as dynamic it signals to the rendering back-end
+  /// that the data in the attribute data frame is intended to be modified
+  /// regularly, allowing the rendering back-end to optimize for this.
+  ///
+  /// Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an attribute data frame
+  /// that is not marked as dynamic can still be modified.
+  AttributeDataFrame asDynamic() =>
+      new AttributeDataFrame.fromFloat32List(rowLength, _storage,
+          dynamic: true);
+
+  /// Returns a copy of attribute data frame that is not marked as dynamic.
+  ///
+  /// No new buffer is created, the copy views the same buffer as this current
+  /// attribute data frame. Changes made to the buffered data through the copy
+  /// will affect this current attribute data frame and vice versa.
+  ///
+  /// When a frame is not marked as dynamic it signals to the rendering back-end
+  /// that the data in the attribute data frame is not intended to be modified
+  /// regularly, allowing the rendering back-end to optimize for this.
+  ///
+  /// Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an attribute data frame
+  /// that is not marked as dynamic can still be modified.
+  AttributeDataFrame asStatic() =>
+      new AttributeDataFrame.fromFloat32List(rowLength, _storage,
+          dynamic: false);
 
   /// Returns a view of the data row at the given [index].
   ///

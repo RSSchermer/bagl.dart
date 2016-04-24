@@ -21,6 +21,22 @@ void main() {
         expect(frame[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
         expect(frame[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
       });
+
+      test('instantiates a new frame that is not marked as dynamic', () {
+        expect(frame.isDynamic, isFalse);
+      });
+
+      group('with `dynamic` set to true', () {
+        final dynamicFrame = new AttributeDataFrame(3, [
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0
+        ], dynamic: true);
+
+        test('instantiates a new frame that is marked as dynamic', () {
+          expect(dynamicFrame.isDynamic, isTrue);
+        });
+      });
     });
 
     group('fromFloat32List constructor', () {
@@ -39,6 +55,19 @@ void main() {
         expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
         expect(frame[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
         expect(frame[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+      });
+
+      test('instantiates a new frame that is not marked as dynamic', () {
+        expect(frame.isDynamic, isFalse);
+      });
+
+      group('with `dynamic` set to true', () {
+        final dynamicFrame = new AttributeDataFrame.fromFloat32List(3, values,
+            dynamic: true);
+
+        test('instantiates a new frame that is marked as dynamic', () {
+          expect(dynamicFrame.isDynamic, isTrue);
+        });
       });
     });
 
@@ -61,6 +90,36 @@ void main() {
         expect(frame[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
         expect(frame[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
         expect(frame[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+      });
+
+      test('instantiates a new frame that is not marked as dynamic', () {
+        expect(frame.isDynamic, isFalse);
+      });
+    });
+
+    group('dynamicView constructor', () {
+      final values = new Float32List.fromList([
+        0.0, 0.0, 0.0,
+        1.0, 1.0, 1.0,
+        2.0, 2.0, 2.0,
+        3.0, 3.0, 3.0,
+        4.0, 4.0, 4.0
+      ]);
+
+      final frame = new AttributeDataFrame.dynamicView(3, values.buffer, 12, 3);
+
+      test('instantiates a new frame with the correct length', () {
+        expect(frame.length, equals(3));
+      });
+
+      test('instantiates a new frame with the correct values', () {
+        expect(frame[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+        expect(frame[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+        expect(frame[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+      });
+
+      test('instantiates a new frame that is marked as dynamic', () {
+        expect(frame.isDynamic, isTrue);
       });
     });
 
@@ -103,6 +162,36 @@ void main() {
             expect(withoutRow2[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
             expect(withoutRow2[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
           });
+
+          test('returns a frame not marked as dynamic', () {
+            expect(withoutRow2.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame not marked as dynamic', () {
+          final frame = new AttributeDataFrame(3, [
+            0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0,
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0
+          ], dynamic: false).withoutRow(2);
+
+          test('returns a frame not marked as dynamic', () {
+            expect(frame.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame marked as dynamic', () {
+          final frame = new AttributeDataFrame(3, [
+            0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0,
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0
+          ], dynamic: true).withoutRow(2);
+
+          test('returns a frame marked as dynamic', () {
+            expect(frame.isDynamic, isTrue);
+          });
         });
       });
 
@@ -118,7 +207,8 @@ void main() {
           7.0, 7.0, 7.0
         ]);
 
-        test('throws a RangeError when the index list contains an out of bounds index', () {
+        test(
+            'throws a RangeError when the index list contains an out of bounds index', () {
           expect(() => frame.withoutRows([1, 2, 8]), throwsRangeError);
           expect(() => frame.withoutRows([1, 2, -1]), throwsRangeError);
         });
@@ -136,6 +226,10 @@ void main() {
             expect(withoutRows[2], orderedCloseTo([5.0, 5.0, 5.0], 0.00001));
             expect(withoutRows[3], orderedCloseTo([7.0, 7.0, 7.0], 0.00001));
           });
+
+          test('returns a new frame not marked as dynamic', () {
+            expect(withoutRows.isDynamic, isFalse);
+          });
         });
 
         group('with a list of valid indices including a duplicate index', () {
@@ -150,6 +244,40 @@ void main() {
             expect(withoutRows[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
             expect(withoutRows[2], orderedCloseTo([5.0, 5.0, 5.0], 0.00001));
             expect(withoutRows[3], orderedCloseTo([6.0, 6.0, 6.0], 0.00001));
+          });
+        });
+
+        group('on a frame not marked as dynamic', () {
+          final frame = new AttributeDataFrame(3, [
+            0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0,
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0,
+            4.0, 4.0, 4.0,
+            5.0, 5.0, 5.0,
+            6.0, 6.0, 6.0,
+            7.0, 7.0, 7.0
+          ], dynamic: false).withoutRows([1, 3, 4, 6]);
+
+          test('returns a frame not marked as dynamic', () {
+            expect(frame.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame marked as dynamic', () {
+          final frame = new AttributeDataFrame(3, [
+            0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0,
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0,
+            4.0, 4.0, 4.0,
+            5.0, 5.0, 5.0,
+            6.0, 6.0, 6.0,
+            7.0, 7.0, 7.0
+          ], dynamic: true).withoutRows([1, 3, 4, 6]);
+
+          test('returns a frame marked as dynamic', () {
+            expect(frame.isDynamic, isTrue);
           });
         });
       });
@@ -172,6 +300,34 @@ void main() {
           expect(frame[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
           expect(frame[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
           expect(frame[3], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+        });
+
+        group('on a frame not marked as dynamic', () {
+          final frame = new AttributeDataFrame(3,[
+            0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0
+          ], dynamic: false).withAppendedData([
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0
+          ]);
+
+          test('returns a frame not marked as dynamic', () {
+            expect(frame.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame marked as dynamic', () {
+          final frame = new AttributeDataFrame(3,[
+            0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0
+          ], dynamic: true).withAppendedData([
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0
+          ]);
+
+          test('returns a frame marked as dynamic', () {
+            expect(frame.isDynamic, isTrue);
+          });
         });
       });
 
@@ -209,6 +365,38 @@ void main() {
             expect(interleaved[0], orderedCloseTo([1.0, 1.0, 1.0, -1.0, -1.0, -1.0], 0.00001));
             expect(interleaved[1], orderedCloseTo([2.0, 2.0, 2.0, -2.0, -2.0, -2.0], 0.00001));
             expect(interleaved[2], orderedCloseTo([3.0, 3.0, 3.0, -3.0, -3.0, -3.0], 0.00001));
+          });
+        });
+
+        group('on a frame not marked as dynamic', () {
+          final frame = new AttributeDataFrame(3, [
+            1.0, 1.0, 1.0,
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0
+          ], dynamic: false).interleavedWith(new AttributeDataFrame(3, [
+            -1.0, -1.0, -1.0,
+            -2.0, -2.0, -2.0,
+            -3.0, -3.0, -3.0
+          ]));
+
+          test('returns a frame not marked as dynamic', () {
+            expect(frame.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame marked as dynamic', () {
+          final frame = new AttributeDataFrame(3, [
+            1.0, 1.0, 1.0,
+            2.0, 2.0, 2.0,
+            3.0, 3.0, 3.0
+          ], dynamic: true).interleavedWith(new AttributeDataFrame(3, [
+            -1.0, -1.0, -1.0,
+            -2.0, -2.0, -2.0,
+            -3.0, -3.0, -3.0
+          ]));
+
+          test('returns a frame marked as dynamic', () {
+            expect(frame.isDynamic, isTrue);
           });
         });
       });
@@ -303,6 +491,32 @@ void main() {
             expect(subFrame[1], orderedCloseTo([2.1, 2.2], 0.00001));
           });
         });
+
+        group('on a frame not marked as dynamic', () {
+          final frame = new AttributeDataFrame(4, [
+            0.0, 0.1, 0.2, 0.3,
+            1.0, 1.1, 1.2, 1.3,
+            2.0, 2.1, 2.2, 2.3,
+            3.0, 3.1, 3.2, 3.3
+          ], dynamic: false).subFrame(1);
+
+          test('returns a frame not marked as dynamic', () {
+            expect(frame.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame marked as dynamic', () {
+          final frame = new AttributeDataFrame(4, [
+            0.0, 0.1, 0.2, 0.3,
+            1.0, 1.1, 1.2, 1.3,
+            2.0, 2.1, 2.2, 2.3,
+            3.0, 3.1, 3.2, 3.3
+          ], dynamic: true).subFrame(1);
+
+          test('returns a frame marked as dynamic', () {
+            expect(frame.isDynamic, isTrue);
+          });
+        });
       });
 
       group('subFrameView', () {
@@ -362,6 +576,84 @@ void main() {
             expect(viewOnView[0], orderedCloseTo([2.0, 2.1, 2.2, 2.3], 0.00001));
             expect(viewOnView[1], orderedCloseTo([3.0, 3.1, 3.2, 3.3], 0.00001));
           });
+        });
+
+        group('on a frame not marked as dynamic', () {
+          final frame = new AttributeDataFrame(4, [
+            0.0, 0.1, 0.2, 0.3,
+            1.0, 1.1, 1.2, 1.3,
+            2.0, 2.1, 2.2, 2.3,
+            3.0, 3.1, 3.2, 3.3
+          ], dynamic: false).subFrameView(1);
+
+          test('returns a frame not marked as dynamic', () {
+            expect(frame.isDynamic, isFalse);
+          });
+        });
+
+        group('on a frame marked as dynamic', () {
+          final frame = new AttributeDataFrame(4, [
+            0.0, 0.1, 0.2, 0.3,
+            1.0, 1.1, 1.2, 1.3,
+            2.0, 2.1, 2.2, 2.3,
+            3.0, 3.1, 3.2, 3.3
+          ], dynamic: true).subFrameView(1);
+
+          test('returns a frame marked as dynamic', () {
+            expect(frame.isDynamic, isTrue);
+          });
+        });
+      });
+    });
+
+    group('asDynamic', () {
+      group('on a frame not marked as dynamic', () {
+        final frame = new AttributeDataFrame(3, [
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0
+        ], dynamic: false).asDynamic();
+
+        test('returns a frame marked as dynamic', () {
+          expect(frame.isDynamic, isTrue);
+        });
+      });
+
+      group('on a frame marked as dynamic', () {
+        final frame = new AttributeDataFrame(3, [
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0
+        ], dynamic: true).asDynamic();
+
+        test('returns a frame marked as dynamic', () {
+          expect(frame.isDynamic, isTrue);
+        });
+      });
+    });
+
+    group('asStatic', () {
+      group('on a frame not marked as dynamic', () {
+        final frame = new AttributeDataFrame(3, [
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0
+        ], dynamic: false).asStatic();
+
+        test('returns a frame marked as dynamic', () {
+          expect(frame.isDynamic, isFalse);
+        });
+      });
+
+      group('on a frame marked as dynamic', () {
+        final frame = new AttributeDataFrame(3, [
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0
+        ], dynamic: true).asStatic();
+
+        test('returns a frame marked as dynamic', () {
+          expect(frame.isDynamic, isFalse);
         });
       });
     });
