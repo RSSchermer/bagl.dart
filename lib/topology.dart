@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'buffered_vertex_data.dart';
 import 'geometry_primitives.dart';
 
+part 'src/topology/buffered_index_geometry.dart';
 part 'src/topology/line_loop.dart';
 part 'src/topology/line_strip.dart';
 part 'src/topology/lines.dart';
