@@ -66,11 +66,10 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
   /// signals to the rendering back-end that the data in the attribute data
   /// frame is intended to be modified regularly, allowing the rendering
-  /// back-end to optimize for this. The default value is `false`.
-  ///
-  /// Note that this is merely a hint that can be used for tuning the
-  /// performance of a rendering back-end: the data in an attribute data frame
-  /// that is not marked as dynamic can still be modified.
+  /// back-end to optimize for this. The default value is `false`. Note that
+  /// this is merely a hint that can be used for tuning the performance of a
+  /// rendering back-end: the data in an attribute data frame that is not marked
+  /// as dynamic can still be modified.
   factory AttributeDataFrame(int rowLength, List<double> data,
           {bool dynamic: false}) =>
       new AttributeDataFrame.fromFloat32List(
@@ -83,11 +82,10 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
   /// signals to the rendering back-end that the data in the attribute data
   /// frame is intended to be modified regularly, allowing the rendering
-  /// back-end to optimize for this. The default value is `false`.
-  ///
-  /// Note that this is merely a hint that can be used for tuning the
-  /// performance of a rendering back-end: the data in an attribute data frame
-  /// that is not marked as dynamic can still be modified.
+  /// back-end to optimize for this. The default value is `false`. Note that
+  /// this is merely a hint that can be used for tuning the performance of a
+  /// rendering back-end: the data in an attribute data frame that is not marked
+  /// as dynamic can still be modified.
   AttributeDataFrame.fromFloat32List(int rowLength, Float32List data,
       {bool dynamic: false})
       : rowLength = rowLength,
@@ -128,11 +126,10 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   ///
   /// When a frame is marked as dynamic it signals to the rendering back-end
   /// that the data in the attribute data frame is intended to be modified
-  /// regularly, allowing the rendering back-end to optimize for this.
-  ///
-  /// Note that this is merely a hint that can be used for tuning the
-  /// performance of a rendering back-end: the data in an attribute data frame
-  /// that is not marked as dynamic can still be modified.
+  /// regularly, allowing the rendering back-end to optimize for this. Note that
+  /// this is merely a hint that can be used for tuning the performance of a
+  /// rendering back-end: the data in an attribute data frame that is not marked
+  /// as dynamic can still be modified.
   ///
   /// Throws RangeError if [offsetInBytes] or [length] are negative, or if
   /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
