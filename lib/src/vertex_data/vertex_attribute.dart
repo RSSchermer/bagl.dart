@@ -1,15 +1,15 @@
-part of buffered_vertex_data;
+part of vertex_data;
 
 /// Base class for defining attributes of a certain type on an
-/// [AttributeDataFrom].
+/// [AttributeDataFrame].
 ///
 /// Defines how to extract and update attribute values for the rows of the
 /// attribute data frame the attribute is defined on.
 ///
-/// Subtypes of this class are declared for all attributes types allowed by
-/// WebGL: [FloatAttribute], [Vector2Attribute], [Vector3Attribute],
-/// [Vector4Attribute], [Matrix2Attribute], [Matrix3Attribute], and
-/// [Matrix4Attribute].
+/// Subtypes of this class are declared for all attributes types allowed by the
+/// WebGL specification: [FloatAttribute], [Vector2Attribute],
+/// [Vector3Attribute], [Vector4Attribute], [Matrix2Attribute],
+/// [Matrix3Attribute], and [Matrix4Attribute].
 ///
 /// An example:
 ///
@@ -22,31 +22,30 @@ part of buffered_vertex_data;
 ///        0.5, -0.5,     0.0, 0.0, 1.0
 ///     ]);
 ///
-///     // The color attribute value in an attribute data row as a Vector3. The
-///     // offset for the color data in a row is 2.
+///     // The `color` attribute value in an attribute data row as a Vector3.
+///     // The offset for the color data in a row is 2.
 ///     var color = new Vector3Attribute(attributeDataFrame, offset: 2);
 ///
-///     // The position attribute value in an attribute data row as a Vector2.
+///     // The `position` attribute value in an attribute data row as a Vector2.
 ///     // The offset of the position data in a row is 0, which is the default
 ///     // value so we may omit it.
 ///     var position = new Vector2Attribute(attributeDataFrame);
 ///
-///     // The position value for the second row.
+///     // The `position` value for the second row.
 ///     Vector2 secondVertexPosition = position.extractFrom(attributeData[1]);
 ///
-///     // The color value for the second row.
+///     // The `color` value for the second row.
 ///     Vector3 secondVertexColor = color.extractFrom(attributeData[1]);
 ///
 abstract class VertexAttribute<AttributeType> {
   /// The attribute data frame the attribute is defined on.
   final AttributeDataFrame frame;
 
-  /// The length of the sequence of numbers used to store an attribute of this
-  /// type.
+  /// The number floats used to store an attribute of this type.
   final int size;
 
-  /// The number of values that are to be skipped at the start of a row before
-  /// the sequence of values for this attribute starts.
+  /// The number of floats that are to be skipped at the start of a row before
+  /// the sequence of floats for this attribute starts.
   ///
   /// Note that the offset is defined relative to the start of a row, not
   /// relative to the start of the entire storage list of the attribute data
@@ -70,16 +69,11 @@ abstract class VertexAttribute<AttributeType> {
     _rowCount = frame.length;
   }
 
-  /// The size in bytes of the sequence of numbers used to store an attribute of
-  /// this type.
+  /// The size in bytes used to store an attribute of this type.
   int get sizeInBytes => size * Float32List.BYTES_PER_ELEMENT;
 
-  /// The size in bytes number of values that are to be skipped at the start of
-  /// a row before the sequence of values for this attribute starts.
-  ///
-  /// Note that the offset is defined relative to the start of a row, not
-  /// relative to the start of the entire storage list of the attribute data
-  /// frame.
+  /// The number of bytes that are to be skipped at the start of a row before
+  /// the sequence of bytes for this attribute starts.
   int get offsetInBytes => offset * Float32List.BYTES_PER_ELEMENT;
 
   /// Extract the attribute value from the row with the given index.
@@ -132,8 +126,8 @@ abstract class VertexAttribute<AttributeType> {
 
 /// Defines a float attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class FloatAttribute extends VertexAttribute<double> {
   /// Instantiates a new float attribute definition on the specified attribute
   /// data frame.
@@ -168,8 +162,8 @@ class FloatAttribute extends VertexAttribute<double> {
 
 /// Defines a [Vector2] attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class Vector2Attribute extends VertexAttribute<Vector2> {
   /// Instantiates a new [Vector2] attribute definition on the specified
   /// attribute data frame.
@@ -209,8 +203,8 @@ class Vector2Attribute extends VertexAttribute<Vector2> {
 
 /// Defines a [Vector3] attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class Vector3Attribute extends VertexAttribute<Vector3> {
   /// Instantiates a new [Vector3] attribute definition on the specified
   /// attribute data frame.
@@ -251,8 +245,8 @@ class Vector3Attribute extends VertexAttribute<Vector3> {
 
 /// Defines a [Vector4] attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class Vector4Attribute extends VertexAttribute<Vector4> {
   /// Instantiates a new [Vector4] attribute definition on the specified
   /// attribute data frame.
@@ -295,8 +289,8 @@ class Vector4Attribute extends VertexAttribute<Vector4> {
 
 /// Defines a [Matrix2] attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class Matrix2Attribute extends VertexAttribute<Matrix2> {
   /// Instantiates a new [Matrix2] attribute definition on the specified
   /// attribute data frame.
@@ -339,8 +333,8 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
 
 /// Defines a [Matrix3] attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class Matrix3Attribute extends VertexAttribute<Matrix3> {
   /// Instantiates a new [Matrix3] attribute definition on the specified
   /// attribute data frame.
@@ -396,8 +390,8 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
 
 /// Defines a [Matrix4] attribute on an [AttributeDataFrame].
 ///
-/// See the documentation for the [VertexAttribute] class for an example of
-/// defining vertex attributes on an attribute data frame.
+/// See the documentation for [VertexAttribute] for an example of defining
+/// vertex attributes on an attribute data frame.
 class Matrix4Attribute extends VertexAttribute<Matrix4> {
   /// Instantiates a new [Matrix4] attribute definition on the specified
   /// attribute data frame.

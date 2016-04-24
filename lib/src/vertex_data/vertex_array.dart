@@ -1,15 +1,13 @@
-part of buffered_vertex_data;
+part of vertex_data;
 
-/// Describes a collection as a view on buffered attribute data.
+/// A sequence of vertices as a view on one or more [AttributeDataFrame]s.
 ///
-/// Changes to the buffered attribute data will change the vertices in this
-/// collection and vice versa. Vertices are ordered and uniquely identified by
-/// consecutive integer indices starting at 0.
+/// Vertices are ordered and uniquely identified by consecutive integer indices
+/// starting at 0.
 ///
-/// A [BufferedVertexCollection] can be instantiated from an existing collection
-/// of vertices:
+/// A [VertexArray] can be instantiated from another collection of vertices:
 ///
-///     var vertices = new BufferedVertexCollection([
+///     var vertices = new VertexArray([
 ///       new Vertex({
 ///         'position': new Vector2(0.0, 1.0),
 ///         'color': new Vector3(1.0, 0.0, 0.0)
@@ -24,8 +22,11 @@ part of buffered_vertex_data;
 ///       })
 ///     ]);
 ///
-/// A [BufferedVertexCollection] can also be instantiated from
-/// [VertexAttribute]s defined on [AttributeDataFrame]s:
+/// This will create a single new [AttributeDataFrame] in which each row stores
+/// the attribute values of a vertex as interleaved attribute data.
+///
+/// A [VertexArray] can also be instantiated from [VertexAttribute]s defined on
+/// one or more [AttributeDataFrame]s:
 ///
 ///     var attributeData = new AttributeDataFrame(5, [
 ///        // Position    // Color
@@ -34,54 +35,48 @@ part of buffered_vertex_data;
 ///        0.5, -0.5,     0.0, 0.0, 1.0
 ///     ]);
 ///
-///     var vertices = new BufferedVertexCollection.fromAttributeData({
+///     var vertices = new VertexArray.fromAttributeData({
 ///       'position': new Vector2Attribute(attributeData),
 ///       'color': new Vector3Attribute(attributeData, offset: 2)
 ///     });
 ///
-/// Note that for large collections of vertices, instantiating a
-/// [BufferedVertexCollection] directly from attribute data may be more
-/// efficient than instantiating a [BufferedVertexCollection] from a collection
-/// of vertices.
+/// Note that for large collections of vertices, instantiating a [VertexArray]
+/// directly from attributes defined on attribute data frames may be more
+/// efficient than instantiating a [VertexArray] from a collection of vertices.
 ///
-/// It is not possible to replace a vertex in a [BufferedVertexCollection].
-/// However, it is possible to modify individual attributes of individual
-/// vertices. One might for example change the 'position' of the vertex at index
-/// 2:
+/// It is not possible to replace a vertex in a [VertexArray]. However, it is
+/// possible to update the values of individual attributes for the vertices in
+/// a [VertexArray]. One might for example change the `position` value of the
+/// vertex at index 2:
 ///
 ///     vertices[2]['position'] = new Vector2(0.5, 0.5);
 ///
-/// This will update the buffered attribute data.
-///
-/// Vertices may not be added or removed from a [BufferedVertexCollection].
-/// However, `toBuilder()` may be called to create a new instance as a modified
-/// version of the [BufferedVertexCollection]:
+/// Vertices may not be added or removed from a [VertexArray]. However,
+/// `toBuilder()` may be called to create a new [VertexArrayBuilder] instance,
+/// which may be used to create new [VertexArray] instances as modified versions
+/// of the [VertexArray]. The builder will use this [VertexArray] as a base.
+/// The builder can be instructed to omit or append vertices on the new
+/// instances it builds:
 ///
 ///     var modified = vertices.toBuilder()
 ///         ..omit(someVertex)
 ///         ..appendAll(newVertices)
 ///         .build();
 ///
-/// See [BufferedVertexCollectionBuilder] for further details on using the
-/// builder to create a new modified version of a [BufferedVertexCollection].
-class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
-  /// Map of the [VertexAttribute]s defined on the buffered vertex data, keyed
-  /// by the attribute names.
+/// See [VertexArrayBuilder] for further details on using the builder.
+class VertexArray extends IterableBase<VertexArrayVertexView> {
+  /// Map of the [VertexAttribute]s defined on the attribute data, keyed by the
+  /// attribute names.
   final Map<String, VertexAttribute> attributes;
 
   final int length;
 
-  /// Instantiates a new [BufferedVertexCollection] from a collection of
-  /// vertices.
+  /// Instantiates a new [VertexArray] from a collection of vertices.
   ///
-  /// Every vertex map must define the same attributes and the value types for
-  /// a particular attribute must be the same across all vertices.
+  /// Every vertex map must define the same attributes and the value type for
+  /// each particular attribute must be the same for all vertices.
   ///
-  /// This will create a single new byte buffer which stores the attribute
-  /// values of the vertices as interleaved data (as opposed to creating
-  /// multiple byte buffers each storing a single attribute).
-  ///
-  ///     var vertices = new BufferedVertexCollection([
+  ///     var vertices = new VertexArray([
   ///       new Vertex({
   ///         'position': new Vector2(0.0, 1.0),
   ///         'color': new Vector3(1.0, 0.0, 0.0)
@@ -96,6 +91,9 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   ///       })
   ///     ]);
   ///
+  /// This will create a single new [AttributeDataFrame] which stores the
+  /// attribute values of the vertices as interleaved data.
+  ///
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
   /// signals to the rendering back-end that the data in the attribute data
   /// frame is intended to be modified regularly, allowing the rendering
@@ -107,17 +105,17 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   /// Throws an [ArgumentError] when the [vertices] collection is empty.
   /// Throws an [ArgumentError] when a vertex defines attributes that are not
   /// consistent with the attributes defined on preceding vertices.
-  factory BufferedVertexCollection(Iterable<Vertex> vertices,
+  factory VertexArray(Iterable<Vertex> vertices,
       {bool dynamic: false}) {
     if (vertices.isEmpty) {
       throw new ArgumentError(
-          'Cannot instantiate a BufferedVertexCollection from an empty '
-          'collection of vertices.');
+          'Cannot instantiate a VertexArray from an empty collection of '
+          'vertices.');
     }
 
-    // If the vertex collection is a buffered vertex collection, return a copy.
-    if (vertices is BufferedVertexCollection) {
-      return vertices.subCollection(0);
+    // If the vertex collection is a VertexArray, return a copy.
+    if (vertices is VertexArray) {
+      return vertices.subArray(0);
     }
 
     final firstVertexAttributes = vertices.first.toMap();
@@ -195,8 +193,8 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
       if (vertex.attributeNames.length != attributesLength) {
         throw new ArgumentError('The vertex at position $counter defines '
             '${vertex.attributeNames.length} attributes, whereas the preceding'
-            'vertices at define $attributesLength attributes. All vertices '
-            'must define the same attributes.');
+            'vertices define $attributesLength attributes. All vertices must '
+            'define the same attributes.');
       }
 
       attributes.forEach((name, attribute) {
@@ -215,9 +213,9 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
                 'The vertex at position $counter declares the attribute named '
                 '"$name" to have value "$value" of type '
                 '"${value.runtimeType}", but this value type is not consistent '
-                'with the value type used by preceding vertices for this '
-                'attribute. All vertices must use a consistent value type for '
-                'an attribute.');
+                'with the value type used for this attribute by the preceding '
+                'vertices. The value type for an attribute must be consistent'
+                'for all vertices.');
           }
         }
       });
@@ -225,11 +223,11 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
       counter++;
     }
 
-    return new BufferedVertexCollection.fromAttributeData(attributes);
+    return new VertexArray.fromAttributeData(attributes);
   }
 
-  /// Instantiates a new [BufferedVertexCollection] from one or more
-  /// [VertexAttributes] defined on one or more [AttributeDataFrame]s.
+  /// Instantiates a new [VertexArray] from one or more [VertexAttributes]
+  /// defined on one or more [AttributeDataFrame]s.
   ///
   /// The attribute data for multiple attributes may be interleaved in a single
   /// [AttributeDataFrame]:
@@ -241,13 +239,13 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   ///        0.5, -0.5,     0.0, 0.0, 1.0
   ///     ]);
   ///
-  ///     var vertices = new BufferedVertexCollection.fromAttributeData({
+  ///     var vertices = new VertexArray.fromAttributeData({
   ///       'position': new Vector2Attribute(attributeData),
   ///       'color': new Vector3Attribute(attributeData, offset: 2)
   ///     });
   ///
   /// Note that attributes might have to specify an `offset` if the offset of
-  /// the attribute in a row is not 0.
+  /// the attribute relative to the start of a row is not 0.
   ///
   /// The attribute data may also be spread over multiple attribute data frames,
   /// for example one for each attribute:
@@ -264,61 +262,65 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   ///       0.0, 0.0, 1.0
   ///     ]);
   ///
-  ///     var vertices = new BufferedVertexCollection.fromAttributeData({
+  ///     var vertices = new VertexArray.fromAttributeData({
   ///       'position': new Vector2Attribute(positionData),
   ///       'color': new Vector3Attribute(colorData)
   ///     });
   ///
   /// This allows different objects to share data on specific attributes. For
-  /// example, two objects might share the same position data, but each uses
+  /// example: two objects might share the same position data, but each uses
   /// different color data.
-  BufferedVertexCollection.fromAttributeData(
+  VertexArray.fromAttributeData(
       Map<String, VertexAttribute> attributes)
       : attributes = attributes,
         length = attributes.values.first.frame.length {
     attributes.forEach((name, attribute) {
       if (attribute.frame.length != length) {
         throw new ArgumentError(
-            'The attribute named "$name" is defined on a frame of a different '
-            'length than the attribute named "${attributes.keys.first}". All '
-            'attributes must be defined on frames of equal length.');
+            'The attribute named "$name" is defined on an AttributeDataFrame '
+            'of a different length than the attribute named '
+            '"${attributes.keys.first}". All attributes must be defined on '
+            'frames of equal length.');
       }
     });
   }
 
-  Iterator<BufferedVertexView> get iterator =>
-      new BufferedVertexCollectionIterator(this);
+  Iterator<VertexArrayVertexView> get iterator =>
+      new VertexArrayIterator(this);
 
-  /// The names of the attributes defined for the vertices in this collection.
+  /// The names of the attributes defined for the vertices in this vertex array.
   Iterable<String> get attributeNames => attributes.keys;
 
-  /// Returns `true` if the vertices in this collection have an attribute with
-  /// the given [name], `false` otherwise.
+  /// Returns `true` if an attribute with the given [name] is defined for the
+  /// vertices in this vertex array, `false` otherwise.
   bool hasAttribute(String name) => attributes.containsKey(name);
 
+  /// Returns the attribute data frames that contain the attribute data for
+  /// this vertex array.
   Set<AttributeDataFrame> get attributeDataFrames =>
       attributes.values.map((attribute) => attribute.frame).toSet();
 
-  BufferedVertexView elementAt(int index) => this[index];
+  VertexArrayVertexView elementAt(int index) => this[index];
 
-  /// Returns the index of the given [vertex] in this vertex collection.
+  /// Returns the index of the given [vertex] in this vertex array.
   ///
-  /// Returns -1 if [vertex] is not found in this vertex collection.
+  /// Returns -1 if [vertex] is not found in this vertex array.
   int indexOf(Vertex vertex) {
-    if (vertex is BufferedVertexView && vertex.vertexCollection == this) {
+    if (vertex is VertexArrayVertexView && vertex.vertexArray == this) {
       return vertex.index;
     } else {
       return -1;
     }
   }
 
-  /// Returns a new vertex collection from [start] inclusive to [end] exclusive.
+  /// Returns a new vertex array from [start] inclusive to [end] exclusive.
   ///
-  /// If [end] is omitted, the [length] of this collection is used.
+  /// If [end] is omitted, the [length] of this current vertex array is used as
+  /// the default value.
   ///
   /// Throws an [ArgumentError] if [start] is outside of the range `0..length`
   /// or if [end] is outside of the range `start..length`.
-  BufferedVertexCollection subCollection(int start, [int end]) {
+  VertexArray subArray(int start, [int end]) {
     RangeError.checkValidIndex(start, this);
     RangeError.checkValidRange(start, end, length);
 
@@ -338,11 +340,11 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
       newAttributeMap[name] = oldAttribute.onFrame(newFrame);
     });
 
-    return new BufferedVertexCollection.fromAttributeData(newAttributeMap);
+    return new VertexArray.fromAttributeData(newAttributeMap);
   }
 
   /// Returns a builder which can be used to create a modified version of this
-  /// vertex collection.
+  /// vertex array.
   ///
   ///     var modified = vertices.toBuilder()
   ///         ..omit(someVertex)
@@ -350,36 +352,35 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   ///         .build();
   ///
   /// See [IndexedVertexCollectionBuilder].
-  BufferedVertexCollectionBuilder toBuilder() =>
-      new BufferedVertexCollectionBuilder.fromBaseCollection(this);
+  VertexArrayBuilder toBuilder() =>
+      new VertexArrayBuilder.fromBaseArray(this);
 
   /// Returns the vertex at the specified [index].
   ///
   /// Throws a [RangeError] when the [index] is out of bounds.
-  BufferedVertexView operator [](int index) {
+  VertexArrayVertexView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
-    return new BufferedVertexView(this, index);
+    return new VertexArrayVertexView(this, index);
   }
 }
 
-/// Iterator over the vertices in a [BufferedVertexCollection].
-class BufferedVertexCollectionIterator extends Iterator<BufferedVertexView> {
-  final BufferedVertexCollection _vertexCollection;
+/// Iterator over the vertices in a [VertexArray].
+class VertexArrayIterator extends Iterator<VertexArrayVertexView> {
+  final VertexArray _vertexArray;
 
-  final int _vertexCollectionLength;
+  final int _vertexArrayLength;
 
   int _currentIndex = -1;
 
-  /// Instantiates a new [BufferedVertexCollection] iterator of the given
-  /// [vertexCollection].
-  BufferedVertexCollectionIterator(BufferedVertexCollection vertexCollection)
-      : _vertexCollection = vertexCollection,
-        _vertexCollectionLength = vertexCollection.length;
+  /// Instantiates a new [VertexArrayIterator] over the given [VertexArray].
+  VertexArrayIterator(VertexArray vertexArray)
+      : _vertexArray = vertexArray,
+        _vertexArrayLength = vertexArray.length;
 
-  BufferedVertexView get current {
-    if (_currentIndex >= 0 && _currentIndex < _vertexCollectionLength) {
-      return new BufferedVertexView(_vertexCollection, _currentIndex);
+  VertexArrayVertexView get current {
+    if (_currentIndex >= 0 && _currentIndex < _vertexArrayLength) {
+      return new VertexArrayVertexView(_vertexArray, _currentIndex);
     } else {
       return null;
     }
@@ -388,29 +389,28 @@ class BufferedVertexCollectionIterator extends Iterator<BufferedVertexView> {
   bool moveNext() {
     _currentIndex++;
 
-    return _currentIndex < _vertexCollectionLength;
+    return _currentIndex < _vertexArrayLength;
   }
 }
 
-/// A [Vertex] as a view on the attribute data of a [BufferedVertexCollection].
-///
-/// Modifying the attributes of a [BufferedVertexView] will affect the
-/// buffered attribute data of the [BufferedVertexCollection] and vice versa.
-class BufferedVertexView implements Vertex {
-  final BufferedVertexCollection vertexCollection;
+/// View of a vertex in a [VertexArray].
+class VertexArrayVertexView implements Vertex {
+  /// The [VertexArray] on which this [VertexArrayVertexView] is defined
+  final VertexArray vertexArray;
 
+  /// The index of the vertex in the [vertexArray].
   final int index;
 
-  /// Instantiates a new [BufferedVertexView] as a view on the vertex in the
-  /// given [BufferedVertexCollection] at the given index.
-  BufferedVertexView(this.vertexCollection, this.index);
+  /// Instantiates a new [VertexArrayVertexView] as a view on the vertex in the
+  /// given [VertexArray] at the given index.
+  VertexArrayVertexView(this.vertexArray, this.index);
 
-  Iterable<String> get attributeNames => vertexCollection.attributeNames;
+  Iterable<String> get attributeNames => vertexArray.attributeNames;
 
-  bool hasAttribute(String name) => vertexCollection.hasAttribute(name);
+  bool hasAttribute(String name) => vertexArray.hasAttribute(name);
 
   Iterable<dynamic> get attributeValues => attributeNames.map(
-      (name) => vertexCollection.attributes[name].extractValueAtRow(index));
+      (name) => vertexArray.attributes[name].extractValueAtRow(index));
 
   Map<String, dynamic> toMap() {
     final map = new Map<String, dynamic>();
@@ -423,11 +423,15 @@ class BufferedVertexView implements Vertex {
   }
 
   operator [](String attributeName) =>
-      vertexCollection.attributes[attributeName]?.extractValueAtRow(index);
+      vertexArray.attributes[attributeName]?.extractValueAtRow(index);
 
-  /// Sets attribute with the specified [attributeName] to the given [value].
+  /// Sets the attribute with the specified [attributeName] to the given
+  /// [value].
   ///
-  /// Can only be used to change existing attributes, not the add new attributes
+  /// This will update the attribute data of the [VertexArray] viewed by this
+  /// vertex view.
+  ///
+  /// Can only be used to update existing attributes, not to add new attributes
   /// to the vertex. The [value] must match the type of the attribute's current
   /// value.
   ///
@@ -435,57 +439,55 @@ class BufferedVertexView implements Vertex {
   /// the given [attributeName].
   /// Throws an [ArgumentError] if the [value] is not of a valid type.
   void operator []=(String attributeName, value) {
-    final attribute = vertexCollection.attributes[attributeName];
+    final attribute = vertexArray.attributes[attributeName];
 
     if (attribute == null) {
       throw new ArgumentError(
           'Tried to set an attribute named "$attributeName" to a new value, '
           'but no attribute with that name is present on the vertex view. Only '
           'existing attributes can be updated on a vertex view, no new '
-          'attribute can be created.');
+          'attributes can be created.');
     } else {
       attribute.setValueAtRow(index, value);
     }
   }
 }
 
-/// Builds a [BufferedVertexCollection].
+/// Builds a [VertexArray].
 ///
-/// Simplifies the creation of a [BufferedVertexCollection], particularly when
-/// the aim is to create a modified instance of an existing
-/// [BufferedVertexCollection]:
+/// Simplifies the creation of a [VertexArray], particularly when the aim is to
+/// create a modified instance of an existing [VertexArray]:
 ///
 ///     var modified =
-///       new BufferedVertexCollectionBuilder.fromBaseCollection(baseCollection)
+///       new VertexArrayBuilder.fromBaseCollection(baseCollection)
 ///           ..omit(someVertex)
 ///           ..appendAll(newVertices)
 ///           .build();
 ///
-/// Alternatively, `toBuilder()` can be called on the existing
-/// [BufferedVertexCollection]:
+/// Alternatively, `toBuilder()` can be called on the existing [VertexArray]:
 ///
 ///     var modified = baseCollection.toBuilder()
 ///         ..omit(someVertex)
 ///         ..appendAll(newVertices)
 ///         .build();
 ///
-class BufferedVertexCollectionBuilder {
-  /// The base collection used as the starting point by the builder.
-  final BufferedVertexCollection baseCollection;
+class VertexArrayBuilder {
+  /// The base [VertexArray] used as the starting point by this builder.
+  final VertexArray baseArray;
 
   final List<Vertex> _appendedVertices = new List();
 
   final List<int> _omittedVertexIndices = new List();
 
-  /// Instantiates a new [BufferedVertexCollectionBuilder].
-  BufferedVertexCollectionBuilder() : baseCollection = null;
+  /// Instantiates a new [VertexArrayBuilder].
+  VertexArrayBuilder() : baseArray = null;
 
-  /// Instantiates a new [BufferedVertexCollectionBuilder] using an existing
-  /// [BufferedVertexCollection] as a base.
-  BufferedVertexCollectionBuilder.fromBaseCollection(this.baseCollection);
+  /// Instantiates a new [VertexArrayBuilder] using an existing [VertexArray] as
+  /// a base.
+  VertexArrayBuilder.fromBaseArray(this.baseArray);
 
   /// Adds the [vertex] to the collection of vertices that are to be appended
-  /// onto new vertex collections build with this builder.
+  /// onto new vertex arrays build with this builder.
   ///
   /// See [appendAll] for adding multiple vertices at once.
   void append(Vertex vertex) {
@@ -493,28 +495,27 @@ class BufferedVertexCollectionBuilder {
   }
 
   /// Adds the [vertices] to the collection of vertices that are to be appended
-  /// onto new vertex collections build with this builder.
+  /// onto new vertex arrays build with this builder.
   ///
   /// See [append] for adding a single vertex.
   void appendAll(Iterable<Vertex> vertices) {
     _appendedVertices.addAll(vertices);
   }
 
-  /// Instructs this builder to omit the [vertex] from new vertex collections
+  /// Instructs this builder to omit the [vertex] from new vertex arrays
   /// created with the builder.
   ///
-  /// If an existing vertex collection is used as a base for this builder and
-  /// the [vertex] is present in this base collection, then the builder will
-  /// omit the [vertex] from any new vertex collection instances it builds.
+  /// If an existing vertex array is used as a base for this builder and the
+  /// [vertex] is present in this base array, then the builder will omit the
+  /// [vertex] from any new vertex arrays it builds.
   ///
-  /// Returns `true` if the vertex was in the base collection, `false`
-  /// otherwise.
+  /// Returns `true` if the vertex was in the base array, `false` otherwise.
   ///
   /// See [omitAll] for omitting multiple vertices at once.
   bool omit(Vertex vertex) {
-    if (baseCollection != null &&
-        vertex is BufferedVertexView &&
-        vertex.vertexCollection == baseCollection) {
+    if (baseArray != null &&
+        vertex is VertexArrayVertexView &&
+        vertex.vertexArray == baseArray) {
       _omittedVertexIndices.add(vertex.index);
 
       return true;
@@ -524,75 +525,74 @@ class BufferedVertexCollectionBuilder {
   }
 
   /// Instructs this builder to omit the vertex at the given [index] from new
-  /// vertex collections created with the builder.
+  /// vertex arrays created with this builder.
   ///
-  /// If an existing vertex collection is used as a base for this builder, then
-  /// the builder will omit the vertex at the given [index] from any new vertex
-  /// collection instances it builds.
+  /// If an existing vertex array is used as a base for this builder, then this
+  /// builder will omit the vertex at the given [index] from any new vertex
+  /// arrays it builds.
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the base
-  /// collection.
-  /// Throws an [UnsupportedError] if no base collection base specified for the
+  /// array.
+  /// Throws an [UnsupportedError] if no base array was specified for this
   /// builder.
   void omitAt(int index) {
-    if (baseCollection == null) {
+    if (baseArray == null) {
       throw new UnsupportedError(
-          'Can only call omitAt when the builder was given a base collection.');
+          'Can only call omitAt when the builder was given a base array.');
     } else {
-      RangeError.checkValidIndex(index, baseCollection);
+      RangeError.checkValidIndex(index, baseArray);
 
       _omittedVertexIndices.add(index);
     }
   }
 
-  /// Instructs this builder to omit the [vertices] from new vertex collections
+  /// Instructs this builder to omit the [vertices] from new vertex arrays
   /// created with the builder.
   ///
   /// If an existing vertex collection is used as a base for this builder and
-  /// any of the [vertices] are present in this base collection, then the
-  /// builder will omit these [vertices] from any new vertex collection
-  /// instances it builds.
+  /// any of the [vertices] are present in this base array, then the builder
+  /// will omit these [vertices] from any new vertex arrays it builds.
   ///
   /// See [omit] for omitting a single vertex.
   void omitAll(Iterable<Vertex> vertices) {
-    if (baseCollection != null) {
+    if (baseArray != null) {
       vertices.forEach((vertex) {
-        if (vertex is BufferedVertexView &&
-            vertex.vertexCollection == baseCollection) {
+        if (vertex is VertexArrayVertexView &&
+            vertex.vertexArray == baseArray) {
           _omittedVertexIndices.add(vertex.index);
         }
       });
     }
   }
 
-  /// Instantiates a new vertex collection using on the build instructions
-  /// provided to the builder.
+  /// Instantiates a new [VertexArray] based on the build instructions provided
+  /// to the builder.
   ///
-  /// For example:
+  /// Example:
   ///
   ///     var newCollection = oldCollection.toBuilder()
   ///         ..omit(someVertex)
   ///         ..appendAll(newVertices)
   ///         .build();
   ///
-  BufferedVertexCollection build() {
-    if (baseCollection == null) {
-      return new BufferedVertexCollection(_appendedVertices);
+  VertexArray build() {
+    if (baseArray == null) {
+      return new VertexArray(_appendedVertices);
     } else {
-      // Currently this algorithm creates the new data buffers in two steps:
-      // first an intermediate buffer is created where the omitted vertices
-      // are removed from the base collection, then the final data buffer is
-      // created where the appended vertices are added at the tail. A possible
-      // optimization would be to do this in a single step, without creating
-      // an intermediate data buffer, although this might not be a significant
-      // optimization.
+      // Currently this algorithm creates the new attribute data frames in two
+      // steps: first an intermediate frame is created in which the omitted
+      // vertices are removed from the base array, then the final frame is
+      // created in which the appended vertices are added at the tail. A
+      // possible optimization would be to do this in a single step, without
+      // creating an intermediate frame, although this might not be a
+      // significant optimization.
 
       final appendCount = _appendedVertices.length;
 
       // Create map of old frames to corresponding new frames.
       final oldNewFrameMap = new Map<AttributeDataFrame, AttributeDataFrame>();
 
-      baseCollection.attributeDataFrames.forEach((frame) {
+      baseArray.attributeDataFrames.forEach((frame) {
         final appendedData = new Float32List(frame.rowLength * appendCount);
 
         oldNewFrameMap[frame] = frame
@@ -603,28 +603,27 @@ class BufferedVertexCollectionBuilder {
       // Create new attribute map on the new frames
       final newAttributeMap = new Map<String, VertexAttribute>();
 
-      baseCollection.attributes.forEach((name, oldAttribute) {
+      baseArray.attributes.forEach((name, oldAttribute) {
         final newFrame = oldNewFrameMap[oldAttribute.frame];
 
         newAttributeMap[name] = oldAttribute.onFrame(newFrame);
       });
 
-      // Create new vertex collection
+      // Create new VertexArray
       final vertices =
-          new BufferedVertexCollection.fromAttributeData(newAttributeMap);
+          new VertexArray.fromAttributeData(newAttributeMap);
 
       // Set the attribute data for the appended vertices
-      var currentRow = baseCollection.length - _omittedVertexIndices.length;
+      var currentRow = baseArray.length - _omittedVertexIndices.length;
 
       _appendedVertices.forEach((vertex) {
         newAttributeMap.forEach((name, attribute) {
           if (!vertex.hasAttribute(name)) {
             throw new StateError(
-                'Tried to append a vertex to a buffered vertex collection, but '
-                'the vertex does not the define an attribute named $name. '
-                'Vertices appended to a buffered vertex collection must define '
-                'the same attributes as the vertices in the buffered vertex '
-                'collection.');
+                'Tried to append a vertex to a VertexArray, but the vertex '
+                'does not the define an attribute named "$name". Vertices '
+                'appended to a VertexArray must define the same attributes as '
+                'the vertices in the VertexArray that is used as a base.');
           } else {
             try {
               attribute.setValueAtRow(currentRow, vertex[name]);
@@ -633,8 +632,8 @@ class BufferedVertexCollectionBuilder {
                   'Tried to append a vertex that declares the attribute named '
                   '"$name" to have value "${vertex[name]}" of type '
                   '"${vertex[name].runtimeType}", but this value type is not '
-                  'consistent with the value type used by existing vertices '
-                  'for this attribute. All vertices must use a consistent '
+                  'consistent with the value type for this attribute used by '
+                  'existing vertices. All vertices must use a consistent '
                   'value type for an attribute.');
             }
           }

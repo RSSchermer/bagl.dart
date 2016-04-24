@@ -1,12 +1,14 @@
-part of buffered_vertex_data;
+part of vertex_data;
 
-/// Vertex attribute data frame as a view on a byte buffer.
+/// Vertex attribute data frame viewed as rows of [double] values.
 ///
-/// An attribute data frame consists of a set of rows, each row representing
-/// attribute data (for example position coordinates and/or RGB color values)
-/// for a single vertex. A single row must not hold attribute data for more than
+/// An attribute data frame consists of a sequence of rows. Each row in
+/// represents the attribute data (for example position coordinates and/or RGB
+/// color values) for a single vertex as a sequence of [double] values. All rows
+/// are of equal length. A single row must not hold attribute data for more than
 /// one vertex and the attribute data for a single vertex must not be spread
-/// over more than one row.
+/// over more than one row. The rows are ordered and each row is uniquely
+/// identified by consecutive integer indices starting at 0.
 ///
 /// The following is an example of an attribute data frame that stores data for
 /// a 2D position attribute, interleaved with data for RGB color values:
@@ -18,22 +20,18 @@ part of buffered_vertex_data;
 ///        0.5, -0.5,     0.0, 0.0, 1.0
 ///     ]);
 ///
-/// Note, that not all attributes for a [VertexSet] need to be interleaved in
+/// Note that not all attributes for a [VertexArray] need to be interleaved in
 /// the same attribute data frame; the attribute data for different attributes
 /// can be spread over multiple frames, but all frames must have the same length
 /// (same number of rows). Rows at corresponding indices then describe different
 /// attributes for the same vertex. For example, one frame might be used to
 /// store interleaved data for a `position` attribute and a `vertexNormal`
-/// attribute, and a second frame might be used to store a `color` attribute for
-/// the same set of vertices.
-///
-/// An attribute data frame acts as a view on a byte buffer in which the actual
-/// attribute data is stored. Operations that change the data in an attribute
-/// data frame change the data in the byte buffer and vice versa.
+/// attribute, and a second frame might be used to store data for a `color`
+/// attribute.
 class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     with TypedData {
   /// The length of the rows in this attribute data frame as the number of
-  /// float32 values (not the number of bytes).
+  /// [double] values (not the number of bytes).
   final int rowLength;
 
   final int length;
@@ -49,12 +47,11 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// that is not marked as dynamic can still be modified.
   final bool isDynamic;
 
-  /// Typed [Float32List] view on the byte buffer in which this attribute data
-  /// frame's data is stored.
+  /// Typed [Float32List] view on the attribute data.
   final Float32List _storage;
 
   /// Creates a new attribute data frame, partitioned into rows of the
-  /// specified row length.
+  /// specified [rowLength].
   ///
   ///     var attributeData = new AttributeDataFrame(5, [
   ///        // Position    // Color
@@ -76,8 +73,8 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
           rowLength, new Float32List.fromList(data),
           dynamic: dynamic);
 
-  /// Creates a new attribute data frame as a view on the given Float32List's
-  /// byte buffer, partitioned into rows of the specified row length.
+  /// Creates a new attribute data frame as a view on the given [Float32List],
+  /// partitioned into rows of the specified [rowLength].
   ///
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
   /// signals to the rendering back-end that the data in the attribute data
@@ -86,6 +83,10 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// this is merely a hint that can be used for tuning the performance of a
   /// rendering back-end: the data in an attribute data frame that is not marked
   /// as dynamic can still be modified.
+  ///
+  /// THe attribute data frame acts as a view on the [FLoat32List], which means
+  /// that changes to the attribute data frame will affect the [Float32List]
+  /// and vice versa.
   AttributeDataFrame.fromFloat32List(int rowLength, Float32List data,
       {bool dynamic: false})
       : rowLength = rowLength,
@@ -101,11 +102,11 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// specified, it defaults to `null`, which indicates that the view extends to
   /// the end of the byte buffer.
   ///
-  /// Throws RangeError if [offsetInBytes] or [length] are negative, or if
+  /// Throws a [RangeError] if [offsetInBytes] or [length] are negative, or if
   /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
   /// of buffer.
   ///
-  /// Throws ArgumentError if [offsetInBytes] is not a multiple of
+  /// Throws an [ArgumentError] if [offsetInBytes] is not a multiple of
   /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
   factory AttributeDataFrame.view(int rowLength, ByteBuffer buffer,
           [int offsetInBytes = 0, int length]) =>
@@ -131,11 +132,11 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// rendering back-end: the data in an attribute data frame that is not marked
   /// as dynamic can still be modified.
   ///
-  /// Throws RangeError if [offsetInBytes] or [length] are negative, or if
+  /// Throws a [RangeError] if [offsetInBytes] or [length] are negative, or if
   /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
   /// of buffer.
   ///
-  /// Throws ArgumentError if [offsetInBytes] is not a multiple of
+  /// Throws an [ArgumentError] if [offsetInBytes] is not a multiple of
   /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
   factory AttributeDataFrame.dynamicView(int rowLength, ByteBuffer buffer,
           [int offsetInBytes = 0, int length]) =>
@@ -160,11 +161,10 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     return new AttributeDataRowView(this, index);
   }
 
-  /// Creates a new attribute data frame as a view on a new byte buffer without
-  /// the row at the given index.
+  /// Creates a new attribute data frame without the row at the given [index].
   ///
-  /// Throws a [RangeError] when the given row index is smaller than 0 or
-  /// greater than the total number of rows in the attribute data frame.
+  /// Throws a [RangeError] when the given [index] is smaller than 0 or greater
+  /// than the [length] of the attribute data frame.
   AttributeDataFrame withoutRow(int index) {
     RangeError.checkValidIndex(index, this);
 
@@ -186,12 +186,12 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// This method is much more efficient than calling [withoutRow] repeatedly
   /// to remove multiple rows from the attribute data frame.
   ///
-  /// Throws a [RangeError] if one of the specified row indices is smaller than
-  /// 0 or greater than the total number of rows in the attribute data frame.
+  /// Throws a [RangeError] if any of the specified row indices are smaller than
+  /// 0 or greater than the [length] of the attribute data frame.
   AttributeDataFrame withoutRows(Iterable<int> indices) {
     // Algorithm first sorts the indices that are to be removed, then loops over
     // these indices to look for gaps in between indices. If gap is encountered
-    // it copies the rows in the gap over to the new storage buffer in one go.
+    // it copies the rows in the gap over to the new storage buffer.
 
     final indexList = indices.toList();
 
@@ -219,8 +219,8 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
       RangeError.checkValidIndex(index, this);
 
       // Check if there is a gap between the last removed row and the index of
-      // the row that currently is to be removed. If a gap is found, copy over
-      // the rows in the gap to the new frame's storage buffer.
+      // the current row that is to be removed. If a gap is found, copy over
+      // the rows in the gap to the new storage buffer.
       if (index > lastRemovedRow + 1) {
         final gapSizeInRows = index - lastRemovedRow - 1;
         final start = copiedRowCount * rowLength;
@@ -235,8 +235,8 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     }
 
     // Check if there are rows at the tail of the frame that remain to be
-    // copied. If remaining rows are found, copy them over to the new frame's
-    // storage buffer.
+    // copied. If remaining rows are found, copy them over to the new storage
+    // buffer.
     if (lastRemovedRow < length - 1) {
       final start = copiedRowCount * rowLength;
       final skipCount = (lastRemovedRow + 1) * rowLength;
@@ -248,17 +248,13 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
         dynamic: isDynamic);
   }
 
-  /// Returns a new attribute data frame with the given data appended onto the
-  /// end.
-  ///
-  /// Returns a new attribute data frame as a view on a new byte buffer which
-  /// contains the old frame's data with the additional data appended onto the
+  /// Returns a new attribute data frame with the given [data] appended onto the
   /// end.
   AttributeDataFrame withAppendedData(Iterable<double> data) {
     final newSize = _storage.length + data.length;
 
-    // Note: Float32List.setRange compiles to very optimized javascript in
-    // Dart2JS when the source list is itself also a Float32List.
+    // Note: Dart2JS Float32List.setRange compiles to highly optimized
+    // javascript when the source list is itself also a Float32List.
     final newStorage = new Float32List(newSize)
       ..setRange(0, _storage.length, _storage)
       ..setRange(_storage.length, newSize, data);
@@ -266,16 +262,14 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
     return new AttributeDataFrame(rowLength, newStorage, dynamic: isDynamic);
   }
 
-  /// Interleaves the data in this frame with the data in the given frame,
-  /// resulting in a new attribute data.
+  /// Returns a new attribute data frame in which the data in this frame is
+  /// interleaved with the data in the given [attributeDataFrame].
   ///
   /// Interleaves this attribute data frame `A` with row length `a` and another
   /// attribute data data frame `B` with row length `b`, resulting in a new
   /// attribute data frame with row length `a + b`. The first `a` values of a
   /// row in the new frame will be values from frame `A` and the last `b`
-  /// values of a row in the new frame will be values from frame `B`. A new
-  /// byte buffer will be created to store the data for the new attribute data
-  /// frame.
+  /// values of a row in the new frame will be values from frame `B`.
   ///
   /// Throws an [ArgumentError] if the lengths (rowCount) of `A` and `B` are not
   /// equal.
@@ -318,12 +312,12 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// Creates a new attribute data frame from a row range from [rowStart] until
   /// [rowEnd] and optionally a column range from [colStart] until [colEnd].
   /// The ending row defaults to null, indicating that the new attribute data
-  /// frame should extend until the end of the old frame. The starting columns
+  /// frame should extend until the end of the old frame. The [colStart]
   /// defaults to 0, indicating that the new sub-frame's rows extend from the
-  /// start of the old frame's rows. The ending columns defaults to null,
-  /// indicating that the new sub frame's rows should extend until the end of
-  /// the old sub-frame's rows. Starting row and starting column indices are
-  /// inclusive, the ending row and ending column are exclusive.
+  /// start of the old frame's rows. The [colEnd] defaults to null, indicating
+  /// that the new sub frame's rows should extend until the end of the old
+  /// frame's rows. [rowStart] and [colStart] are inclusive, the [rowEnd] and
+  /// [colEnd] are exclusive.
   ///
   /// Creates a new byte buffer to store the new attribute data frames data. See
   /// also [subFrameView] which does not create a byte buffer, but creates the
@@ -356,9 +350,9 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
           'index.');
     }
 
-    // Check to see if the column range encompasses all columns, because then
-    // the rows can be copied over in one chunk. Otherwise loop over row range
-    // and copy values in the column range individually.
+    // Check if the column range encompasses all columns, because then the rows
+    // can be copied over in one chunk. Otherwise loop over row range and copy
+    // values in the column range individually.
     if (colEnd == 0 && colEnd == rowLength) {
       final skipCount = rowStart * rowLength;
       final newLength = length * rowLength;
@@ -390,11 +384,11 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   ///
   /// Creates an attribute data frame as a view on the current attribute
   /// data frame, starting at [rowStart]. Optionally a [rowEnd] may be
-  /// specified. If omitted the view will extend to the end of the current
+  /// specified. If omitted the view will extend until the end of the current
   /// frame.
   ///
   /// The new attribute data frame acts as a view on the current frame, which
-  /// means that changes on the data in the current frame will affect the data
+  /// means that changes to the data in the current frame will affect the data
   /// in the view and vice versa.
   ///
   /// See also [subFrame] which creates a new attribute data frame that is
@@ -427,9 +421,9 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
 
   /// Returns a copy of attribute data frame that is marked as dynamic.
   ///
-  /// No new buffer is created, the copy views the same buffer as this current
-  /// attribute data frame. Changes made to the buffered data through the copy
-  /// will affect this current attribute data frame and vice versa.
+  /// The copy views the same attribute data as this current attribute data
+  /// frame. Changes made to the attribute data through the copy will affect
+  /// this current attribute data frame and vice versa.
   ///
   /// When a frame is marked as dynamic it signals to the rendering back-end
   /// that the data in the attribute data frame is intended to be modified
@@ -444,9 +438,9 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
 
   /// Returns a copy of attribute data frame that is not marked as dynamic.
   ///
-  /// No new buffer is created, the copy views the same buffer as this current
-  /// attribute data frame. Changes made to the buffered data through the copy
-  /// will affect this current attribute data frame and vice versa.
+  /// The copy views the same attribute data as this current attribute data
+  /// frame. Changes made to the attribute data through the copy will affect
+  /// this current attribute data frame and vice versa.
   ///
   /// When a frame is not marked as dynamic it signals to the rendering back-end
   /// that the data in the attribute data frame is not intended to be modified
@@ -473,7 +467,8 @@ class AttributeDataFrameIterator extends Iterator<AttributeDataRowView> {
 
   int _currentRowIndex = -1;
 
-  /// Instantiates a new iterator of the rows in the given attribute data frame.
+  /// Instantiates a new iterator over the rows in the given attribute data
+  /// frame.
   AttributeDataFrameIterator(AttributeDataFrame frame)
       : frame = frame,
         _frameLength = frame.length;

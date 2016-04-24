@@ -1,6 +1,6 @@
-part of topology;
+part of buffered_index_geometry;
 
-/// Abstract base class for geometry described by a [BufferedVertexCollection]
+/// Abstract base class for geometry described by a [VertexArray]
 /// and an index buffer.
 ///
 /// The buffered index collection defines how the vertices in the buffered
@@ -17,8 +17,8 @@ part of topology;
 /// See [Points] for a concrete implementation of [BufferedIndexGeometry] for
 /// describing [Point] geometry.
 abstract class BufferedIndexGeometry {
-  /// The vertices on which this buffered index geometry is defined.
-  BufferedVertexCollection get vertices;
+  /// The [VertexArray] on which this index geometry is defined.
+  VertexArray get vertices;
 
   /// The indices describing how the [vertices] are combined into geometry
   /// primitives.
