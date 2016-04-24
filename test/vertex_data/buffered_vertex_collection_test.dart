@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
+import 'package:bagl/vertex.dart';
 import 'package:bagl/buffered_vertex_data.dart';
 import '../helpers.dart';
 
@@ -70,11 +71,36 @@ void main () {
           expect(vertices.attributes.keys, unorderedEquals(['position', 'color']));
         });
 
-        test('returns a collection backed by a single attribute data frame with the correct row length', () {
+        test('returns a collection backed by a single attribute data frame not marked as dynamic with the correct row length', () {
           final frames = vertices.attributes.values.map((a) => a.frame).toSet();
 
           expect(frames.length, equals(1));
+          expect(frames.first.isDynamic, isFalse);
           expect(frames.first.rowLength, equals(5));
+        });
+      });
+
+      group('with valid vertices and marked as dynamic', () {
+        final vertices = new BufferedVertexCollection([
+          new Vertex({
+            'position': new Vector2(0.0, 1.0),
+            'color': new Vector3(1.0, 0.0, 0.0)
+          }),
+          new Vertex({
+            'position': new Vector2(-1.0, -1.0),
+            'color': new Vector3(0.0, 1.0, 0.0)
+          }),
+          new Vertex({
+            'position': new Vector2(1.0, -1.0),
+            'color': new Vector3(0.0, 0.0, 1.0)
+          })
+        ], dynamic: true);
+
+        test('returns a collection backed by a single attribute data frame marked as dynamic', () {
+          final frames = vertices.attributes.values.map((a) => a.frame).toSet();
+
+          expect(frames.length, equals(1));
+          expect(frames.first.isDynamic, isTrue);
         });
       });
     });

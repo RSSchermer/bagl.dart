@@ -96,10 +96,19 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
   ///       })
   ///     ]);
   ///
+  /// Optionally, the [dynamic] parameter may be specified. When `true` it
+  /// signals to the rendering back-end that the data in the attribute data
+  /// frame is intended to be modified regularly, allowing the rendering
+  /// back-end to optimize for this. The default value is `false`. Note that
+  /// this is merely a hint that can be used for tuning the performance of a
+  /// rendering back-end: the data in an attribute data frame that is not marked
+  /// as dynamic can still be modified.
+  ///
   /// Throws an [ArgumentError] when the [vertices] collection is empty.
   /// Throws an [ArgumentError] when a vertex defines attributes that are not
   /// consistent with the attributes defined on preceding vertices.
-  factory BufferedVertexCollection(Iterable<Vertex> vertices) {
+  factory BufferedVertexCollection(Iterable<Vertex> vertices,
+      {bool dynamic: false}) {
     if (vertices.isEmpty) {
       throw new ArgumentError(
           'Cannot instantiate a BufferedVertexCollection from an empty '
@@ -141,7 +150,7 @@ class BufferedVertexCollection extends IterableBase<BufferedVertexView> {
     });
 
     final data = new Float32List(rowLength * vertices.length);
-    final frame = new AttributeDataFrame(rowLength, data);
+    final frame = new AttributeDataFrame(rowLength, data, dynamic: dynamic);
 
     // Define attributes on the attribute data frame
     final attributes = new Map<String, VertexAttribute>();
