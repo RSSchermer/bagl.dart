@@ -66,7 +66,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
   /// signals to the rendering back-end that the data in the attribute data
   /// frame is intended to be modified regularly, allowing the rendering
-  /// back-end to optimize for this.
+  /// back-end to optimize for this. The default value is `false`.
   ///
   /// Note that this is merely a hint that can be used for tuning the
   /// performance of a rendering back-end: the data in an attribute data frame
@@ -83,7 +83,7 @@ class AttributeDataFrame extends IterableBase<AttributeDataRowView>
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
   /// signals to the rendering back-end that the data in the attribute data
   /// frame is intended to be modified regularly, allowing the rendering
-  /// back-end to optimize for this.
+  /// back-end to optimize for this. The default value is `false`.
   ///
   /// Note that this is merely a hint that can be used for tuning the
   /// performance of a rendering back-end: the data in an attribute data frame
