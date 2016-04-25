@@ -1,4 +1,4 @@
-part of topology;
+part of index_geometry;
 
 /// An ordered collection of triangles described by an [IndexedVertexCollection]
 /// and an index buffer.
@@ -8,13 +8,15 @@ part of topology;
 /// partitioned into groups of 3. Each group of 3 indices defines 1 triangle.
 ///
 /// See also [TriangleStrip] and [TriangleFan].
-class Triangles extends IterableBase<TrianglesTriangleView> {
-  final IndexedVertexCollection vertices;
+class Triangles extends IterableBase<TrianglesTriangleView> implements IndexGeometry {
+  final VertexArray vertices;
 
   /// The index data as a typed [Uint16List] view on the index buffer.
   final Uint16List indexBuffer;
 
   final int length;
+
+  final bool isDynamic;
 
   /// Creates a new instance of [Triangles] from the [vertices] and the
   /// [indexBuffer].
@@ -28,7 +30,7 @@ class Triangles extends IterableBase<TrianglesTriangleView> {
   /// of the [indexBuffer] is not a multiple of 3.
   /// Throws an [ArgumentError] if no [indexBuffer] is specified and the length
   /// of the [vertices] collection is not a multiple of 3.
-  factory Triangles(IndexedVertexCollection vertices,
+  factory Triangles(VertexArray vertices,
       [Uint16List indexBuffer]) {
     if (indexBuffer == null) {
       final length = vertices.length;
@@ -39,7 +41,21 @@ class Triangles extends IterableBase<TrianglesTriangleView> {
       }
     }
 
-    return new Triangles._internal(vertices, indexBuffer);
+    return new Triangles._internal(vertices, indexBuffer, false);
+  }
+
+  factory Triangles.dynamic(VertexArray vertices,
+      [Uint16List indexBuffer]) {
+    if (indexBuffer == null) {
+      final length = vertices.length;
+      indexBuffer = new Uint16List(length);
+
+      for (var i = 0; i < length; i++) {
+        indexBuffer[i] = i;
+      }
+    }
+
+    return new Triangles._internal(vertices, indexBuffer, true);
   }
 
   /// Creates a new instances of [Triangles] from the [vertices] and the
@@ -48,10 +64,10 @@ class Triangles extends IterableBase<TrianglesTriangleView> {
   /// Throws an [ArgumentError] if the length of the [indexDataList] is not a
   /// multiple of 3.
   Triangles.fromIndexDataList(
-      IndexedVertexCollection vertices, List<int> indexDataList)
-      : this._internal(vertices, new Uint16List.fromList(indexDataList));
+      VertexArray vertices, List<int> indexDataList, [bool isDynamic = false])
+      : this._internal(vertices, new Uint16List.fromList(indexDataList), isDynamic);
 
-  Triangles._internal(this.vertices, Uint16List indexBuffer)
+  Triangles._internal(this.vertices, Uint16List indexBuffer, this.isDynamic)
       : indexBuffer = indexBuffer,
         length = indexBuffer.length ~/ 3 {
     if (indexBuffer.length % 3 != 0) {
