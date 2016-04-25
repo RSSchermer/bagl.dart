@@ -4,6 +4,7 @@ library index_geometry;
 import 'dart:collection';
 import 'dart:typed_data';
 
+import 'vertex.dart';
 import 'vertex_data.dart';
 import 'geometry_primitives.dart';
 
