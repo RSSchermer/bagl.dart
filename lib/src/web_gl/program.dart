@@ -13,12 +13,15 @@ class Program {
 
   final Map<String, int> _attributeNameLocationMap = new Map();
 
-  Program(RenderingContext context, this.vertexShaderSource, this.fragmentShaderSource)
+  Program(RenderingContext context, this.vertexShaderSource,
+      this.fragmentShaderSource)
       : context = context,
         _context = context._context,
         _program = context._context.createProgram() {
-    final vertexShader = _compileShader(WebGL.VERTEX_SHADER, vertexShaderSource);
-    final fragmentShader = _compileShader(WebGL.FRAGMENT_SHADER, fragmentShaderSource);
+    final vertexShader =
+        _compileShader(WebGL.VERTEX_SHADER, vertexShaderSource);
+    final fragmentShader =
+        _compileShader(WebGL.FRAGMENT_SHADER, fragmentShaderSource);
 
     _context.attachShader(_program, vertexShader);
     _context.attachShader(_program, fragmentShader);
@@ -44,38 +47,23 @@ class Program {
     // Enable vertex attributes and adjust vertex attribute pointers if
     // necessary
     triangles.vertices.attributes.forEach((name, attribute) {
-      var size, locationsUsed;
-      final glslName = attributeNameMap[name] ?? name;
-      final startingLocation = _getLocation(glslName);
+      final columnCount = attribute.columnCount;
+      final columnSize = attribute.columnSize;
+      final startingLocation = _getLocation(attributeNameMap[name] ?? name);
       final frame = attribute.frame;
-
-      if (attribute is Matrix2Attribute) {
-        size = 2;
-        locationsUsed = 2;
-      } else if (attribute is Matrix3Attribute) {
-        size = 3;
-        locationsUsed = 3;
-      } else if (attribute is Matrix4Attribute) {
-        size = 4;
-        locationsUsed = 4;
-      } else {
-        size = attribute.size;
-        locationsUsed = 1;
-      }
-
       final stride = frame.elementSizeInBytes;
 
-      for (var i = 0; i < locationsUsed; i++) {
+      for (var i = 0; i < columnCount; i++) {
         var location = startingLocation + i;
 
-        // If the attribute bound to the position is null or an attribute other
+        // If the attribute bound to the location is null or an attribute other
         // than the current attribute, set up a new vertex attribute pointer.
         if (context._locationAttributeMap[location] != attribute) {
-          var offset = attribute.offsetInBytes + i * size * 4;
+          var offset = attribute.offsetInBytes + i * columnSize * 4;
 
           context._bindAttributeDataFrame(frame);
           _context.vertexAttribPointer(
-              location, size, WebGL.FLOAT, false, stride, offset);
+              location, columnSize, WebGL.FLOAT, false, stride, offset);
 
           context._locationAttributeMap[location] = attribute;
         }
@@ -92,6 +80,7 @@ class Program {
     // Disable unused attribute positions
     for (var position in unusedAttribLocations) {
       _context.disableVertexAttribArray(position);
+      context._enabledAttribLocations.remove(position);
     }
 
     // Set up uniforms
@@ -108,11 +97,11 @@ class Program {
     _context.shaderSource(shader, source);
     _context.compileShader(shader);
 
-    final success =
-    _context.getShaderParameter(shader, WebGL.COMPILE_STATUS);
+    final success = _context.getShaderParameter(shader, WebGL.COMPILE_STATUS);
 
     if (!success) {
-      throw new ShaderCompilationError(type, source, _context.getShaderInfoLog(shader));
+      throw new ShaderCompilationError(
+          type, source, _context.getShaderInfoLog(shader));
     }
 
     return shader;

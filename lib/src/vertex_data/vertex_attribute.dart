@@ -41,8 +41,14 @@ abstract class VertexAttribute<AttributeType> {
   /// The attribute data frame the attribute is defined on.
   final AttributeDataFrame frame;
 
-  /// The number floats used to store an attribute of this type.
-  final int size;
+  /// The number of columns for an attribute of this type.
+  ///
+  /// Corresponds to the number of attribute locations occupied by an attribute
+  /// of this type in an OpenGL shader program.
+  final int columnCount;
+
+  /// The number of floats per column for an attribute of this type.
+  final int columnSize;
 
   /// The number of floats that are to be skipped at the start of a row before
   /// the sequence of floats for this attribute starts.
@@ -56,21 +62,18 @@ abstract class VertexAttribute<AttributeType> {
 
   int _rowCount;
 
-  VertexAttribute(this.frame, this.size, {this.offset: 0}) {
-    if (size + offset > frame.rowLength) {
-      throw new ArgumentError(
-          'The sum of size of the attribute data ($size) and the offset of the '
-          'data relative to the start of a row ($offset), must not be greater '
-          'the length of rows in the attribute data frame '
-          '(${frame.rowLength}).');
+  VertexAttribute(this.frame, this.columnCount, this.columnSize,
+      {this.offset: 0}) {
+    if (columnCount * columnSize + offset > frame.rowLength) {
+      throw new ArgumentError('The sum of size of the attribute data '
+          '(${columnCount * columnSize}) and the offset of the data '
+          'relative to the start of a row ($offset), must not be greater the '
+          'length of rows in the attribute data frame (${frame.rowLength}).');
     }
 
     _storage = frame._storage;
     _rowCount = frame.length;
   }
-
-  /// The size in bytes used to store an attribute of this type.
-  int get sizeInBytes => size * Float32List.BYTES_PER_ELEMENT;
 
   /// The number of bytes that are to be skipped at the start of a row before
   /// the sequence of bytes for this attribute starts.
@@ -142,7 +145,7 @@ class FloatAttribute extends VertexAttribute<double> {
   ///     var attribute = new FloatAttribute(attributeDataFrame, offset: 2);
   ///
   FloatAttribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 1, offset: offset);
+      : super(attributeDataFrame, 1, 1, offset: offset);
 
   double extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
@@ -178,7 +181,7 @@ class Vector2Attribute extends VertexAttribute<Vector2> {
   ///     var attribute = new Vector2Attribute(attributeDataFrame, offset: 2);
   ///
   Vector2Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 2, offset: offset);
+      : super(attributeDataFrame, 1, 2, offset: offset);
 
   Vector2 extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
@@ -219,7 +222,7 @@ class Vector3Attribute extends VertexAttribute<Vector3> {
   ///     var attribute = new Vector3Attribute(attributeDataFrame, offset: 2);
   ///
   Vector3Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 3, offset: offset);
+      : super(attributeDataFrame, 1, 3, offset: offset);
 
   Vector3 extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
@@ -261,7 +264,7 @@ class Vector4Attribute extends VertexAttribute<Vector4> {
   ///     var attribute = new Vector4Attribute(attributeDataFrame, offset: 2);
   ///
   Vector4Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 4, offset: offset);
+      : super(attributeDataFrame, 1, 4, offset: offset);
 
   Vector4 extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
@@ -305,7 +308,7 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
   ///     var attribute = new Matrix2Attribute(attributeDataFrame, offset: 2);
   ///
   Matrix2Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 4, offset: offset);
+      : super(attributeDataFrame, 2, 2, offset: offset);
 
   Matrix2 extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
@@ -349,7 +352,7 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
   ///     var attribute = new Matrix3Attribute(attributeDataFrame, offset: 2);
   ///
   Matrix3Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 9, offset: offset);
+      : super(attributeDataFrame, 3, 3, offset: offset);
 
   Matrix3 extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
@@ -406,7 +409,7 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
   ///     var attribute = new Matrix4Attribute(attributeDataFrame, offset: 2);
   ///
   Matrix4Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 16, offset: offset);
+      : super(attributeDataFrame, 4, 4, offset: offset);
 
   Matrix4 extractValueAtRow(int rowIndex) {
     RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
