@@ -1,7 +1,9 @@
 /// BaGL: Basic Graphics Library for dart.
 library bagl;
 
+export 'geometry_primitives.dart';
+export 'index_geometry.dart';
 export 'math.dart';
 export 'matrix_list.dart';
-export 'topology.dart';
-export 'buffered_vertex_data.dart';
+export 'vertex.dart';
+export 'vertex_data.dart';
