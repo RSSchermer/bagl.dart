@@ -38,15 +38,27 @@ void main() {
 
       var vertices = new VertexArray([
         new Vertex({
-          'position': new Vector2(0.0, 0.5),
+          'position': new Vector2(-0.5, 0.5),
           'color': new Vector3(1.0, 0.0, 0.0)
         }),
         new Vertex({
-          'position': new Vector2(-0.5, -0.5),
+          'position': new Vector2(-1.0, -0.5),
           'color': new Vector3(0.0, 1.0, 0.0)
         }),
         new Vertex({
+          'position': new Vector2(0.0, -0.5),
+          'color': new Vector3(0.0, 0.0, 1.0)
+        }),
+        new Vertex({
           'position': new Vector2(0.5, -0.5),
+          'color': new Vector3(1.0, 0.0, 0.0)
+        }),
+        new Vertex({
+          'position': new Vector2(1.0, 0.5),
+          'color': new Vector3(0.0, 1.0, 0.0)
+        }),
+        new Vertex({
+          'position': new Vector2(0.0, 0.5),
           'color': new Vector3(0.0, 0.0, 1.0)
         })
       ]);
