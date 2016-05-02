@@ -50,9 +50,6 @@ class RenderingContext {
       'preferLowPowerToHighPerformance': preferLowPowerToHighPerformance,
       'failIfMajorPerformanceCaveat': failIfMajorPerformanceCaveat
     });
-
-    _context.clearColor(0.7, 0.7, 0.7, 1.0);
-    _context.clear(WebGL.COLOR_BUFFER_BIT);
   }
 
   void attach(IndexGeometry geometry) {
