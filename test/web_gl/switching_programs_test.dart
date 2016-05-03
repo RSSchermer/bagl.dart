@@ -8,7 +8,7 @@ import 'package:bagl/web_gl.dart';
 
 void main() {
   group('WebGL', () {
-    group('switching programs', () {
+    group('multiple draw calls with different program', () {
       var canvas = document.querySelector('#main_canvas');
       var context = new RenderingContext(canvas, preserveDrawingBuffer: true);
 

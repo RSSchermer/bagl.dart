@@ -8,7 +8,7 @@ import 'package:bagl/web_gl.dart';
 
 void main() {
   group('WebGL', () {
-    group('switching vertex data', () {
+    group('multiple draw calls with different vertex arrays', () {
       var canvas = document.querySelector('#main_canvas');
       var context = new RenderingContext(canvas, preserveDrawingBuffer: true);
 
