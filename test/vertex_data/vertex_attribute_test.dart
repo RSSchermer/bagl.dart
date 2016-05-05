@@ -427,16 +427,16 @@ void main() {
 
         test('returns the correct value with a valid index', () {
           expect(attribute.extractValueAtRow(1), equals(new Matrix2(
-              1.1, 1.2,
-              1.3, 1.4
+              1.1, 1.3,
+              1.2, 1.4
           )));
         });
       });
 
       group('setValueAtRow', () {
         final value = new Matrix2(
-            8.1, 8.2,
-            8.3, 8.4
+            8.1, 8.3,
+            8.2, 8.4
         );
 
         test('throws a RangeError when the given index is out of bounds', () {
@@ -464,16 +464,16 @@ void main() {
 
         test('with a valid row returns the correct value', () {
           expect(attribute.extractFrom(frame[2]), equals(new Matrix2(
-              2.1, 2.2,
-              2.3, 2.4
+              2.1, 2.3,
+              2.2, 2.4
           )));
         });
       });
 
       group('setOn', () {
         final value = new Matrix2(
-            9.1, 9.2,
-            9.3, 9.4
+            9.1, 9.3,
+            9.2, 9.4
         );
 
         test('throws an ArgumentError when the given row is part of a different frame', () {
@@ -504,8 +504,8 @@ void main() {
           final newAttribute = attribute.onFrame(newFrame);
 
           expect(newAttribute.extractValueAtRow(1), equals(new Matrix2(
-              1.3, 1.2,
-              1.1, 1.0
+              1.3, 1.1,
+              1.2, 1.0
           )));
         });
 
@@ -513,8 +513,8 @@ void main() {
           final newAttribute = attribute.onFrame(newFrame, offset: 0);
 
           expect(newAttribute.extractValueAtRow(1), equals(new Matrix2(
-              1.4, 1.3,
-              1.2, 1.1
+              1.4, 1.2,
+              1.3, 1.1
           )));
         });
       });
@@ -546,18 +546,18 @@ void main() {
 
         test('returns the correct value with a valid index', () {
           expect(attribute.extractValueAtRow(1), equals(new Matrix3(
-              1.01, 1.02, 1.03,
-              1.04, 1.05, 1.06,
-              1.07, 1.08, 1.09
+              1.01, 1.04, 1.07,
+              1.02, 1.05, 1.08,
+              1.03, 1.06, 1.09
           )));
         });
       });
 
       group('setValueAtRow', () {
         final value = new Matrix3(
-            8.01, 8.02, 8.03,
-            8.04, 8.05, 8.06,
-            8.07, 8.08, 8.09
+            8.01, 8.04, 8.07,
+            8.02, 8.05, 8.08,
+            8.03, 8.06, 8.09
         );
 
         test('throws a RangeError when the given index is out of bounds', () {
@@ -589,18 +589,18 @@ void main() {
 
         test('with a valid row returns the correct value', () {
           expect(attribute.extractFrom(frame[2]), equals(new Matrix3(
-              2.01, 2.02, 2.03,
-              2.04, 2.05, 2.06,
-              2.07, 2.08, 2.09
+              2.01, 2.04, 2.07,
+              2.02, 2.05, 2.08,
+              2.03, 2.06, 2.09
           )));
         });
       });
 
       group('setOn', () {
         final value = new Matrix3(
-            9.01, 9.02, 9.03,
-            9.04, 9.05, 9.06,
-            9.07, 9.08, 9.09
+            9.01, 9.04, 9.07,
+            9.02, 9.05, 9.08,
+            9.03, 9.06, 9.09
         );
 
         test('throws an ArgumentError when the given row is part of a different frame', () {
@@ -635,9 +635,9 @@ void main() {
           final newAttribute = attribute.onFrame(newFrame);
 
           expect(newAttribute.extractValueAtRow(1), equals(new Matrix3(
-              1.08, 1.07, 1.06,
-              1.05, 1.04, 1.03,
-              1.02, 1.01, 1.00
+              1.08, 1.05, 1.02,
+              1.07, 1.04, 1.01,
+              1.06, 1.03, 1.00
           )));
         });
 
@@ -645,9 +645,9 @@ void main() {
           final newAttribute = attribute.onFrame(newFrame, offset: 0);
 
           expect(newAttribute.extractValueAtRow(1), equals(new Matrix3(
-              1.09, 1.08, 1.07,
-              1.06, 1.05, 1.04,
-              1.03, 1.02, 1.01
+              1.09, 1.06, 1.03,
+              1.08, 1.05, 1.02,
+              1.07, 1.04, 1.01
           )));
         });
       });
@@ -679,20 +679,20 @@ void main() {
 
         test('returns the correct value with a valid index', () {
           expect(attribute.extractValueAtRow(1), equals(new Matrix4(
-              1.01, 1.02, 1.03, 1.04,
-              1.05, 1.06, 1.07, 1.08,
-              1.09, 1.10, 1.11, 1.12,
-              1.13, 1.14, 1.15, 1.16
+              1.01, 1.05, 1.09, 1.13,
+              1.02, 1.06, 1.10, 1.14,
+              1.03, 1.07, 1.11, 1.15,
+              1.04, 1.08, 1.12, 1.16
           )));
         });
       });
 
       group('setValueAtRow', () {
         final value = new Matrix4(
-            8.01, 8.02, 8.03, 8.04,
-            8.05, 8.06, 8.07, 8.08,
-            8.09, 8.10, 8.11, 8.12,
-            8.13, 8.14, 8.15, 8.16
+            8.01, 8.05, 8.09, 8.13,
+            8.02, 8.06, 8.10, 8.14,
+            8.03, 8.07, 8.11, 8.15,
+            8.04, 8.08, 8.12, 8.16
         );
 
         test('throws a RangeError when the given index is out of bounds', () {
@@ -725,20 +725,20 @@ void main() {
 
         test('with a valid row returns the correct value', () {
           expect(attribute.extractFrom(frame[2]), equals(new Matrix4(
-              2.01, 2.02, 2.03, 2.04,
-              2.05, 2.06, 2.07, 2.08,
-              2.09, 2.10, 2.11, 2.12,
-              2.13, 2.14, 2.15, 2.16
+              2.01, 2.05, 2.09, 2.13,
+              2.02, 2.06, 2.10, 2.14,
+              2.03, 2.07, 2.11, 2.15,
+              2.04, 2.08, 2.12, 2.16
           )));
         });
       });
 
       group('setOn', () {
         final value = new Matrix4(
-            9.01, 9.02, 9.03, 9.04,
-            9.05, 9.06, 9.07, 9.08,
-            9.09, 9.10, 9.11, 9.12,
-            9.13, 9.14, 9.15, 9.16
+            9.01, 9.05, 9.09, 9.13,
+            9.02, 9.06, 9.10, 9.14,
+            9.03, 9.07, 9.11, 9.15,
+            9.04, 9.08, 9.12, 9.16
         );
 
         test('throws an ArgumentError when the given row is part of a different frame', () {
@@ -774,10 +774,10 @@ void main() {
           final newAttribute = attribute.onFrame(newFrame);
 
           expect(newAttribute.extractValueAtRow(1), equals(new Matrix4(
-              1.15, 1.14, 1.13, 1.12,
-              1.11, 1.10, 1.09, 1.08,
-              1.07, 1.06, 1.05, 1.04,
-              1.03, 1.02, 1.01, 1.00
+              1.15, 1.11, 1.07, 1.03,
+              1.14, 1.10, 1.06, 1.02,
+              1.13, 1.09, 1.05, 1.01,
+              1.12, 1.08, 1.04, 1.00
           )));
         });
 
@@ -785,10 +785,10 @@ void main() {
           final newAttribute = attribute.onFrame(newFrame, offset: 0);
 
           expect(newAttribute.extractValueAtRow(1), equals(new Matrix4(
-              1.16, 1.15, 1.14, 1.13,
-              1.12, 1.11, 1.10, 1.09,
-              1.08, 1.07, 1.06, 1.05,
-              1.04, 1.03, 1.02, 1.01
+              1.16, 1.12, 1.08, 1.04,
+              1.15, 1.11, 1.07, 1.03,
+              1.14, 1.10, 1.06, 1.02,
+              1.13, 1.09, 1.05, 1.01
           )));
         });
       });

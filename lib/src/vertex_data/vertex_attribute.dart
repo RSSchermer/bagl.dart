@@ -316,7 +316,7 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
     final s = rowIndex * frame.rowLength + offset;
 
     return new Matrix2(
-        _storage[s], _storage[s + 1], _storage[s + 2], _storage[s + 3]);
+        _storage[s], _storage[s + 2], _storage[s + 1], _storage[s + 3]);
   }
 
   void setValueAtRow(int rowIndex, Matrix2 value) {
@@ -325,8 +325,8 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
     final s = rowIndex * frame.rowLength + offset;
 
     _storage[s] = value.r0c0;
-    _storage[s + 1] = value.r0c1;
-    _storage[s + 2] = value.r1c0;
+    _storage[s + 1] = value.r1c0;
+    _storage[s + 2] = value.r0c1;
     _storage[s + 3] = value.r1c1;
   }
 
@@ -361,13 +361,13 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
 
     return new Matrix3(
         _storage[s],
-        _storage[s + 1],
-        _storage[s + 2],
         _storage[s + 3],
-        _storage[s + 4],
-        _storage[s + 5],
         _storage[s + 6],
+        _storage[s + 1],
+        _storage[s + 4],
         _storage[s + 7],
+        _storage[s + 2],
+        _storage[s + 5],
         _storage[s + 8]);
   }
 
@@ -377,13 +377,13 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
     var s = rowIndex * frame.rowLength + offset;
 
     _storage[s] = value.r0c0;
-    _storage[s + 1] = value.r0c1;
-    _storage[s + 2] = value.r0c2;
-    _storage[s + 3] = value.r1c0;
+    _storage[s + 1] = value.r1c0;
+    _storage[s + 2] = value.r2c0;
+    _storage[s + 3] = value.r0c1;
     _storage[s + 4] = value.r1c1;
-    _storage[s + 5] = value.r1c2;
-    _storage[s + 6] = value.r2c0;
-    _storage[s + 7] = value.r2c1;
+    _storage[s + 5] = value.r2c1;
+    _storage[s + 6] = value.r0c2;
+    _storage[s + 7] = value.r1c2;
     _storage[s + 8] = value.r2c2;
   }
 
@@ -418,20 +418,20 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
 
     return new Matrix4(
         _storage[s],
-        _storage[s + 1],
-        _storage[s + 2],
-        _storage[s + 3],
         _storage[s + 4],
-        _storage[s + 5],
-        _storage[s + 6],
-        _storage[s + 7],
         _storage[s + 8],
-        _storage[s + 9],
-        _storage[s + 10],
-        _storage[s + 11],
         _storage[s + 12],
+        _storage[s + 1],
+        _storage[s + 5],
+        _storage[s + 9],
         _storage[s + 13],
+        _storage[s + 2],
+        _storage[s + 6],
+        _storage[s + 10],
         _storage[s + 14],
+        _storage[s + 3],
+        _storage[s + 7],
+        _storage[s + 11],
         _storage[s + 15]);
   }
 
@@ -441,20 +441,20 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
     var s = rowIndex * frame.rowLength + offset;
 
     _storage[s] = value.r0c0;
-    _storage[s + 1] = value.r0c1;
-    _storage[s + 2] = value.r0c2;
-    _storage[s + 3] = value.r0c3;
-    _storage[s + 4] = value.r1c0;
+    _storage[s + 1] = value.r1c0;
+    _storage[s + 2] = value.r2c0;
+    _storage[s + 3] = value.r3c0;
+    _storage[s + 4] = value.r0c1;
     _storage[s + 5] = value.r1c1;
-    _storage[s + 6] = value.r1c2;
-    _storage[s + 7] = value.r1c3;
-    _storage[s + 8] = value.r2c0;
-    _storage[s + 9] = value.r2c1;
+    _storage[s + 6] = value.r2c1;
+    _storage[s + 7] = value.r3c1;
+    _storage[s + 8] = value.r0c2;
+    _storage[s + 9] = value.r1c2;
     _storage[s + 10] = value.r2c2;
-    _storage[s + 11] = value.r2c3;
-    _storage[s + 12] = value.r3c0;
-    _storage[s + 13] = value.r3c1;
-    _storage[s + 14] = value.r3c2;
+    _storage[s + 11] = value.r3c2;
+    _storage[s + 12] = value.r0c3;
+    _storage[s + 13] = value.r1c3;
+    _storage[s + 14] = value.r2c3;
     _storage[s + 15] = value.r3c3;
   }
 
