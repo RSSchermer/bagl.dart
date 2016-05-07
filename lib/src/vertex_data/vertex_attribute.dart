@@ -1,10 +1,8 @@
 part of vertex_data;
 
-/// Base class for defining attributes of a certain type on an
-/// [AttributeDataFrame].
+/// Base class for defining typed attributes on an [AttributeDataTable].
 ///
-/// Defines how to extract and update attribute values for the rows of the
-/// attribute data frame the attribute is defined on.
+/// Defines how to read and write attribute values from [AttributeDataTable].
 ///
 /// Subtypes of this class are declared for all attributes types allowed by the
 /// WebGL specification: [FloatAttribute], [Vector2Attribute],
@@ -13,38 +11,37 @@ part of vertex_data;
 ///
 /// An example:
 ///
-///     // An attribute data frame partitioned into rows of length 5. Used to
-///     // store interleaved position and color data.
-///     var attributeDataFrame = new AttributeDataFrame(5, [
+///     // An attribute data table with a rowLength of 5, used to store
+///     // interleaved position and color data.
+///     var attributeDataTable = new AttributeDataTable(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
 ///        0.5, -0.5,     0.0, 0.0, 1.0
 ///     ]);
 ///
-///     // The `color` attribute value in an attribute data row as a Vector3.
-///     // The offset for the color data in a row is 2.
-///     var color = new Vector3Attribute(attributeDataFrame, offset: 2);
+///     // The `color` attribute as a Vector3. The offset for the color data in
+///     // a row is 2.
+///     var color = new Vector3Attribute(attributeDataTable, offset: 2);
 ///
-///     // The `position` attribute value in an attribute data row as a Vector2.
-///     // The offset of the position data in a row is 0, which is the default
-///     // value so we may omit it.
-///     var position = new Vector2Attribute(attributeDataFrame);
+///     // The `position` attribute as a Vector2. The offset of the position
+///     // data in a row is 0, which is the default value so we may omit it.
+///     var position = new Vector2Attribute(attributeDataTable);
 ///
-///     // The `position` value for the second row.
-///     Vector2 secondVertexPosition = position.extractFrom(attributeData[1]);
+///     // Extract the `position` value from the second row.
+///     Vector2 secondPosition = position.extractFrom(attributeDataTable[1]);
 ///
-///     // The `color` value for the second row.
-///     Vector3 secondVertexColor = color.extractFrom(attributeData[1]);
+///     // Extract the `color` value from the second row.
+///     Vector3 secondColor = color.extractFrom(attributeDataTable[1]);
 ///
 abstract class VertexAttribute<AttributeType> {
-  /// The attribute data frame the attribute is defined on.
-  final AttributeDataFrame frame;
+  /// The [AttributeDataTable] the attribute is defined on.
+  final AttributeDataTable attributeDataTable;
 
   /// The number of columns for an attribute of this type.
   ///
   /// Corresponds to the number of attribute locations occupied by an attribute
-  /// of this type in an OpenGL shader program.
+  /// of this type in a GLSL shader program.
   final int columnCount;
 
   /// The number of floats per column for an attribute of this type.
@@ -53,54 +50,54 @@ abstract class VertexAttribute<AttributeType> {
   /// The number of floats that are to be skipped at the start of a row before
   /// the sequence of floats for this attribute starts.
   ///
-  /// Note that the offset is defined relative to the start of a row, not
-  /// relative to the start of the entire storage list of the attribute data
-  /// frame.
+  /// See also [offsetInBytes].
   final int offset;
 
   Float32List _storage;
 
   int _rowCount;
 
-  VertexAttribute(this.frame, this.columnCount, this.columnSize,
+  VertexAttribute(this.attributeDataTable, this.columnCount, this.columnSize,
       {this.offset: 0}) {
-    if (columnCount * columnSize + offset > frame.rowLength) {
-      throw new ArgumentError('The sum of size of the attribute data '
-          '(${columnCount * columnSize}) and the offset of the data '
-          'relative to the start of a row ($offset), must not be greater the '
-          'length of rows in the attribute data frame (${frame.rowLength}).');
+    if (columnCount * columnSize + offset > attributeDataTable.rowLength) {
+      throw new ArgumentError('The sum of size of the attribute '
+          '(${columnCount * columnSize}) and the offset of the attribute '
+          '($offset), must not be greater the rowLength of the attribute data '
+          'table (${attributeDataTable.rowLength}).');
     }
 
-    _storage = frame._storage;
-    _rowCount = frame.length;
+    _storage = attributeDataTable._storage;
+    _rowCount = attributeDataTable.length;
   }
 
   /// The number of bytes that are to be skipped at the start of a row before
   /// the sequence of bytes for this attribute starts.
+  ///
+  /// See also [offset].
   int get offsetInBytes => offset * Float32List.BYTES_PER_ELEMENT;
 
-  /// Extract the attribute value from the row with the given index.
+  /// Extract the attribute value from the row at the given [rowIndex].
   ///
-  /// Throws a [RangeError] when the given row index is smaller than 0 or
-  /// greater than the total number of rows in the attribute data frame.
+  /// Throws a [RangeError] when the [rowIndex] is smaller than 0 or greater
+  /// than the total number of rows in the [attributeDataTable].
   AttributeType extractValueAtRow(int rowIndex);
 
   /// Update the attribute value on the row with the given index to the
   /// specified value.
   ///
   /// Throws a [RangeError] when the given row index is smaller than 0 or
-  /// greater than the total number of rows in the attribute data frame.
+  /// greater than the total number of rows in the [attributeDataTable].
   void setValueAtRow(int rowIndex, AttributeType value);
 
   /// Extract the attribute value from the given row.
   ///
-  /// Throws an [ArgumentError] when the given row does not belong to the same
-  /// attribute data frame as this attribute is defined on.
+  /// Throws an [ArgumentError] when the given row does not belong to to the
+  /// [attributeDataTable] on which this attribute is defined.
   AttributeType extractFrom(AttributeDataRowView row) {
-    if (row.frame != frame) {
+    if (row.attributeDataTable != attributeDataTable) {
       throw new ArgumentError(
           'Can only extract an attribute value from a row that belongs to the '
-          'same attribute data frame as this pointer is defined on.');
+          'same attribute data table as this attribute is defined on.');
     }
 
     return extractValueAtRow(row.index);
@@ -108,177 +105,188 @@ abstract class VertexAttribute<AttributeType> {
 
   /// Update the attribute value on the given row index to the specified value.
   ///
-  /// Throws an [ArgumentError] when the given row does not belong to the same
-  /// attribute data frame as this attribute is defined on.
+  /// Throws an [ArgumentError] when the given row does not belong to the
+  /// [attributeDataTable] on which this attribute is defined.
   void setOn(AttributeDataRowView row, AttributeType value) {
-    if (row.frame != frame) {
+    if (row.attributeDataTable != attributeDataTable) {
       throw new ArgumentError(
-          'Can set an attribute value on a row that belongs to the same '
-          'attribute data frame as this pointer is defined on.');
+          'Can only set an attribute value on a row that belongs to the same '
+          'attribute data tabke as this attribute is defined on.');
     }
 
     setValueAtRow(row.index, value);
   }
 
-  /// Creates a new instance of the attribute of a different frame.
+  /// Creates a copy of the attribute for a different [AttributeDataTable].
   ///
-  /// Optionally, a new [offset] may be specified.
-  VertexAttribute<AttributeType> onFrame(AttributeDataFrame frame,
+  /// Optionally, a new [offset] may be specified. If omitted this attribute's
+  /// current offset will be used.
+  VertexAttribute<AttributeType> onTable(AttributeDataTable attributeDataTable,
       {int offset});
 }
 
-/// Defines a float attribute on an [AttributeDataFrame].
+/// Defines a float attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class FloatAttribute extends VertexAttribute<double> {
-  /// Instantiates a new float attribute definition on the specified attribute
-  /// data frame.
+  /// Instantiates a new float attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the value for this attribute
-  /// resides relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new FloatAttribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new FloatAttribute(attributeDataTable, offset: 2);
   ///
-  FloatAttribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 1, 1, offset: offset);
+  FloatAttribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 1, 1, offset: offset);
 
   double extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    return _storage[rowIndex * frame.rowLength + offset];
+    return _storage[rowIndex * attributeDataTable.rowLength + offset];
   }
 
   void setValueAtRow(int rowIndex, double value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    _storage[rowIndex * frame.rowLength + offset] = value;
+    _storage[rowIndex * attributeDataTable.rowLength + offset] = value;
   }
 
-  FloatAttribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new FloatAttribute(frame, offset: offset ?? this.offset);
+  FloatAttribute onTable(AttributeDataTable attributeDataTable, {int offset}) =>
+      new FloatAttribute(attributeDataTable, offset: offset ?? this.offset);
 }
 
-/// Defines a [Vector2] attribute on an [AttributeDataFrame].
+/// Defines a [Vector2] attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class Vector2Attribute extends VertexAttribute<Vector2> {
-  /// Instantiates a new [Vector2] attribute definition on the specified
-  /// attribute data frame.
+  /// Instantiates a new [Vector2] attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the sequence of values for this
-  /// attribute begins relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new Vector2Attribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new Vector2Attribute(attributeDataTable, offset: 2);
   ///
-  Vector2Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 1, 2, offset: offset);
+  Vector2Attribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 1, 2, offset: offset);
 
   Vector2 extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     return new Vector2(_storage[s], _storage[s + 1]);
   }
 
   void setValueAtRow(int rowIndex, Vector2 value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     _storage[s] = value.x;
     _storage[s + 1] = value.y;
   }
 
-  Vector2Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new Vector2Attribute(frame, offset: offset ?? this.offset);
+  Vector2Attribute onTable(AttributeDataTable attributeDataTable,
+          {int offset}) =>
+      new Vector2Attribute(attributeDataTable, offset: offset ?? this.offset);
 }
 
-/// Defines a [Vector3] attribute on an [AttributeDataFrame].
+/// Defines a [Vector3] attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class Vector3Attribute extends VertexAttribute<Vector3> {
-  /// Instantiates a new [Vector3] attribute definition on the specified
-  /// attribute data frame.
+  /// Instantiates a new [Vector3] attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the sequence of values for this
-  /// attribute begins relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new Vector3Attribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new Vector3Attribute(attributeDataTable, offset: 2);
   ///
-  Vector3Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 1, 3, offset: offset);
+  Vector3Attribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 1, 3, offset: offset);
 
   Vector3 extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     return new Vector3(_storage[s], _storage[s + 1], _storage[s + 2]);
   }
 
   void setValueAtRow(int rowIndex, Vector3 value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     _storage[s] = value.x;
     _storage[s + 1] = value.y;
     _storage[s + 2] = value.z;
   }
 
-  Vector3Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new Vector3Attribute(frame, offset: offset ?? this.offset);
+  Vector3Attribute onTable(AttributeDataTable attributeDataTable,
+          {int offset}) =>
+      new Vector3Attribute(attributeDataTable, offset: offset ?? this.offset);
 }
 
-/// Defines a [Vector4] attribute on an [AttributeDataFrame].
+/// Defines a [Vector4] attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class Vector4Attribute extends VertexAttribute<Vector4> {
-  /// Instantiates a new [Vector4] attribute definition on the specified
-  /// attribute data frame.
+  /// Instantiates a new [Vector4] attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the sequence of values for this
-  /// attribute begins relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new Vector4Attribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new Vector4Attribute(attributeDataTable, offset: 2);
   ///
-  Vector4Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 1, 4, offset: offset);
+  Vector4Attribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 1, 4, offset: offset);
 
   Vector4 extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     return new Vector4(
         _storage[s], _storage[s + 1], _storage[s + 2], _storage[s + 3]);
   }
 
   void setValueAtRow(int rowIndex, Vector4 value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     _storage[s] = value.x;
     _storage[s + 1] = value.y;
@@ -286,43 +294,46 @@ class Vector4Attribute extends VertexAttribute<Vector4> {
     _storage[s + 3] = value.w;
   }
 
-  Vector4Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new Vector4Attribute(frame, offset: offset ?? this.offset);
+  Vector4Attribute onTable(AttributeDataTable attributeDataTable,
+          {int offset}) =>
+      new Vector4Attribute(attributeDataTable, offset: offset ?? this.offset);
 }
 
-/// Defines a [Matrix2] attribute on an [AttributeDataFrame].
+/// Defines a [Matrix2] attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class Matrix2Attribute extends VertexAttribute<Matrix2> {
-  /// Instantiates a new [Matrix2] attribute definition on the specified
-  /// attribute data frame.
+  /// Instantiates a new [Matrix2] attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the sequence of values for this
-  /// attribute begins relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new Matrix2Attribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new Matrix2Attribute(attributeDataTable, offset: 2);
   ///
-  Matrix2Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 2, 2, offset: offset);
+  Matrix2Attribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 2, 2, offset: offset);
 
   Matrix2 extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     return new Matrix2(
         _storage[s], _storage[s + 2], _storage[s + 1], _storage[s + 3]);
   }
 
   void setValueAtRow(int rowIndex, Matrix2 value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     _storage[s] = value.r0c0;
     _storage[s + 1] = value.r1c0;
@@ -330,34 +341,36 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
     _storage[s + 3] = value.r1c1;
   }
 
-  Matrix2Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new Matrix2Attribute(frame, offset: offset ?? this.offset);
+  Matrix2Attribute onTable(AttributeDataTable attributeDataTable,
+          {int offset}) =>
+      new Matrix2Attribute(attributeDataTable, offset: offset ?? this.offset);
 }
 
-/// Defines a [Matrix3] attribute on an [AttributeDataFrame].
+/// Defines a [Matrix3] attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class Matrix3Attribute extends VertexAttribute<Matrix3> {
-  /// Instantiates a new [Matrix3] attribute definition on the specified
-  /// attribute data frame.
+  /// Instantiates a new [Matrix3] attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the sequence of values for this
-  /// attribute begins relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new Matrix3Attribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new Matrix3Attribute(attributeDataTable, offset: 2);
   ///
-  Matrix3Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 3, 3, offset: offset);
+  Matrix3Attribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 3, 3, offset: offset);
 
   Matrix3 extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    final s = rowIndex * frame.rowLength + offset;
+    final s = rowIndex * attributeDataTable.rowLength + offset;
 
     return new Matrix3(
         _storage[s],
@@ -372,9 +385,10 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
   }
 
   void setValueAtRow(int rowIndex, Matrix3 value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    var s = rowIndex * frame.rowLength + offset;
+    var s = rowIndex * attributeDataTable.rowLength + offset;
 
     _storage[s] = value.r0c0;
     _storage[s + 1] = value.r1c0;
@@ -387,34 +401,36 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
     _storage[s + 8] = value.r2c2;
   }
 
-  Matrix3Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new Matrix3Attribute(frame, offset: offset ?? this.offset);
+  Matrix3Attribute onTable(AttributeDataTable attributeDataTable,
+          {int offset}) =>
+      new Matrix3Attribute(attributeDataTable, offset: offset ?? this.offset);
 }
 
-/// Defines a [Matrix4] attribute on an [AttributeDataFrame].
+/// Defines a [Matrix4] attribute on an [AttributeDataTable].
 ///
 /// See the documentation for [VertexAttribute] for an example of defining
-/// vertex attributes on an attribute data frame.
+/// vertex attributes on an [AttributeDataTable].
 class Matrix4Attribute extends VertexAttribute<Matrix4> {
-  /// Instantiates a new [Matrix4] attribute definition on the specified
-  /// attribute data frame.
+  /// Instantiates a new [Matrix4] attribute definition on the given
+  /// [attributeDataTable].
   ///
-  /// Can be used defined both on an attribute data frame that only holds data
-  /// for this attribute, or on an attribute data frame that holds interleaved
+  /// Can be defined both on an [AttributeDataTable] that only holds data
+  /// for this attribute, or on an [AttributeDataTable] that holds interleaved
   /// data for several attributes. In the latter case, if this attribute is not
-  /// the first to appear in a row (at position 0), then the offset needs to be
-  /// specified to indicate at which position the sequence of values for this
-  /// attribute begins relative to the start of the row:
+  /// the first to appear in a row (at position 0), then the [offset] needs to
+  /// be specified to indicate at which position the values for this attribute
+  /// begin relative to the start of a row:
   ///
-  ///     var attribute = new Matrix4Attribute(attributeDataFrame, offset: 2);
+  ///     var attribute = new Matrix4Attribute(attributeDataTable, offset: 2);
   ///
-  Matrix4Attribute(AttributeDataFrame attributeDataFrame, {int offset: 0})
-      : super(attributeDataFrame, 4, 4, offset: offset);
+  Matrix4Attribute(AttributeDataTable attributeDataTable, {int offset: 0})
+      : super(attributeDataTable, 4, 4, offset: offset);
 
   Matrix4 extractValueAtRow(int rowIndex) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    var s = rowIndex * frame.rowLength + offset;
+    var s = rowIndex * attributeDataTable.rowLength + offset;
 
     return new Matrix4(
         _storage[s],
@@ -436,9 +452,10 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
   }
 
   void setValueAtRow(int rowIndex, Matrix4 value) {
-    RangeError.checkValidIndex(rowIndex, frame, 'rowIndex', _rowCount);
+    RangeError.checkValidIndex(
+        rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
-    var s = rowIndex * frame.rowLength + offset;
+    var s = rowIndex * attributeDataTable.rowLength + offset;
 
     _storage[s] = value.r0c0;
     _storage[s + 1] = value.r1c0;
@@ -458,6 +475,7 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
     _storage[s + 15] = value.r3c3;
   }
 
-  Matrix4Attribute onFrame(AttributeDataFrame frame, {int offset}) =>
-      new Matrix4Attribute(frame, offset: offset ?? this.offset);
+  Matrix4Attribute onTable(AttributeDataTable attributeDataTable,
+          {int offset}) =>
+      new Matrix4Attribute(attributeDataTable, offset: offset ?? this.offset);
 }

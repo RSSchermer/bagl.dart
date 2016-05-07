@@ -71,12 +71,12 @@ void main () {
           expect(vertices.attributes.keys, unorderedEquals(['position', 'color']));
         });
 
-        test('returns a vertex array backed by a single attribute data frame not marked as dynamic with the correct row length', () {
-          final frames = vertices.attributes.values.map((a) => a.frame).toSet();
+        test('returns a vertex array backed by a single attribute data table not marked as dynamic with the correct row length', () {
+          final tables = vertices.attributes.values.map((a) => a.attributeDataTable).toSet();
 
-          expect(frames.length, equals(1));
-          expect(frames.first.isDynamic, isFalse);
-          expect(frames.first.rowLength, equals(5));
+          expect(tables.length, equals(1));
+          expect(tables.first.isDynamic, isFalse);
+          expect(tables.first.rowLength, equals(5));
         });
       });
 
@@ -96,48 +96,48 @@ void main () {
           })
         ], dynamic: true);
 
-        test('returns a vertex array backed by a single attribute data frame marked as dynamic', () {
-          final frames = vertices.attributes.values.map((a) => a.frame).toSet();
+        test('returns a vertex array backed by a single attribute data table marked as dynamic', () {
+          final tables = vertices.attributes.values.map((a) => a.attributeDataTable).toSet();
 
-          expect(frames.length, equals(1));
-          expect(frames.first.isDynamic, isTrue);
+          expect(tables.length, equals(1));
+          expect(tables.first.isDynamic, isTrue);
         });
       });
     });
 
-    group('fromAttributeData', () {
-      final positionData = new AttributeDataFrame(2, [
+    group('fromAttributes', () {
+      final positionData = new AttributeDataTable(2, [
         0.0,  0.5,
         -0.5, -0.5,
         0.5, -0.5
       ]);
-      final colorData = new AttributeDataFrame(3, [
+      final colorData = new AttributeDataTable(3, [
         1.0, 0.0, 0.0,
         0.0, 1.0, 0.0,
         0.0, 0.0, 1.0
       ]);
       final interleavedAttributeData = positionData.interleavedWith(colorData);
 
-      test('throws an ArgumentError if the attributes are defined on frames of differening lengths', () {
-        final shortColorData = new AttributeDataFrame(3, [
+      test('throws an ArgumentError if the attributes are defined on tables of differening lengths', () {
+        final shortColorData = new AttributeDataTable(3, [
           1.0, 0.0, 0.0,
           0.0, 1.0, 0.0
         ]);
 
-        expect(() => new VertexArray.fromAttributeData({
+        expect(() => new VertexArray.fromAttributes({
           'position': new Vector2Attribute(positionData),
           'color': new Vector3Attribute(shortColorData)
         }), throwsArgumentError);
       });
 
-      group('from 2 frames of equal length', () {
-        final vertices = new VertexArray.fromAttributeData({
+      group('from 2 tables of equal length', () {
+        final vertices = new VertexArray.fromAttributes({
           'position': new Vector2Attribute(positionData),
           'color': new Vector3Attribute(colorData)
         });
 
-        test('instantiates a new vertex array with 2 frames', () {
-          expect(vertices.attributeDataFrames.length, equals(2));
+        test('instantiates a new vertex array with 2 tables', () {
+          expect(vertices.attributeDataTables.length, equals(2));
         });
 
         test('instantiates a new vertex array with the correct length', () {
@@ -145,14 +145,14 @@ void main () {
         });
       });
 
-      group('from 1 interleaved frame', () {
-        final vertices = new VertexArray.fromAttributeData({
+      group('from 1 interleaved table', () {
+        final vertices = new VertexArray.fromAttributes({
           'position': new Vector2Attribute(interleavedAttributeData),
           'color': new Vector3Attribute(interleavedAttributeData, offset: 2)
         });
 
-        test('instantiates a new vertex array with 1 frames', () {
-          expect(vertices.attributeDataFrames.length, equals(1));
+        test('instantiates a new vertex array with 1 tables', () {
+          expect(vertices.attributeDataTables.length, equals(1));
         });
 
         test('instantiates a new vertex array with the correct length', () {
@@ -161,15 +161,15 @@ void main () {
       });
     });
 
-    group('instance with 1 interleaved attribute data frame', () {
-      final attributeData = new AttributeDataFrame(5, [
+    group('instance with 1 interleaved attribute data table', () {
+      final attributeData = new AttributeDataTable(5, [
          // Position    // Color
          0.0,  0.5,     1.0, 0.0, 0.0,
         -0.5, -0.5,     0.0, 1.0, 0.0,
          0.5, -0.5,     0.0, 0.0, 1.0
       ]);
 
-      var vertices = new VertexArray.fromAttributeData({
+      var vertices = new VertexArray.fromAttributes({
         'position': new Vector2Attribute(attributeData),
         'color': new Vector3Attribute(attributeData, offset: 2)
       });
@@ -209,7 +209,7 @@ void main () {
 
       group('indexOf', () {
         test('returns -1 if the vertex is not in the vertex array', () {
-          final other = new VertexArray.fromAttributeData({
+          final other = new VertexArray.fromAttributes({
             'position': new Vector2Attribute(attributeData),
             'color': new Vector3Attribute(attributeData, offset: 2)
           });
@@ -251,8 +251,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].frame, equals(subArray.attributes['color'].frame));
-            expect(subArray.attributes['position'].frame.rowLength, equals(5));
+            expect(subArray.attributes['position'].attributeDataTable, equals(subArray.attributes['color'].attributeDataTable));
+            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(5));
           });
         });
 
@@ -265,8 +265,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].frame, equals(subArray.attributes['color'].frame));
-            expect(subArray.attributes['position'].frame.rowLength, equals(5));
+            expect(subArray.attributes['position'].attributeDataTable, equals(subArray.attributes['color'].attributeDataTable));
+            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(5));
           });
         });
       });
@@ -289,18 +289,18 @@ void main () {
       });
     });
 
-    group('instance with 2 seperate attribute data frames', () {
-      final positionData = new AttributeDataFrame(2, [
+    group('instance with 2 seperate attribute data tables', () {
+      final positionData = new AttributeDataTable(2, [
         0.0,  0.5,
         -0.5, -0.5,
         0.5, -0.5
       ]);
-      final colorData = new AttributeDataFrame(3, [
+      final colorData = new AttributeDataTable(3, [
         1.0, 0.0, 0.0,
         0.0, 1.0, 0.0,
         0.0, 0.0, 1.0
       ]);
-      final vertices = new VertexArray.fromAttributeData({
+      final vertices = new VertexArray.fromAttributes({
         'position': new Vector2Attribute(positionData),
         'color': new Vector3Attribute(colorData)
       });
@@ -315,8 +315,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].frame.rowLength, equals(2));
-            expect(subArray.attributes['color'].frame.rowLength, equals(3));
+            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(2));
+            expect(subArray.attributes['color'].attributeDataTable.rowLength, equals(3));
           });
         });
 
@@ -329,8 +329,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].frame.rowLength, equals(2));
-            expect(subArray.attributes['color'].frame.rowLength, equals(3));
+            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(2));
+            expect(subArray.attributes['color'].attributeDataTable.rowLength, equals(3));
           });
         });
       });
@@ -487,7 +487,7 @@ void main () {
           });
 
           test('correctly updates the attribute data', () {
-            expect(vertices.attributeDataFrames.first[1], orderedCloseTo([0.5, 0.5, 1.0, 0.0, 0.0], 0.00001));
+            expect(vertices.attributeDataTables.first[1], orderedCloseTo([0.5, 0.5, 1.0, 0.0, 0.0], 0.00001));
           });
         });
       });
@@ -535,13 +535,13 @@ void main () {
         });
 
         test('restults in a new vertex array with the correct attribute data', () {
-          final frame = result.attributeDataFrames.first;
+          final table = result.attributeDataTables.first;
 
-          expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
-          expect(frame[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
-          expect(frame[2], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
-          expect(frame[3], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
-          expect(frame[4], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
+          expect(table[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
+          expect(table[2], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
+          expect(table[3], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
+          expect(table[4], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
         });
       });
 
@@ -557,13 +557,13 @@ void main () {
         });
 
         test('restults in a new vertex array with the correct attribute data', () {
-          final frame = result.attributeDataFrames.first;
+          final table = result.attributeDataTables.first;
 
-          expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
-          expect(frame[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
-          expect(frame[2], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
-          expect(frame[3], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
-          expect(frame[4], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
+          expect(table[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
+          expect(table[2], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
+          expect(table[3], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
+          expect(table[4], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
         });
       });
 
@@ -579,12 +579,12 @@ void main () {
         });
 
         test('restults in a new vertex array with the correct attribute data', () {
-          final frame = result.attributeDataFrames.first;
+          final table = result.attributeDataTables.first;
 
-          expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
-          expect(frame[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
-          expect(frame[2], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
-          expect(frame[3], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
+          expect(table[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
+          expect(table[2], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
+          expect(table[3], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
         });
       });
 
@@ -627,15 +627,15 @@ void main () {
           });
 
           test('restults in a new vertex array with the correct attribute data', () {
-            final frame = result.attributeDataFrames.first;
+            final table = result.attributeDataTables.first;
 
-            expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
-            expect(frame[1], orderedCloseTo([1.0, 0.0, 1.0, 0.0, 0.0], 0.00001));
-            expect(frame[2], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
-            expect(frame[3], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
-            expect(frame[4], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
-            expect(frame[5], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
-            expect(frame[6], orderedCloseTo([6.0, 0.0, 6.0, 0.0, 0.0], 0.00001));
+            expect(table[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
+            expect(table[1], orderedCloseTo([1.0, 0.0, 1.0, 0.0, 0.0], 0.00001));
+            expect(table[2], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
+            expect(table[3], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
+            expect(table[4], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
+            expect(table[5], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
+            expect(table[6], orderedCloseTo([6.0, 0.0, 6.0, 0.0, 0.0], 0.00001));
           });
         });
       });
@@ -661,16 +661,16 @@ void main () {
         });
 
         test('restults in a new vertex array with the correct attribute data', () {
-          final frame = result.attributeDataFrames.first;
+          final table = result.attributeDataTables.first;
 
-          expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
-          expect(frame[1], orderedCloseTo([1.0, 0.0, 1.0, 0.0, 0.0], 0.00001));
-          expect(frame[2], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
-          expect(frame[3], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
-          expect(frame[4], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
-          expect(frame[5], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
-          expect(frame[6], orderedCloseTo([6.0, 0.0, 6.0, 0.0, 0.0], 0.00001));
-          expect(frame[7], orderedCloseTo([7.0, 0.0, 7.0, 0.0, 0.0], 0.00001));
+          expect(table[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
+          expect(table[1], orderedCloseTo([1.0, 0.0, 1.0, 0.0, 0.0], 0.00001));
+          expect(table[2], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
+          expect(table[3], orderedCloseTo([3.0, 0.0, 3.0, 0.0, 0.0], 0.00001));
+          expect(table[4], orderedCloseTo([4.0, 0.0, 4.0, 0.0, 0.0], 0.00001));
+          expect(table[5], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
+          expect(table[6], orderedCloseTo([6.0, 0.0, 6.0, 0.0, 0.0], 0.00001));
+          expect(table[7], orderedCloseTo([7.0, 0.0, 7.0, 0.0, 0.0], 0.00001));
         });
       });
 
@@ -702,14 +702,14 @@ void main () {
         });
 
         test('restults in a new vertex array with the correct attribute data', () {
-          final frame = result.attributeDataFrames.first;
+          final table = result.attributeDataTables.first;
 
-          expect(frame[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
-          expect(frame[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
-          expect(frame[2], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
-          expect(frame[3], orderedCloseTo([6.0, 0.0, 6.0, 0.0, 0.0], 0.00001));
-          expect(frame[4], orderedCloseTo([7.0, 0.0, 7.0, 0.0, 0.0], 0.00001));
-          expect(frame[5], orderedCloseTo([8.0, 0.0, 8.0, 0.0, 0.0], 0.00001));
+          expect(table[0], orderedCloseTo([0.0, 0.0, 0.0, 0.0, 0.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 0.0, 2.0, 0.0, 0.0], 0.00001));
+          expect(table[2], orderedCloseTo([5.0, 0.0, 5.0, 0.0, 0.0], 0.00001));
+          expect(table[3], orderedCloseTo([6.0, 0.0, 6.0, 0.0, 0.0], 0.00001));
+          expect(table[4], orderedCloseTo([7.0, 0.0, 7.0, 0.0, 0.0], 0.00001));
+          expect(table[5], orderedCloseTo([8.0, 0.0, 8.0, 0.0, 0.0], 0.00001));
         });
       });
     });

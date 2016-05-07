@@ -1,11 +1,11 @@
 part of vertex_data;
 
-/// A sequence of vertices as a view on one or more [AttributeDataFrame]s.
+/// A sequence of vertices as a view on one or more [AttributeDataTable]s.
 ///
 /// Vertices are ordered and uniquely identified by consecutive integer indices
 /// starting at 0.
 ///
-/// A [VertexArray] can be instantiated from another collection of vertices:
+/// A [VertexArray] can be instantiated from a collection of vertices:
 ///
 ///     var vertices = new VertexArray([
 ///       new Vertex({
@@ -22,31 +22,30 @@ part of vertex_data;
 ///       })
 ///     ]);
 ///
-/// This will create a single new [AttributeDataFrame] in which each row stores
+/// This will create a single new [AttributeDataTable] in which each row stores
 /// the attribute values of a vertex as interleaved attribute data.
 ///
-/// A [VertexArray] can also be instantiated from [VertexAttribute]s defined on
-/// one or more [AttributeDataFrame]s:
+/// A [VertexArray] can also be instantiated from [VertexAttribute]s:
 ///
-///     var attributeData = new AttributeDataFrame(5, [
+///     var attributeData = new AttributeDataTable(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
 ///        0.5, -0.5,     0.0, 0.0, 1.0
 ///     ]);
 ///
-///     var vertices = new VertexArray.fromAttributeData({
+///     var vertices = new VertexArray.fromAttributes({
 ///       'position': new Vector2Attribute(attributeData),
 ///       'color': new Vector3Attribute(attributeData, offset: 2)
 ///     });
 ///
 /// Note that for large collections of vertices, instantiating a [VertexArray]
-/// directly from attributes defined on attribute data frames may be more
-/// efficient than instantiating a [VertexArray] from a collection of vertices.
+/// from attributes may be more efficient than instantiating a [VertexArray]
+/// from a collection of vertices.
 ///
 /// It is not possible to replace a vertex in a [VertexArray]. However, it is
-/// possible to update the values of individual attributes for the vertices in
-/// a [VertexArray]. One might for example change the `position` value of the
+/// possible to update the value of individual attribute a vertex in a
+/// [VertexArray]. One might for example change the `position` value of the
 /// vertex at index 2:
 ///
 ///     vertices[2]['position'] = new Vector2(0.5, 0.5);
@@ -54,8 +53,8 @@ part of vertex_data;
 /// Vertices may not be added or removed from a [VertexArray]. However,
 /// `toBuilder()` may be called to create a new [VertexArrayBuilder] instance,
 /// which may be used to create new [VertexArray] instances as modified versions
-/// of the [VertexArray]. The builder will use this [VertexArray] as a base.
-/// The builder can be instructed to omit or append vertices on the new
+/// of the current [VertexArray]. The builder will use this [VertexArray] as a
+/// base. The builder can be instructed to omit or append vertices for the new
 /// instances it builds:
 ///
 ///     var modified = vertices.toBuilder()
@@ -91,22 +90,21 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   ///       })
   ///     ]);
   ///
-  /// This will create a single new [AttributeDataFrame] which stores the
+  /// This will create a single new [AttributeDataTable] which stores the
   /// attribute values of the vertices as interleaved data.
   ///
   /// Optionally, the [dynamic] parameter may be specified. When `true` it
-  /// signals to the rendering back-end that the data in the attribute data
-  /// frame is intended to be modified regularly, allowing the rendering
-  /// back-end to optimize for this. The default value is `false`. Note that
-  /// this is merely a hint that can be used for tuning the performance of a
-  /// rendering back-end: the data in an attribute data frame that is not marked
-  /// as dynamic can still be modified.
+  /// signals to the rendering back-end that the attribute data is intended to
+  /// be modified regularly, allowing the rendering back-end to optimize for
+  /// this. The default value is `false`. Note that this is merely a hint that
+  /// can be used for tuning the performance of a rendering back-end: attribute
+  /// data that is not marked as dynamic may still be modified.
   ///
   /// Throws an [ArgumentError] when the [vertices] collection is empty.
+  ///
   /// Throws an [ArgumentError] when a vertex defines attributes that are not
   /// consistent with the attributes defined on preceding vertices.
-  factory VertexArray(Iterable<Vertex> vertices,
-      {bool dynamic: false}) {
+  factory VertexArray(Iterable<Vertex> vertices, {bool dynamic: false}) {
     if (vertices.isEmpty) {
       throw new ArgumentError(
           'Cannot instantiate a VertexArray from an empty collection of '
@@ -120,7 +118,7 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
 
     final firstVertexAttributes = vertices.first.toMap();
 
-    // Create empty attribute data frame with the correct dimensions
+    // Create empty attribute data table with the correct dimensions
     var rowLength = 0;
 
     firstVertexAttributes.forEach((name, value) {
@@ -148,33 +146,33 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
     });
 
     final data = new Float32List(rowLength * vertices.length);
-    final frame = new AttributeDataFrame(rowLength, data, dynamic: dynamic);
+    final table = new AttributeDataTable(rowLength, data, dynamic: dynamic);
 
-    // Define attributes on the attribute data frame
+    // Define attributes on the attribute data table
     final attributes = new Map<String, VertexAttribute>();
     var offset = 0;
 
     firstVertexAttributes.forEach((name, value) {
       if (value is double) {
-        attributes[name] = new FloatAttribute(frame, offset: offset);
+        attributes[name] = new FloatAttribute(table, offset: offset);
         offset += 1;
       } else if (value is Vector2) {
-        attributes[name] = new Vector2Attribute(frame, offset: offset);
+        attributes[name] = new Vector2Attribute(table, offset: offset);
         offset += 2;
       } else if (value is Vector3) {
-        attributes[name] = new Vector3Attribute(frame, offset: offset);
+        attributes[name] = new Vector3Attribute(table, offset: offset);
         offset += 3;
       } else if (value is Vector4) {
-        attributes[name] = new Vector4Attribute(frame, offset: offset);
+        attributes[name] = new Vector4Attribute(table, offset: offset);
         offset += 4;
       } else if (value is Matrix2) {
-        attributes[name] = new Matrix2Attribute(frame, offset: offset);
+        attributes[name] = new Matrix2Attribute(table, offset: offset);
         offset += 4;
       } else if (value is Matrix3) {
-        attributes[name] = new Matrix3Attribute(frame, offset: offset);
+        attributes[name] = new Matrix3Attribute(table, offset: offset);
         offset += 9;
       } else if (value is Matrix4) {
-        attributes[name] = new Matrix4Attribute(frame, offset: offset);
+        attributes[name] = new Matrix4Attribute(table, offset: offset);
         offset += 16;
       } else {
         throw new ArgumentError(
@@ -185,7 +183,7 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
       }
     });
 
-    // Fill the frame with the attribute data
+    // Fill the table with the attribute data
     final attributesLength = attributes.length;
     var counter = 0;
 
@@ -223,16 +221,16 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
       counter++;
     }
 
-    return new VertexArray.fromAttributeData(attributes);
+    return new VertexArray.fromAttributes(attributes);
   }
 
   /// Instantiates a new [VertexArray] from one or more [VertexAttributes]
-  /// defined on one or more [AttributeDataFrame]s.
+  /// defined on one or more [AttributeDataTable]s.
   ///
   /// The attribute data for multiple attributes may be interleaved in a single
-  /// [AttributeDataFrame]:
+  /// [AttributeDataTable]:
   ///
-  ///     var attributeData = new AttributeDataFrame(5, [
+  ///     var attributeData = new AttributeDataTable(5, [
   ///        // Position    // Color
   ///        0.0,  0.5,     1.0, 0.0, 0.0,
   ///       -0.5, -0.5,     0.0, 1.0, 0.0,
@@ -247,16 +245,16 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   /// Note that attributes might have to specify an `offset` if the offset of
   /// the attribute relative to the start of a row is not 0.
   ///
-  /// The attribute data may also be spread over multiple attribute data frames,
+  /// The attribute data may also be spread over multiple [AttributeDataTable]s,
   /// for example one for each attribute:
   ///
-  ///     var positionData = new AttributeDataFrame(2, [
+  ///     var positionData = new AttributeDataTable(2, [
   ///        0.0,  0.5,
   ///       -0.5, -0.5,
   ///        0.5, -0.5
   ///     ]);
   ///
-  ///     var colorData = new AttributeDataFrame(3, [
+  ///     var colorData = new AttributeDataTable(3, [
   ///       1.0, 0.0, 0.0,
   ///       0.0, 1.0, 0.0,
   ///       0.0, 0.0, 1.0
@@ -267,26 +265,24 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   ///       'color': new Vector3Attribute(colorData)
   ///     });
   ///
-  /// This allows different objects to share data on specific attributes. For
+  /// This allows different objects to share data for specific attributes. For
   /// example: two objects might share the same position data, but each uses
   /// different color data.
-  VertexArray.fromAttributeData(
-      Map<String, VertexAttribute> attributes)
+  VertexArray.fromAttributes(Map<String, VertexAttribute> attributes)
       : attributes = attributes,
-        length = attributes.values.first.frame.length {
+        length = attributes.values.first.attributeDataTable.length {
     attributes.forEach((name, attribute) {
-      if (attribute.frame.length != length) {
+      if (attribute.attributeDataTable.length != length) {
         throw new ArgumentError(
-            'The attribute named "$name" is defined on an AttributeDataFrame '
+            'The attribute named "$name" is defined on an AttributeDataTable '
             'of a different length than the attribute named '
             '"${attributes.keys.first}". All attributes must be defined on '
-            'frames of equal length.');
+            'AttributeDataTables of equal length.');
       }
     });
   }
 
-  Iterator<VertexArrayVertexView> get iterator =>
-      new VertexArrayIterator(this);
+  Iterator<VertexArrayVertexView> get iterator => new VertexArrayIterator(this);
 
   /// The names of the attributes defined for the vertices in this vertex array.
   Iterable<String> get attributeNames => attributes.keys;
@@ -295,10 +291,10 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   /// vertices in this vertex array, `false` otherwise.
   bool hasAttribute(String name) => attributes.containsKey(name);
 
-  /// Returns the attribute data frames that contain the attribute data for
+  /// Returns the [AttributeDataTable]s that contain the attribute data for
   /// this vertex array.
-  Set<AttributeDataFrame> get attributeDataFrames =>
-      attributes.values.map((attribute) => attribute.frame).toSet();
+  Set<AttributeDataTable> get attributeDataTables =>
+      attributes.values.map((a) => a.attributeDataTable).toSet();
 
   VertexArrayVertexView elementAt(int index) => this[index];
 
@@ -324,23 +320,23 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
     RangeError.checkValidIndex(start, this);
     RangeError.checkValidRange(start, end, length);
 
-    // Create map of old frames to corresponding new frames.
-    final oldNewFrameMap = new Map<AttributeDataFrame, AttributeDataFrame>();
+    // Create map of old tables to corresponding new tables.
+    final oldNewTableMap = new Map<AttributeDataTable, AttributeDataTable>();
 
-    attributeDataFrames.forEach((frame) {
-      oldNewFrameMap[frame] = frame.subFrame(start, end ?? length);
+    attributeDataTables.forEach((table) {
+      oldNewTableMap[table] = table.subTable(start, end ?? length);
     });
 
-    // Create new attribute map on the new frames
+    // Create new attribute map on the new tables
     final newAttributeMap = new Map<String, VertexAttribute>();
 
     attributes.forEach((name, oldAttribute) {
-      final newFrame = oldNewFrameMap[oldAttribute.frame];
+      final newTable = oldNewTableMap[oldAttribute.attributeDataTable];
 
-      newAttributeMap[name] = oldAttribute.onFrame(newFrame);
+      newAttributeMap[name] = oldAttribute.onTable(newTable);
     });
 
-    return new VertexArray.fromAttributeData(newAttributeMap);
+    return new VertexArray.fromAttributes(newAttributeMap);
   }
 
   /// Returns a builder which can be used to create a modified version of this
@@ -352,8 +348,7 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   ///         .build();
   ///
   /// See [IndexedVertexCollectionBuilder].
-  VertexArrayBuilder toBuilder() =>
-      new VertexArrayBuilder.fromBaseArray(this);
+  VertexArrayBuilder toBuilder() => new VertexArrayBuilder.fromBaseArray(this);
 
   /// Returns the vertex at the specified [index].
   ///
@@ -393,24 +388,24 @@ class VertexArrayIterator extends Iterator<VertexArrayVertexView> {
   }
 }
 
-/// View of a vertex in a [VertexArray].
+/// View on a vertex in a [VertexArray].
 class VertexArrayVertexView implements Vertex {
-  /// The [VertexArray] on which this [VertexArrayVertexView] is defined
+  /// The [VertexArray] on which this [VertexArrayVertexView] is defined.
   final VertexArray vertexArray;
 
   /// The index of the vertex in the [vertexArray].
   final int index;
 
   /// Instantiates a new [VertexArrayVertexView] as a view on the vertex in the
-  /// given [VertexArray] at the given index.
+  /// given [VertexArray] at the given [index].
   VertexArrayVertexView(this.vertexArray, this.index);
 
   Iterable<String> get attributeNames => vertexArray.attributeNames;
 
   bool hasAttribute(String name) => vertexArray.hasAttribute(name);
 
-  Iterable<dynamic> get attributeValues => attributeNames.map(
-      (name) => vertexArray.attributes[name].extractValueAtRow(index));
+  Iterable<dynamic> get attributeValues => attributeNames
+      .map((name) => vertexArray.attributes[name].extractValueAtRow(index));
 
   Map<String, dynamic> toMap() {
     final map = new Map<String, dynamic>();
@@ -437,6 +432,7 @@ class VertexArrayVertexView implements Vertex {
   ///
   /// Throws an [ArgumentError] if the vertex does not define an attribute with
   /// the given [attributeName].
+  ///
   /// Throws an [ArgumentError] if the [value] is not of a valid type.
   void operator []=(String attributeName, value) {
     final attribute = vertexArray.attributes[attributeName];
@@ -482,12 +478,11 @@ class VertexArrayBuilder {
   /// Instantiates a new [VertexArrayBuilder].
   VertexArrayBuilder() : baseArray = null;
 
-  /// Instantiates a new [VertexArrayBuilder] using an existing [VertexArray] as
-  /// a base.
+  /// Instantiates a new [VertexArrayBuilder] using the [baseArray] as a base.
   VertexArrayBuilder.fromBaseArray(this.baseArray);
 
   /// Adds the [vertex] to the collection of vertices that are to be appended
-  /// onto new vertex arrays build with this builder.
+  /// onto new [VertexArray] instances build with this builder.
   ///
   /// See [appendAll] for adding multiple vertices at once.
   void append(Vertex vertex) {
@@ -495,19 +490,19 @@ class VertexArrayBuilder {
   }
 
   /// Adds the [vertices] to the collection of vertices that are to be appended
-  /// onto new vertex arrays build with this builder.
+  /// onto new [VertexArray] instances build with this builder.
   ///
   /// See [append] for adding a single vertex.
   void appendAll(Iterable<Vertex> vertices) {
     _appendedVertices.addAll(vertices);
   }
 
-  /// Instructs this builder to omit the [vertex] from new vertex arrays
-  /// created with the builder.
+  /// Instructs this builder to omit the [vertex] from new [VertexArray]
+  /// instances build with the builder.
   ///
-  /// If an existing vertex array is used as a base for this builder and the
+  /// If an existing [VertexArray] is used as a base for this builder and the
   /// [vertex] is present in this base array, then the builder will omit the
-  /// [vertex] from any new vertex arrays it builds.
+  /// [vertex] from any new [VertexArray] instances it builds.
   ///
   /// Returns `true` if the vertex was in the base array, `false` otherwise.
   ///
@@ -525,14 +520,15 @@ class VertexArrayBuilder {
   }
 
   /// Instructs this builder to omit the vertex at the given [index] from new
-  /// vertex arrays created with this builder.
+  /// [VertexArray] instances created with this builder.
   ///
-  /// If an existing vertex array is used as a base for this builder, then this
-  /// builder will omit the vertex at the given [index] from any new vertex
-  /// arrays it builds.
+  /// If an existing [VertexArray] is used as a base for this builder, then this
+  /// builder will omit the vertex at the given [index] from any new
+  /// [VertexArray] instances it builds.
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the base
   /// array.
+  ///
   /// Throws an [UnsupportedError] if no base array was specified for this
   /// builder.
   void omitAt(int index) {
@@ -546,12 +542,12 @@ class VertexArrayBuilder {
     }
   }
 
-  /// Instructs this builder to omit the [vertices] from new vertex arrays
-  /// created with the builder.
+  /// Instructs this builder to omit the [vertices] from new [VertexArray]
+  /// instances created with the builder.
   ///
-  /// If an existing vertex collection is used as a base for this builder and
-  /// any of the [vertices] are present in this base array, then the builder
-  /// will omit these [vertices] from any new vertex arrays it builds.
+  /// If an existing [VertexArray] is used as a base for this builder and any of
+  /// the [vertices] are present in this base array, then the builder will omit
+  /// these [vertices] from any new [VertexArray] instances it builds.
   ///
   /// See [omit] for omitting a single vertex.
   void omitAll(Iterable<Vertex> vertices) {
@@ -579,39 +575,38 @@ class VertexArrayBuilder {
     if (baseArray == null) {
       return new VertexArray(_appendedVertices);
     } else {
-      // Currently this algorithm creates the new attribute data frames in two
-      // steps: first an intermediate frame is created in which the omitted
-      // vertices are removed from the base array, then the final frame is
+      // Currently this algorithm creates the new attribute data tables in two
+      // steps: first an intermediate table is created in which the omitted
+      // vertices are removed from the base array, then the final table is
       // created in which the appended vertices are added at the tail. A
       // possible optimization would be to do this in a single step, without
-      // creating an intermediate frame, although this might not be a
+      // creating an intermediate table, although this might not be a
       // significant optimization.
 
       final appendCount = _appendedVertices.length;
 
-      // Create map of old frames to corresponding new frames.
-      final oldNewFrameMap = new Map<AttributeDataFrame, AttributeDataFrame>();
+      // Create map of old tables to corresponding new tables.
+      final oldNewTableMap = new Map<AttributeDataTable, AttributeDataTable>();
 
-      baseArray.attributeDataFrames.forEach((frame) {
-        final appendedData = new Float32List(frame.rowLength * appendCount);
+      baseArray.attributeDataTables.forEach((table) {
+        final appendedData = new Float32List(table.rowLength * appendCount);
 
-        oldNewFrameMap[frame] = frame
+        oldNewTableMap[table] = table
             .withoutRows(_omittedVertexIndices)
             .withAppendedData(appendedData);
       });
 
-      // Create new attribute map on the new frames
+      // Create new attribute map on the new tables
       final newAttributeMap = new Map<String, VertexAttribute>();
 
       baseArray.attributes.forEach((name, oldAttribute) {
-        final newFrame = oldNewFrameMap[oldAttribute.frame];
+        final newTable = oldNewTableMap[oldAttribute.attributeDataTable];
 
-        newAttributeMap[name] = oldAttribute.onFrame(newFrame);
+        newAttributeMap[name] = oldAttribute.onTable(newTable);
       });
 
       // Create new VertexArray
-      final vertices =
-          new VertexArray.fromAttributeData(newAttributeMap);
+      final vertices = new VertexArray.fromAttributes(newAttributeMap);
 
       // Set the attribute data for the appended vertices
       var currentRow = baseArray.length - _omittedVertexIndices.length;
