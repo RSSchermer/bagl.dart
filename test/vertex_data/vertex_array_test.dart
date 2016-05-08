@@ -106,12 +106,12 @@ void main () {
     });
 
     group('fromAttributes', () {
-      final positionData = new AttributeDataTable(2, [
+      final positionData = new AttributeDataTable.fromList(2, [
         0.0,  0.5,
         -0.5, -0.5,
         0.5, -0.5
       ]);
-      final colorData = new AttributeDataTable(3, [
+      final colorData = new AttributeDataTable.fromList(3, [
         1.0, 0.0, 0.0,
         0.0, 1.0, 0.0,
         0.0, 0.0, 1.0
@@ -119,7 +119,7 @@ void main () {
       final interleavedAttributeData = positionData.interleavedWith(colorData);
 
       test('throws an ArgumentError if the attributes are defined on tables of differening lengths', () {
-        final shortColorData = new AttributeDataTable(3, [
+        final shortColorData = new AttributeDataTable.fromList(3, [
           1.0, 0.0, 0.0,
           0.0, 1.0, 0.0
         ]);
@@ -162,7 +162,7 @@ void main () {
     });
 
     group('instance with 1 interleaved attribute data table', () {
-      final attributeData = new AttributeDataTable(5, [
+      final attributeData = new AttributeDataTable.fromList(5, [
          // Position    // Color
          0.0,  0.5,     1.0, 0.0, 0.0,
         -0.5, -0.5,     0.0, 1.0, 0.0,
@@ -290,12 +290,12 @@ void main () {
     });
 
     group('instance with 2 seperate attribute data tables', () {
-      final positionData = new AttributeDataTable(2, [
+      final positionData = new AttributeDataTable.fromList(2, [
         0.0,  0.5,
         -0.5, -0.5,
         0.5, -0.5
       ]);
-      final colorData = new AttributeDataTable(3, [
+      final colorData = new AttributeDataTable.fromList(3, [
         1.0, 0.0, 0.0,
         0.0, 1.0, 0.0,
         0.0, 0.0, 1.0

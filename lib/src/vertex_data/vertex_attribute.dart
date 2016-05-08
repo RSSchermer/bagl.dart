@@ -13,7 +13,7 @@ part of vertex_data;
 ///
 ///     // An attribute data table with a rowLength of 5, used to store
 ///     // interleaved position and color data.
-///     var attributeDataTable = new AttributeDataTable(5, [
+///     var attributeDataTable = new AttributeDataTable.fromList(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,

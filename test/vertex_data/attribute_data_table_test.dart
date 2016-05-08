@@ -6,7 +6,43 @@ import '../helpers.dart';
 void main() {
   group('AttributeDataTable', () {
     group('default constructor', () {
-      final table = new AttributeDataTable(3, [
+      final table = new AttributeDataTable(3, 3);
+
+      test('instantiates a new table with the correct length', () {
+        expect(table.length, equals(3));
+      });
+
+      test('instantiates a new table with the correct values', () {
+        expect(table[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(table[1], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(table[2], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+      });
+
+      test('instantiates a new table that is not marked as dynamic', () {
+        expect(table.isDynamic, isFalse);
+      });
+    });
+
+    group('dynamic constructor', () {
+      final table = new AttributeDataTable.dynamic(3, 3);
+
+      test('instantiates a new table with the correct length', () {
+        expect(table.length, equals(3));
+      });
+
+      test('instantiates a new table with the correct values', () {
+        expect(table[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(table[1], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+        expect(table[2], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+      });
+
+      test('instantiates a new table that is marked as dynamic', () {
+        expect(table.isDynamic, isTrue);
+      });
+    });
+
+    group('fromList constructor', () {
+      final table = new AttributeDataTable.fromList(3, [
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0
@@ -25,27 +61,14 @@ void main() {
       test('instantiates a new table that is not marked as dynamic', () {
         expect(table.isDynamic, isFalse);
       });
-
-      group('with `dynamic` set to true', () {
-        final dynamicTable = new AttributeDataTable(3, [
-          0.0, 0.0, 0.0,
-          1.0, 1.0, 1.0,
-          2.0, 2.0, 2.0
-        ], dynamic: true);
-
-        test('instantiates a new table that is marked as dynamic', () {
-          expect(dynamicTable.isDynamic, isTrue);
-        });
-      });
     });
 
-    group('fromFloat32List constructor', () {
-      final values = new Float32List.fromList([
+    group('dynamicFromList constructor', () {
+      final table = new AttributeDataTable.dynamicFromList(3, [
         0.0, 0.0, 0.0,
         1.0, 1.0, 1.0,
         2.0, 2.0, 2.0
       ]);
-      final table = new AttributeDataTable.fromFloat32List(3, values);
 
       test('instantiates a new table with the correct length', () {
         expect(table.length, equals(3));
@@ -57,19 +80,11 @@ void main() {
         expect(table[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
       });
 
-      test('instantiates a new table that is not marked as dynamic', () {
-        expect(table.isDynamic, isFalse);
-      });
-
-      group('with `dynamic` set to true', () {
-        final dynamicTable = new AttributeDataTable.fromFloat32List(3, values,
-            dynamic: true);
-
-        test('instantiates a new table that is marked as dynamic', () {
-          expect(dynamicTable.isDynamic, isTrue);
-        });
+      test('instantiates a new table that is marked as dynamic', () {
+        expect(table.isDynamic, isTrue);
       });
     });
+
 
     group('view constructor', () {
       final values = new Float32List.fromList([
@@ -125,7 +140,7 @@ void main() {
 
     group('instance', () {
       group('elementAt', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.fromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
@@ -138,7 +153,7 @@ void main() {
       });
 
       group('withoutRow', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.fromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0,
@@ -169,12 +184,12 @@ void main() {
         });
 
         group('on a table not marked as dynamic', () {
-          final table = new AttributeDataTable(3, [
+          final table = new AttributeDataTable.fromList(3, [
             0.0, 0.0, 0.0,
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0
-          ], dynamic: false).withoutRow(2);
+          ]).withoutRow(2);
 
           test('returns a table not marked as dynamic', () {
             expect(table.isDynamic, isFalse);
@@ -182,12 +197,12 @@ void main() {
         });
 
         group('on a table marked as dynamic', () {
-          final table = new AttributeDataTable(3, [
+          final table = new AttributeDataTable.dynamicFromList(3, [
             0.0, 0.0, 0.0,
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0
-          ], dynamic: true).withoutRow(2);
+          ]).withoutRow(2);
 
           test('returns a table marked as dynamic', () {
             expect(table.isDynamic, isTrue);
@@ -196,7 +211,7 @@ void main() {
       });
 
       group('withoutRows', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.fromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0,
@@ -248,7 +263,7 @@ void main() {
         });
 
         group('on a table not marked as dynamic', () {
-          final table = new AttributeDataTable(3, [
+          final table = new AttributeDataTable.fromList(3, [
             0.0, 0.0, 0.0,
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
@@ -257,7 +272,7 @@ void main() {
             5.0, 5.0, 5.0,
             6.0, 6.0, 6.0,
             7.0, 7.0, 7.0
-          ], dynamic: false).withoutRows([1, 3, 4, 6]);
+          ]).withoutRows([1, 3, 4, 6]);
 
           test('returns a table not marked as dynamic', () {
             expect(table.isDynamic, isFalse);
@@ -265,7 +280,7 @@ void main() {
         });
 
         group('on a table marked as dynamic', () {
-          final table = new AttributeDataTable(3, [
+          final table = new AttributeDataTable.dynamicFromList(3, [
             0.0, 0.0, 0.0,
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
@@ -274,7 +289,7 @@ void main() {
             5.0, 5.0, 5.0,
             6.0, 6.0, 6.0,
             7.0, 7.0, 7.0
-          ], dynamic: true).withoutRows([1, 3, 4, 6]);
+          ]).withoutRows([1, 3, 4, 6]);
 
           test('returns a table marked as dynamic', () {
             expect(table.isDynamic, isTrue);
@@ -283,7 +298,7 @@ void main() {
       });
 
       group('withAppendedData', () {
-        final table = new AttributeDataTable(3,[
+        final table = new AttributeDataTable.fromList(3,[
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0
         ]).withAppendedData([
@@ -303,10 +318,10 @@ void main() {
         });
 
         group('on a table not marked as dynamic', () {
-          final table = new AttributeDataTable(3,[
+          final table = new AttributeDataTable.fromList(3,[
             0.0, 0.0, 0.0,
             1.0, 1.0, 1.0
-          ], dynamic: false).withAppendedData([
+          ]).withAppendedData([
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0
           ]);
@@ -317,10 +332,10 @@ void main() {
         });
 
         group('on a table marked as dynamic', () {
-          final table = new AttributeDataTable(3,[
+          final table = new AttributeDataTable.dynamicFromList(3,[
             0.0, 0.0, 0.0,
             1.0, 1.0, 1.0
-          ], dynamic: true).withAppendedData([
+          ]).withAppendedData([
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0
           ]);
@@ -332,14 +347,14 @@ void main() {
       });
 
       group('interleavedWith', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.fromList(3, [
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0,
           3.0, 3.0, 3.0
         ]);
 
         test('with a table of a different length throws an ArgumentError', () {
-          final otherTable = new AttributeDataTable(3, [
+          final otherTable = new AttributeDataTable.fromList(3, [
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0,
@@ -350,7 +365,7 @@ void main() {
         });
 
         group('with a valid table', () {
-          final otherTable = new AttributeDataTable(3, [
+          final otherTable = new AttributeDataTable.fromList(3, [
             -1.0, -1.0, -1.0,
             -2.0, -2.0, -2.0,
             -3.0, -3.0, -3.0
@@ -369,11 +384,11 @@ void main() {
         });
 
         group('on a table not marked as dynamic', () {
-          final table = new AttributeDataTable(3, [
+          final table = new AttributeDataTable.fromList(3, [
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0
-          ], dynamic: false).interleavedWith(new AttributeDataTable(3, [
+          ]).interleavedWith(new AttributeDataTable.fromList(3, [
             -1.0, -1.0, -1.0,
             -2.0, -2.0, -2.0,
             -3.0, -3.0, -3.0
@@ -385,11 +400,11 @@ void main() {
         });
 
         group('on a table marked as dynamic', () {
-          final table = new AttributeDataTable(3, [
+          final table = new AttributeDataTable.dynamicFromList(3, [
             1.0, 1.0, 1.0,
             2.0, 2.0, 2.0,
             3.0, 3.0, 3.0
-          ], dynamic: true).interleavedWith(new AttributeDataTable(3, [
+          ]).interleavedWith(new AttributeDataTable.fromList(3, [
             -1.0, -1.0, -1.0,
             -2.0, -2.0, -2.0,
             -3.0, -3.0, -3.0
@@ -402,7 +417,7 @@ void main() {
       });
 
       group('subTable', () {
-        final table = new AttributeDataTable(4, [
+        final table = new AttributeDataTable.fromList(4, [
           0.0, 0.1, 0.2, 0.3,
           1.0, 1.1, 1.2, 1.3,
           2.0, 2.1, 2.2, 2.3,
@@ -493,12 +508,12 @@ void main() {
         });
 
         group('on a table not marked as dynamic', () {
-          final table = new AttributeDataTable(4, [
+          final table = new AttributeDataTable.fromList(4, [
             0.0, 0.1, 0.2, 0.3,
             1.0, 1.1, 1.2, 1.3,
             2.0, 2.1, 2.2, 2.3,
             3.0, 3.1, 3.2, 3.3
-          ], dynamic: false).subTable(1);
+          ]).subTable(1);
 
           test('returns a table not marked as dynamic', () {
             expect(table.isDynamic, isFalse);
@@ -506,12 +521,12 @@ void main() {
         });
 
         group('on a table marked as dynamic', () {
-          final table = new AttributeDataTable(4, [
+          final table = new AttributeDataTable.dynamicFromList(4, [
             0.0, 0.1, 0.2, 0.3,
             1.0, 1.1, 1.2, 1.3,
             2.0, 2.1, 2.2, 2.3,
             3.0, 3.1, 3.2, 3.3
-          ], dynamic: true).subTable(1);
+          ]).subTable(1);
 
           test('returns a table marked as dynamic', () {
             expect(table.isDynamic, isTrue);
@@ -520,7 +535,7 @@ void main() {
       });
 
       group('subTableView', () {
-        final table = new AttributeDataTable(4, [
+        final table = new AttributeDataTable.fromList(4, [
           0.0, 0.1, 0.2, 0.3,
           1.0, 1.1, 1.2, 1.3,
           2.0, 2.1, 2.2, 2.3,
@@ -579,12 +594,12 @@ void main() {
         });
 
         group('on a table not marked as dynamic', () {
-          final table = new AttributeDataTable(4, [
+          final table = new AttributeDataTable.fromList(4, [
             0.0, 0.1, 0.2, 0.3,
             1.0, 1.1, 1.2, 1.3,
             2.0, 2.1, 2.2, 2.3,
             3.0, 3.1, 3.2, 3.3
-          ], dynamic: false).subTableView(1);
+          ]).subTableView(1);
 
           test('returns a table not marked as dynamic', () {
             expect(table.isDynamic, isFalse);
@@ -592,12 +607,12 @@ void main() {
         });
 
         group('on a table marked as dynamic', () {
-          final table = new AttributeDataTable(4, [
+          final table = new AttributeDataTable.dynamicFromList(4, [
             0.0, 0.1, 0.2, 0.3,
             1.0, 1.1, 1.2, 1.3,
             2.0, 2.1, 2.2, 2.3,
             3.0, 3.1, 3.2, 3.3
-          ], dynamic: true).subTableView(1);
+          ]).subTableView(1);
 
           test('returns a table marked as dynamic', () {
             expect(table.isDynamic, isTrue);
@@ -608,11 +623,11 @@ void main() {
 
     group('asDynamic', () {
       group('on a table not marked as dynamic', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.fromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ], dynamic: false).asDynamic();
+        ]).asDynamic();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isTrue);
@@ -620,11 +635,11 @@ void main() {
       });
 
       group('on a table marked as dynamic', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.dynamicFromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ], dynamic: true).asDynamic();
+        ]).asDynamic();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isTrue);
@@ -634,11 +649,11 @@ void main() {
 
     group('asStatic', () {
       group('on a table not marked as dynamic', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.fromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ], dynamic: false).asStatic();
+        ]).asStatic();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isFalse);
@@ -646,11 +661,11 @@ void main() {
       });
 
       group('on a table marked as dynamic', () {
-        final table = new AttributeDataTable(3, [
+        final table = new AttributeDataTable.dynamicFromList(3, [
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ], dynamic: true).asStatic();
+        ]).asStatic();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isFalse);
@@ -660,7 +675,7 @@ void main() {
   });
 
   group('AttributeDataTableIterator', () {
-    final table = new AttributeDataTable(3, [
+    final table = new AttributeDataTable.fromList(3, [
       0.0, 0.0, 0.0,
       1.0, 1.0, 1.0,
       2.0, 2.0, 2.0
@@ -704,7 +719,7 @@ void main() {
   });
 
   group('AttributeDataRowView', () {
-    final table = new AttributeDataTable(3, [
+    final table = new AttributeDataTable.fromList(3, [
       0.0, 0.1, 0.2,
       1.0, 1.1, 1.2,
       2.0, 2.1, 2.2
@@ -758,7 +773,7 @@ void main() {
   });
 
   group('AttributeDataRowViewIterator', () {
-    final table = new AttributeDataTable(3, [
+    final table = new AttributeDataTable.fromList(3, [
       0.0, 0.1, 0.2,
       1.0, 1.1, 1.2,
       2.0, 2.1, 2.2

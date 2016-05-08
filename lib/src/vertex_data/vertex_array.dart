@@ -27,7 +27,7 @@ part of vertex_data;
 ///
 /// A [VertexArray] can also be instantiated from [VertexAttribute]s:
 ///
-///     var attributeData = new AttributeDataTable(5, [
+///     var attributeData = new AttributeDataTable.fromList(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
@@ -145,8 +145,9 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
       }
     });
 
-    final data = new Float32List(rowLength * vertices.length);
-    final table = new AttributeDataTable(rowLength, data, dynamic: dynamic);
+    final table = dynamic
+        ? new AttributeDataTable.dynamic(rowLength, vertices.length)
+        : new AttributeDataTable(rowLength, vertices.length);
 
     // Define attributes on the attribute data table
     final attributes = new Map<String, VertexAttribute>();
@@ -230,7 +231,7 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   /// The attribute data for multiple attributes may be interleaved in a single
   /// [AttributeDataTable]:
   ///
-  ///     var attributeData = new AttributeDataTable(5, [
+  ///     var attributeData = new AttributeDataTable.fromList(5, [
   ///        // Position    // Color
   ///        0.0,  0.5,     1.0, 0.0, 0.0,
   ///       -0.5, -0.5,     0.0, 1.0, 0.0,
@@ -248,13 +249,13 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   /// The attribute data may also be spread over multiple [AttributeDataTable]s,
   /// for example one for each attribute:
   ///
-  ///     var positionData = new AttributeDataTable(2, [
+  ///     var positionData = new AttributeDataTable.fromList(2, [
   ///        0.0,  0.5,
   ///       -0.5, -0.5,
   ///        0.5, -0.5
   ///     ]);
   ///
-  ///     var colorData = new AttributeDataTable(3, [
+  ///     var colorData = new AttributeDataTable.fromList(3, [
   ///       1.0, 0.0, 0.0,
   ///       0.0, 1.0, 0.0,
   ///       0.0, 0.0, 1.0

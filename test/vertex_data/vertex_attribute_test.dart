@@ -5,7 +5,7 @@ import '../helpers.dart';
 
 void main() {
   group('FloatAttribute', () {
-    final table = new AttributeDataTable(2, [
+    final table = new AttributeDataTable.fromList(2, [
       0.0, 0.1,
       1.0, 1.1,
       2.0, 2.1
@@ -47,7 +47,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(3, [
+          final table2 = new AttributeDataTable.fromList(3, [
             0.0, 0.1,
             1.0, 1.1,
             2.0, 2.1
@@ -65,7 +65,7 @@ void main() {
         final value = 9.1;
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(3, [
+          final table2 = new AttributeDataTable.fromList(3, [
             0.0, 0.1,
             1.0, 1.1,
             2.0, 2.1
@@ -82,7 +82,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(2, [
+        final newTable = new AttributeDataTable.fromList(2, [
           0.2, 0.1,
           1.2, 1.1,
           2.2, 2.1
@@ -104,7 +104,7 @@ void main() {
   });
 
   group('Vector2Attribute', () {
-    final table = new AttributeDataTable(3, [
+    final table = new AttributeDataTable.fromList(3, [
       0.0, 0.1, 0.2,
       1.0, 1.1, 1.2,
       2.0, 2.1, 2.2
@@ -147,7 +147,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(3, [
+          final table2 = new AttributeDataTable.fromList(3, [
             0.0, 0.1, 0.2,
             1.0, 1.1, 1.2,
             2.0, 2.1, 2.2
@@ -165,7 +165,7 @@ void main() {
         final value = new Vector2(9.1, 9.2);
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(3, [
+          final table2 = new AttributeDataTable.fromList(3, [
             0.0, 0.1, 0.2,
             1.0, 1.1, 1.2,
             2.0, 2.1, 2.2
@@ -182,7 +182,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(3, [
+        final newTable = new AttributeDataTable.fromList(3, [
           0.2, 0.1, 0.0,
           1.2, 1.1, 1.0,
           2.2, 2.1, 2.0
@@ -204,7 +204,7 @@ void main() {
   });
 
   group('Vector3Attribute', () {
-    final table = new AttributeDataTable(4, [
+    final table = new AttributeDataTable.fromList(4, [
       0.0, 0.1, 0.2, 0.3,
       1.0, 1.1, 1.2, 1.3,
       2.0, 2.1, 2.2, 2.3
@@ -247,7 +247,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(4, [
+          final table2 = new AttributeDataTable.fromList(4, [
             0.0, 0.1, 0.2, 0.3,
             1.0, 1.1, 1.2, 1.3,
             2.0, 2.1, 2.2, 2.3
@@ -265,7 +265,7 @@ void main() {
         final value = new Vector3(9.1, 9.2, 9.3);
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(4, [
+          final table2 = new AttributeDataTable.fromList(4, [
             0.0, 0.1, 0.2, 0.3,
             1.0, 1.1, 1.2, 1.3,
             2.0, 2.1, 2.2, 2.3
@@ -282,7 +282,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(4, [
+        final newTable = new AttributeDataTable.fromList(4, [
           0.3, 0.2, 0.1, 0.0,
           1.3, 1.2, 1.1, 1.0,
           2.3, 2.2, 2.1, 2.0
@@ -304,7 +304,7 @@ void main() {
   });
 
   group('Vector4Attribute', () {
-    final table = new AttributeDataTable(5, [
+    final table = new AttributeDataTable.fromList(5, [
       0.0, 0.1, 0.2, 0.3, 0.4,
       1.0, 1.1, 1.2, 1.3, 1.4,
       2.0, 2.1, 2.2, 2.3, 2.4
@@ -347,7 +347,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(5, [
+          final table2 = new AttributeDataTable.fromList(5, [
             0.0, 0.1, 0.2, 0.3, 0.4,
             1.0, 1.1, 1.2, 1.3, 1.4,
             2.0, 2.1, 2.2, 2.3, 2.4
@@ -365,7 +365,7 @@ void main() {
         final value = new Vector4(9.1, 9.2, 9.3, 9.4);
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(5, [
+          final table2 = new AttributeDataTable.fromList(5, [
             0.0, 0.1, 0.2, 0.3, 0.4,
             1.0, 1.1, 1.2, 1.3, 1.4,
             2.0, 2.1, 2.2, 2.3, 2.4
@@ -382,7 +382,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(5, [
+        final newTable = new AttributeDataTable.fromList(5, [
           0.4, 0.3, 0.2, 0.1, 0.0,
           1.4, 1.3, 1.2, 1.1, 1.0,
           2.4, 2.3, 2.2, 2.1, 2.0
@@ -404,7 +404,7 @@ void main() {
   });
 
   group('Matrix2Attribute', () {
-    final table = new AttributeDataTable(5, [
+    final table = new AttributeDataTable.fromList(5, [
       0.0, 0.1, 0.2, 0.3, 0.4,
       1.0, 1.1, 1.2, 1.3, 1.4,
       2.0, 2.1, 2.2, 2.3, 2.4
@@ -453,7 +453,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(5, [
+          final table2 = new AttributeDataTable.fromList(5, [
             0.0, 0.1, 0.2, 0.3, 0.4,
             1.0, 1.1, 1.2, 1.3, 1.4,
             2.0, 2.1, 2.2, 2.3, 2.4
@@ -477,7 +477,7 @@ void main() {
         );
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(5, [
+          final table2 = new AttributeDataTable.fromList(5, [
             0.0, 0.1, 0.2, 0.3, 0.4,
             1.0, 1.1, 1.2, 1.3, 1.4,
             2.0, 2.1, 2.2, 2.3, 2.4
@@ -494,7 +494,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(5, [
+        final newTable = new AttributeDataTable.fromList(5, [
           0.4, 0.3, 0.2, 0.1, 0.0,
           1.4, 1.3, 1.2, 1.1, 1.0,
           2.4, 2.3, 2.2, 2.1, 2.0
@@ -522,7 +522,7 @@ void main() {
   });
 
   group('Matrix3Attribute', () {
-    final table = new AttributeDataTable(10, [
+    final table = new AttributeDataTable.fromList(10, [
       0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
       1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09,
       2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09
@@ -578,7 +578,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(10, [
+          final table2 = new AttributeDataTable.fromList(10, [
             0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
             1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09,
             2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09
@@ -604,7 +604,7 @@ void main() {
         );
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(10, [
+          final table2 = new AttributeDataTable.fromList(10, [
             0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
             1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09,
             2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09
@@ -625,7 +625,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(10, [
+        final newTable = new AttributeDataTable.fromList(10, [
           0.09, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.00,
           1.09, 1.08, 1.07, 1.06, 1.05, 1.04, 1.03, 1.02, 1.01, 1.00,
           2.09, 2.08, 2.07, 2.06, 2.05, 2.04, 2.03, 2.02, 2.01, 2.00
@@ -655,7 +655,7 @@ void main() {
   });
 
   group('Matrix4Attribute', () {
-    final table = new AttributeDataTable(17, [
+    final table = new AttributeDataTable.fromList(17, [
       0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
       1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16,
       2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16
@@ -714,7 +714,7 @@ void main() {
 
       group('extractFrom', () {
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(17, [
+          final table2 = new AttributeDataTable.fromList(17, [
             0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
             1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16,
             2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16
@@ -742,7 +742,7 @@ void main() {
         );
 
         test('throws an ArgumentError when the given row is part of a different table', () {
-          final table2 = new AttributeDataTable(17, [
+          final table2 = new AttributeDataTable.fromList(17, [
             0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16,
             1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16,
             2.00, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.10, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16
@@ -764,7 +764,7 @@ void main() {
       });
 
       group('onTable', () {
-        final newTable = new AttributeDataTable(17, [
+        final newTable = new AttributeDataTable.fromList(17, [
           0.16, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.00,
           1.16, 1.15, 1.14, 1.13, 1.12, 1.11, 1.10, 1.09, 1.08, 1.07, 1.06, 1.05, 1.04, 1.03, 1.02, 1.01, 1.00,
           2.16, 2.15, 2.14, 2.13, 2.12, 2.11, 2.10, 2.09, 2.08, 2.07, 2.06, 2.05, 2.04, 2.03, 2.02, 2.01, 2.00

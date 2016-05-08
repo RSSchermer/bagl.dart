@@ -12,7 +12,7 @@ part of vertex_data;
 /// The following is an example of a [AttributeDataTable] that stores data for
 /// a 2D position attribute, interleaved with data for an RGB color attribute:
 ///
-///     var attributeData = new AttributeDataTable(5, [
+///     var attributeData = new AttributeDataTable.fromList(5, [
 ///        // Position    // Color
 ///        0.0,  0.5,     1.0, 0.0, 0.0,
 ///       -0.5, -0.5,     0.0, 1.0, 0.0,
@@ -52,49 +52,85 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   /// Typed [Float32List] view on the attribute data.
   final Float32List _storage;
 
-  /// Instantiates a new [AttributeDataTable] with the specified [rowLength],
-  /// filled with the given [data].
+  /// Instantiates a new empty [AttributeDataTable] with the specified
+  /// dimensions.
   ///
-  ///     var attributeData = new AttributeDataTable(5, [
+  /// Creates a new [AttributeDataTable] of size [rowLength] by [length] where
+  /// every position is set to `0.0`.
+  AttributeDataTable(int rowLength, int length)
+      : rowLength = rowLength,
+        length = length,
+        isDynamic = false,
+        _storage = new Float32List(rowLength * length);
+
+  /// Instantiates a new empty [AttributeDataTable] with the specified
+  /// dimensions that is marked as dynamic.
+  ///
+  /// Creates a new [AttributeDataTable] of size [rowLength] by [length] where
+  /// every position is set to `0.0`.
+  ///
+  /// When a [AttributeDataTable] is marked as dynamic it signals to the
+  /// rendering back-end that the data in the [AttributeDataTable] is intended
+  /// to be modified regularly, allowing the rendering back-end to optimize for
+  /// this. Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in an [AttributeDataTable]
+  /// that is not marked as dynamic can still be modified.
+  AttributeDataTable.dynamic(int rowLength, int length)
+      : rowLength = rowLength,
+        length = length,
+        isDynamic = true,
+        _storage = new Float32List(rowLength * length);
+
+  /// Instantiates a new [AttributeDataTable] with the specified [rowLength],
+  /// filled with data from the given [list].
+  ///
+  ///     var attributeData = new AttributeDataTable.fromList(5, [
   ///        // Position    // Color
   ///        0.0,  0.5,     1.0, 0.0, 0.0,
   ///       -0.5, -0.5,     0.0, 1.0, 0.0,
   ///        0.5, -0.5,     0.0, 0.0, 1.0
   ///     ]);
   ///
-  /// Optionally, the [dynamic] parameter may be specified. When `true` it
-  /// signals to the rendering back-end that the data in the
-  /// [AttributeDataTable] is intended to be modified regularly, allowing the
-  /// rendering back-end to optimize for this. The default value is `false`.
-  /// Note that this is merely a hint that can be used for tuning the
-  /// performance of a rendering back-end: the data in an [AttributeDataTable]
-  /// that is not marked as dynamic can still be modified.
-  factory AttributeDataTable(int rowLength, List<double> data,
-          {bool dynamic: false}) =>
-      new AttributeDataTable.fromFloat32List(
-          rowLength, new Float32List.fromList(data),
-          dynamic: dynamic);
+  /// The values of the [list] are partitioned into rows of [rowLength]. For
+  /// example, with a [rowLength] of 10, values 0..9 in the list will make up
+  /// the first row, values 10..19 will make up the second row, etc.
+  factory AttributeDataTable.fromList(int rowLength, List<double> list) =>
+      new AttributeDataTable._fromListInternal(
+          rowLength, new Float32List.fromList(list), false);
 
-  /// Creates a new [AttributeDataTable] as a view on the given [Float32List],
-  /// partitioned into rows of the specified [rowLength].
+  /// Instantiates a new [AttributeDataTable] with the specified [rowLength],
+  /// filled with data from the given [list], marked as dynamic.
   ///
-  /// Optionally, the [dynamic] parameter may be specified. When `true` it
-  /// signals to the rendering back-end that the data in the
-  /// [AttributeDataTable] is intended to be modified regularly, allowing the
-  /// rendering back-end to optimize for this. The default value is `false`.
-  /// Note that this is merely a hint that can be used for tuning the
+  ///     var attributeData = new AttributeDataTable.dynamicFromList(5, [
+  ///        // Position    // Color
+  ///        0.0,  0.5,     1.0, 0.0, 0.0,
+  ///       -0.5, -0.5,     0.0, 1.0, 0.0,
+  ///        0.5, -0.5,     0.0, 0.0, 1.0
+  ///     ]);
+  ///
+  /// The values of the [list] are partitioned into rows of [rowLength]. For
+  /// example, with a [rowLength] of 10, values 0..9 in the list will make up
+  /// the first row, values 10..19 will make up the second row, etc.
+  ///
+  /// When a [AttributeDataTable] is marked as dynamic it signals to the
+  /// rendering back-end that the data in the [AttributeDataTable] is intended
+  /// to be modified regularly, allowing the rendering back-end to optimize for
+  /// this. Note that this is merely a hint that can be used for tuning the
   /// performance of a rendering back-end: the data in an [AttributeDataTable]
   /// that is not marked as dynamic can still be modified.
-  ///
-  /// The [AttributeDataTable] acts as a view on the [FLoat32List], which means
-  /// that changes to the [AttributeDataTable] will affect the [Float32List]
-  /// and vice versa.
-  AttributeDataTable.fromFloat32List(int rowLength, Float32List data,
-      {bool dynamic: false})
+  factory AttributeDataTable.dynamicFromList(
+          int rowLength, List<double> list) =>
+      new AttributeDataTable._fromListInternal(
+          rowLength, new Float32List.fromList(list), true);
+
+  AttributeDataTable._fromListInternal(
+      int rowLength, List<double> list, bool dynamic)
       : rowLength = rowLength,
-        length = data.length ~/ rowLength,
+        length = list.length ~/ rowLength,
         isDynamic = dynamic,
-        _storage = data;
+        _storage = list is Float32List
+            ? list.sublist(0)
+            : new Float32List.fromList(list);
 
   /// Creates an [AttributeDataTable] view of the specified region in the
   /// [buffer].
@@ -110,14 +146,13 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   ///
   /// Throws an [ArgumentError] if [offsetInBytes] is not a multiple of
   /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
-  factory AttributeDataTable.view(int rowLength, ByteBuffer buffer,
-          [int offsetInBytes = 0, int length]) =>
-      new AttributeDataTable.fromFloat32List(rowLength,
-          new Float32List.view(buffer, offsetInBytes, length * rowLength),
-          dynamic: false);
-
-  // TODO: when Dart support optional positional and named parameters on the
-  // same method, merge dynamicView into view.
+  AttributeDataTable.view(int rowLength, ByteBuffer buffer,
+      [int offsetInBytes = 0, int length])
+      : rowLength = rowLength,
+        length = length,
+        isDynamic = false,
+        _storage =
+            new Float32List.view(buffer, offsetInBytes, length * rowLength);
 
   /// Creates an [AttributeDataTable] view of the specified region in the
   /// [buffer] that is marked as dynamic.
@@ -140,11 +175,20 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   ///
   /// Throws an [ArgumentError] if [offsetInBytes] is not a multiple of
   /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
-  factory AttributeDataTable.dynamicView(int rowLength, ByteBuffer buffer,
-          [int offsetInBytes = 0, int length]) =>
-      new AttributeDataTable.fromFloat32List(rowLength,
-          new Float32List.view(buffer, offsetInBytes, length * rowLength),
-          dynamic: true);
+  AttributeDataTable.dynamicView(int rowLength, ByteBuffer buffer,
+      [int offsetInBytes = 0, int length])
+      : rowLength = rowLength,
+        length = length,
+        isDynamic = true,
+        _storage =
+            new Float32List.view(buffer, offsetInBytes, length * rowLength);
+
+  AttributeDataTable._fromFloat32List(
+      int rowLength, Float32List data, bool dynamic)
+      : rowLength = rowLength,
+        length = data.length ~/ rowLength,
+        isDynamic = dynamic,
+        _storage = data;
 
   ByteBuffer get buffer => _storage.buffer;
 
@@ -179,7 +223,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
       ..setRange(0, rowStartPos, _storage)
       ..setRange(rowStartPos, newSize, _storage, rowStartPos + rowLength);
 
-    return new AttributeDataTable(rowLength, newStorage, dynamic: isDynamic);
+    return new AttributeDataTable._fromFloat32List(
+        rowLength, newStorage, isDynamic);
   }
 
   /// Returns a new [AttributeDataTable] without the rows at the specified
@@ -246,8 +291,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
       newStorage.setRange(start, newSize, _storage, skipCount);
     }
 
-    return new AttributeDataTable.fromFloat32List(rowLength, newStorage,
-        dynamic: isDynamic);
+    return new AttributeDataTable._fromFloat32List(
+        rowLength, newStorage, isDynamic);
   }
 
   /// Returns a new [AttributeDataTable] with the given [data] appended onto the
@@ -261,7 +306,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
       ..setRange(0, _storage.length, _storage)
       ..setRange(_storage.length, newSize, data);
 
-    return new AttributeDataTable(rowLength, newStorage, dynamic: isDynamic);
+    return new AttributeDataTable._fromFloat32List(
+        rowLength, newStorage, isDynamic);
   }
 
   /// Returns a new [AttributeDataTable] in which the data in this current
@@ -304,9 +350,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
       }
     }
 
-    return new AttributeDataTable.fromFloat32List(
-        aRowLength + bRowLength, newStorage,
-        dynamic: isDynamic);
+    return new AttributeDataTable._fromFloat32List(
+        aRowLength + bRowLength, newStorage, isDynamic);
   }
 
   /// Creates a new [AttributeDataTable] from a range of rows and (optionally) a
@@ -367,7 +412,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
       final newStorage = new Float32List(newLength)
         ..setRange(0, newLength, _storage, skipCount);
 
-      return new AttributeDataTable(rowLength, newStorage);
+      return new AttributeDataTable._fromFloat32List(
+          rowLength, newStorage, isDynamic);
     } else {
       final newRowLength = colEnd - colStart;
       final newStorage = new Float32List((rowEnd - rowStart) * newRowLength);
@@ -382,8 +428,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
         }
       }
 
-      return new AttributeDataTable.fromFloat32List(newRowLength, newStorage,
-          dynamic: isDynamic);
+      return new AttributeDataTable._fromFloat32List(
+          newRowLength, newStorage, isDynamic);
     }
   }
 
@@ -426,8 +472,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
     final newLength = (rowEnd - rowStart) * rowLength;
     final newStorage = new Float32List.view(buffer, offset, newLength);
 
-    return new AttributeDataTable.fromFloat32List(rowLength, newStorage,
-        dynamic: isDynamic);
+    return new AttributeDataTable._fromFloat32List(
+        rowLength, newStorage, isDynamic);
   }
 
   /// Returns a new [AttributeDataTable] that is marked as dynamic.
@@ -446,8 +492,7 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   /// performance of a rendering back-end: the data in an [AttributeDataTable]
   /// that is not marked as dynamic can still be modified.
   AttributeDataTable asDynamic() =>
-      new AttributeDataTable.fromFloat32List(rowLength, _storage,
-          dynamic: true);
+      new AttributeDataTable._fromFloat32List(rowLength, _storage, true);
 
   /// Returns a new [AttributeDataTable] that is not marked as dynamic.
   ///
@@ -465,8 +510,7 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   /// performance of a rendering back-end: the data in an [AttributeDataTable]
   /// that is not marked as dynamic can still be modified.
   AttributeDataTable asStatic() =>
-      new AttributeDataTable.fromFloat32List(rowLength, _storage,
-          dynamic: false);
+      new AttributeDataTable._fromFloat32List(rowLength, _storage, false);
 
   /// Returns the data row at the given [index].
   ///
