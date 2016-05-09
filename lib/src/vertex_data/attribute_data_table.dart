@@ -491,7 +491,7 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   /// Note that this is merely a hint that can be used for tuning the
   /// performance of a rendering back-end: the data in an [AttributeDataTable]
   /// that is not marked as dynamic can still be modified.
-  AttributeDataTable asDynamic() =>
+  AttributeDataTable asDynamicView() =>
       new AttributeDataTable._fromFloat32List(rowLength, _storage, true);
 
   /// Returns a new [AttributeDataTable] that is not marked as dynamic.
@@ -509,7 +509,7 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   /// Note that this is merely a hint that can be used for tuning the
   /// performance of a rendering back-end: the data in an [AttributeDataTable]
   /// that is not marked as dynamic can still be modified.
-  AttributeDataTable asStatic() =>
+  AttributeDataTable asStaticView() =>
       new AttributeDataTable._fromFloat32List(rowLength, _storage, false);
 
   /// Returns the data row at the given [index].

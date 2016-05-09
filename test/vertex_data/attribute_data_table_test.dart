@@ -627,7 +627,7 @@ void main() {
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ]).asDynamic();
+        ]).asDynamicView();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isTrue);
@@ -639,7 +639,7 @@ void main() {
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ]).asDynamic();
+        ]).asDynamicView();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isTrue);
@@ -653,7 +653,7 @@ void main() {
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ]).asStatic();
+        ]).asStaticView();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isFalse);
@@ -665,7 +665,7 @@ void main() {
           0.0, 0.0, 0.0,
           1.0, 1.0, 1.0,
           2.0, 2.0, 2.0
-        ]).asStatic();
+        ]).asStaticView();
 
         test('returns a table marked as dynamic', () {
           expect(table.isDynamic, isFalse);
