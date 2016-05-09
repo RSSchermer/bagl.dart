@@ -9,6 +9,7 @@ environment:
 dependencies:
   rl_matrix: '>= 0.5.0 <0.6.0'
   collection: '>= 1.4.0 <1.5.0'
+  quiver: '>=0.21.0<0.22.0'
 dev_dependencies:
   test: '>=0.12.0 <0.13.0'
   browser: '>=0.10.0 <0.11.0'
