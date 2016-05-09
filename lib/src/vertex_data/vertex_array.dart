@@ -93,18 +93,52 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   /// This will create a single new [AttributeDataTable] which stores the
   /// attribute values of the vertices as interleaved data.
   ///
-  /// Optionally, the [dynamic] parameter may be specified. When `true` it
-  /// signals to the rendering back-end that the attribute data is intended to
-  /// be modified regularly, allowing the rendering back-end to optimize for
-  /// this. The default value is `false`. Note that this is merely a hint that
-  /// can be used for tuning the performance of a rendering back-end: attribute
-  /// data that is not marked as dynamic may still be modified.
+  /// Throws an [ArgumentError] when the [vertices] collection is empty.
+  ///
+  /// Throws an [ArgumentError] when a vertex defines attributes that are not
+  /// consistent with the attributes defined on preceding vertices.
+  factory VertexArray(Iterable<Vertex> vertices) =>
+      new VertexArray._internal(vertices, false);
+
+  /// Instantiates a new [VertexArray] from a collection of vertices, marking
+  /// the attribute data as dynamic.
+  ///
+  /// Every vertex map must define the same attributes and the value type for
+  /// each particular attribute must be the same for all vertices.
+  ///
+  ///     var vertices = new VertexArray([
+  ///       new Vertex({
+  ///         'position': new Vector2(0.0, 1.0),
+  ///         'color': new Vector3(1.0, 0.0, 0.0)
+  ///       }),
+  ///       new Vertex({
+  ///         'position': new Vector2(-1.0, -1.0),
+  ///         'color': new Vector3(0.0, 1.0, 0.0)
+  ///       }),
+  ///       new Vertex({
+  ///         'position': new Vector2(1.0, -1.0),
+  ///         'color': new Vector3(0.0, 0.0, 1.0)
+  ///       })
+  ///     ]);
+  ///
+  /// This will create a single new [AttributeDataTable] which stores the
+  /// attribute values of the vertices as interleaved data.
+  ///
+  /// The [AttributeDataTable] will be marked as dynamic, which signals to the
+  /// rendering back-end that the data in the [AttributeDataTable] is intended
+  /// to be modified regularly, allowing the rendering back-end to optimize for
+  /// this. Note that this is merely a hint that can be used for tuning the
+  /// performance of a rendering back-end: the data in a [AttributeDataTable]
+  /// that is not marked as dynamic can still be modified.
   ///
   /// Throws an [ArgumentError] when the [vertices] collection is empty.
   ///
   /// Throws an [ArgumentError] when a vertex defines attributes that are not
   /// consistent with the attributes defined on preceding vertices.
-  factory VertexArray(Iterable<Vertex> vertices, {bool dynamic: false}) {
+  factory VertexArray.dynamic(Iterable<Vertex> vertices) =>
+      new VertexArray._internal(vertices, true);
+
+  factory VertexArray._internal(Iterable<Vertex> vertices, bool dynamic) {
     if (vertices.isEmpty) {
       throw new ArgumentError(
           'Cannot instantiate a VertexArray from an empty collection of '

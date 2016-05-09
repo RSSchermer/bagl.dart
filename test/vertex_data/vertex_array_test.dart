@@ -79,9 +79,51 @@ void main () {
           expect(tables.first.rowLength, equals(5));
         });
       });
+    });
 
-      group('with valid vertices and marked as dynamic', () {
-        final vertices = new VertexArray([
+    group('dynamic constructor', () {
+      test('throws an ArgumentError if vertices have differing numbers of attributes', () {
+        expect(() => new VertexArray.dynamic([
+          new Vertex({
+            'position': new Vector2(0.0, 1.0),
+            'color': new Vector3(1.0, 0.0, 0.0)
+          }),
+          new Vertex({
+            'position': new Vector2(-1.0, -1.0),
+            'color': new Vector3(0.0, 1.0, 0.0),
+            'alpha': 0.8
+          })
+        ]), throwsArgumentError);
+      });
+
+      test('throws an ArgumentError if the attribute names of vertices do not match', () {
+        expect(() => new VertexArray.dynamic([
+          new Vertex({
+            'position': new Vector2(0.0, 1.0),
+            'color': new Vector3(1.0, 0.0, 0.0)
+          }),
+          new Vertex({
+            'position': new Vector2(-1.0, -1.0),
+            'colour': new Vector3(0.0, 1.0, 0.0)
+          })
+        ]), throwsArgumentError);
+      });
+
+      test('throws an ArgumentError if two vertices use a different value type for the same attribute', () {
+        expect(() => new VertexArray.dynamic([
+          new Vertex({
+            'position': new Vector2(0.0, 1.0),
+            'color': new Vector3(1.0, 0.0, 0.0)
+          }),
+          new Vertex({
+            'position': new Vector3(-1.0, -1.0, 0.0),
+            'color': new Vector3(0.0, 1.0, 0.0)
+          })
+        ]), throwsArgumentError);
+      });
+
+      group('with valid vertices', () {
+        final vertices = new VertexArray.dynamic([
           new Vertex({
             'position': new Vector2(0.0, 1.0),
             'color': new Vector3(1.0, 0.0, 0.0)
@@ -94,18 +136,27 @@ void main () {
             'position': new Vector2(1.0, -1.0),
             'color': new Vector3(0.0, 0.0, 1.0)
           })
-        ], dynamic: true);
+        ]);
 
-        test('returns a vertex array backed by a single attribute data table marked as dynamic', () {
+        test('returns a vertex array with the correct length', () {
+          expect(vertices.length, equals(3));
+        });
+
+        test('returns a vertex array with the correct attributes', () {
+          expect(vertices.attributes.keys, unorderedEquals(['position', 'color']));
+        });
+
+        test('returns a vertex array backed by a single attribute data table marked as dynamic with the correct row length', () {
           final tables = vertices.attributes.values.map((a) => a.attributeDataTable).toSet();
 
           expect(tables.length, equals(1));
           expect(tables.first.isDynamic, isTrue);
+          expect(tables.first.rowLength, equals(5));
         });
       });
     });
 
-    group('fromAttributes', () {
+    group('fromAttributes constructor', () {
       final positionData = new AttributeDataTable.fromList(2, [
         0.0,  0.5,
         -0.5, -0.5,
