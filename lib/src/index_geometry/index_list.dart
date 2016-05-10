@@ -18,17 +18,13 @@ class IndexList extends DelegatingList<int> implements Uint16List {
 
   static const int BYTES_PER_ELEMENT = Uint16List.BYTES_PER_ELEMENT;
 
-  /// Instantiates a new [IndexList] of the given [length] with default indices.
-  ///
-  /// The default indices start at `0` and increment by `1` up till
-  /// `length - 1`: `0`, `1`, `2`, ..., `length - 1`.
-  factory IndexList(int length) => new IndexList._internal(length, false);
+  /// Instantiates a new [IndexList] of the given [length] for which every
+  /// position is initially set to `0`.
+  factory IndexList(int length) =>
+      new IndexList._fromUint16List(new Uint16List(length), false);
 
-  /// Instantiates a new [IndexList] of the given [length] with default indices,
-  /// marked as dynamic.
-  ///
-  /// The default indices start at `0` and increment by `1` up till
-  /// `length - 1`: `0`, `1`, `2`, ..., `length - 1`.
+  /// Instantiates a new [IndexList] of the given [length] for which every
+  /// position is initially set to `0`, marked as dynamic.
   ///
   /// When index geometry is marked as dynamic it signals to the rendering
   /// back-end that the indices are intended to be modified regularly, allowing
@@ -37,13 +33,36 @@ class IndexList extends DelegatingList<int> implements Uint16List {
   /// the index data for geometry that is not marked as dynamic can still be
   /// modified.
   factory IndexList.dynamic(int length) =>
-      new IndexList._internal(length, true);
+      new IndexList._fromUint16List(new Uint16List(length), true);
 
-  factory IndexList._internal(int length, bool dynamic) {
+  /// Instantiates a new [IndexList] of the given [length] with incrementing
+  /// indices starting at [start].
+  ///
+  /// The indices start at [start] and increment by `1`. Specifying the [start]
+  /// is optional. When omitted it defaults to `0`.
+  factory IndexList.incrementing(int length, [int start = 0]) =>
+      new IndexList._incrementingInternal(length, start, false);
+
+  /// Instantiates a new [IndexList] of the given [length] with incrementing
+  /// indices starting at [start], marked as dynamic.
+  ///
+  /// The indices start at [start] and increment by `1`. Specifying the [start]
+  /// is optional. When omitted it defaults to `0`.
+  ///
+  /// When index geometry is marked as dynamic it signals to the rendering
+  /// back-end that the indices are intended to be modified regularly, allowing
+  /// the rendering back-end to optimize for this. Note that this is merely a
+  /// hint that can be used for tuning the performance of a rendering back-end:
+  /// the index data for geometry that is not marked as dynamic can still be
+  /// modified.
+  factory IndexList.dynamicIncrementing(int length, [int start = 0]) =>
+      new IndexList._incrementingInternal(length, start, true);
+
+  factory IndexList._incrementingInternal(int length, int start, bool dynamic) {
     final data = new Uint16List(length);
 
     for (var i = 0; i < length; i++) {
-      data[i] = i;
+      data[i] = start + i;
     }
 
     return new IndexList._fromUint16List(data, dynamic);

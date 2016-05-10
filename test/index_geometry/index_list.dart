@@ -13,10 +13,10 @@ void main() {
 
       test('creates a new instance with the correct values', () {
         expect(indexList[0], equals(0));
-        expect(indexList[1], equals(1));
-        expect(indexList[2], equals(2));
-        expect(indexList[3], equals(3));
-        expect(indexList[4], equals(4));
+        expect(indexList[1], equals(0));
+        expect(indexList[2], equals(0));
+        expect(indexList[3], equals(0));
+        expect(indexList[4], equals(0));
       });
 
       test('creates a new instance that is not marked as dynamic', () {
@@ -33,14 +33,100 @@ void main() {
 
       test('creates a new instance with the correct values', () {
         expect(indexList[0], equals(0));
-        expect(indexList[1], equals(1));
-        expect(indexList[2], equals(2));
-        expect(indexList[3], equals(3));
-        expect(indexList[4], equals(4));
+        expect(indexList[1], equals(0));
+        expect(indexList[2], equals(0));
+        expect(indexList[3], equals(0));
+        expect(indexList[4], equals(0));
       });
 
       test('creates a new instance that is marked as dynamic', () {
         expect(indexList.isDynamic, isTrue);
+      });
+    });
+
+    group('incrementing constructor', () {
+      group('without the start parameter', () {
+        final indexList = new IndexList.incrementing(5);
+
+        test('creates a new instance with the correct length', () {
+          expect(indexList.length, equals(5));
+        });
+
+        test('creates a new instance with the correct values', () {
+          expect(indexList[0], equals(0));
+          expect(indexList[1], equals(1));
+          expect(indexList[2], equals(2));
+          expect(indexList[3], equals(3));
+          expect(indexList[4], equals(4));
+        });
+
+        test('creates a new instance that is not marked as dynamic', () {
+          expect(indexList.isDynamic, isFalse);
+        });
+      });
+
+
+      group('with the start parameter', () {
+        final indexList = new IndexList.incrementing(5, 3);
+
+        test('creates a new instance with the correct length', () {
+          expect(indexList.length, equals(5));
+        });
+
+        test('creates a new instance with the correct values', () {
+          expect(indexList[0], equals(3));
+          expect(indexList[1], equals(4));
+          expect(indexList[2], equals(5));
+          expect(indexList[3], equals(6));
+          expect(indexList[4], equals(7));
+        });
+
+        test('creates a new instance that is not marked as dynamic', () {
+          expect(indexList.isDynamic, isFalse);
+        });
+      });
+    });
+
+    group('dynamicIncrementing constructor', () {
+      group('without the start parameter', () {
+        final indexList = new IndexList.dynamicIncrementing(5);
+
+        test('creates a new instance with the correct length', () {
+          expect(indexList.length, equals(5));
+        });
+
+        test('creates a new instance with the correct values', () {
+          expect(indexList[0], equals(0));
+          expect(indexList[1], equals(1));
+          expect(indexList[2], equals(2));
+          expect(indexList[3], equals(3));
+          expect(indexList[4], equals(4));
+        });
+
+        test('creates a new instance that is marked as dynamic', () {
+          expect(indexList.isDynamic, isTrue);
+        });
+      });
+
+
+      group('with the start parameter', () {
+        final indexList = new IndexList.dynamicIncrementing(5, 3);
+
+        test('creates a new instance with the correct length', () {
+          expect(indexList.length, equals(5));
+        });
+
+        test('creates a new instance with the correct values', () {
+          expect(indexList[0], equals(3));
+          expect(indexList[1], equals(4));
+          expect(indexList[2], equals(5));
+          expect(indexList[3], equals(6));
+          expect(indexList[4], equals(7));
+        });
+
+        test('creates a new instance that is marked as dynamic', () {
+          expect(indexList.isDynamic, isTrue);
+        });
       });
     });
 
