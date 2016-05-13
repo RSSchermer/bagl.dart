@@ -688,7 +688,7 @@ void main() {
         expect(iterator.current, isNull);
       });
 
-      group('when iterator over in a while loop', () {
+      group('when iterated over in a while loop', () {
         var loopCount = 0;
         var rows = [];
 
