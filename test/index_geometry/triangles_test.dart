@@ -56,6 +56,15 @@ void main() {
         });
       });
     });
+
+    group('[] operator', () {
+      final indices = new IndexList.incrementing(9);
+      final triangles = new Triangles(vertices, indices);
+
+      test('returns a triangle view with the correct index', () {
+        expect(triangles[1].index, equals(1));
+      });
+    });
   });
 
   group('TrianglesIterator', () {
