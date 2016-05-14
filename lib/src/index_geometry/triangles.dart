@@ -37,7 +37,7 @@ class Triangles extends IterableBase<TrianglesTriangleView>
       : indices = indices,
         offset = start,
         length = ((end ?? indices.length) - start) ~/ 3 {
-    end ??= length;
+    end ??= indices.length;
 
     RangeError.checkValidRange(start, end, indices.length);
 
