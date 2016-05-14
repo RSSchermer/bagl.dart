@@ -23,29 +23,28 @@ class Triangles extends IterableBase<TrianglesTriangleView>
   /// Creates a new instance of [Triangles] from the [vertices] and the
   /// [indices].
   ///
-  /// Optionally, these [Triangles] can be defined on only a sub-range of the
-  /// [indices] list. A [start] position may be specified to define the start of
-  /// the range. The [start] is inclusive. If omitted [start] defaults to `0`.
-  /// An [end] position may be specified to define the [end] of the range. The
-  /// [end] is exclusive. If omitted the range will extend to the end of the
-  /// [indices].
+  /// Optionally, these [Triangles] can be defined as a range on the [indices]
+  /// list from [start] inclusive to [end] exclusive. If omitted [start]
+  /// defaults to `0`. If omitted [end] defaults to `null` which means the range
+  /// will extend to the end of the [indices] list.
   ///
   /// Throws an [ArgumentError] if the difference between the [start] and [end]
   /// is not a multiple of 3.
   ///
-  /// Throws an [ArgumentError] if the [start] is greater than or equal to the
-  /// [end].
+  /// Throws an [RangeError] if range defined by [start] and [end] is not a
+  /// valid range for the [indices] list.
   Triangles(this.vertices, IndexList indices, [int start = 0, int end])
       : indices = indices,
         offset = start,
         length = ((end ?? indices.length) - start) ~/ 3 {
-    if (((end ?? indices.length) - start).remainder(3) != 0) {
+    end ??= length;
+
+    RangeError.checkValidRange(start, end, indices.length);
+
+    if ((end - start).remainder(3) != 0) {
       throw new ArgumentError('The difference between the start ($start) '
           'position of the range and end position of the range ($end) must be '
           'a multiple of 3.');
-    } else if (end != null && start >= end) {
-      throw new ArgumentError('The start position of the range may not be '
-          'greater than or equal to the end position.');
     }
   }
 
