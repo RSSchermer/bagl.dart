@@ -15,7 +15,7 @@ void main() {
 
   group('Lines', () {
     group('default constructor', () {
-      group('with an index list with a length that is not a multiple of 3', () {
+      group('with an index list with a length that is not a multiple of 2', () {
         test('throws an ArgumentError', () {
           final indices = new IndexList.incrementing(5);
 
@@ -23,7 +23,7 @@ void main() {
         });
       });
 
-      group('with an index list with a length that is a multiple of 3', () {
+      group('with an index list with a length that is a multiple of 2', () {
         final indices = new IndexList.incrementing(4);
 
         test('results in an instance with the correct length', () {
