@@ -30,8 +30,8 @@ class Lines extends IterableBase<LinesLineView> implements IndexGeometry {
   /// Throws an [ArgumentError] if the difference between the [start] and [end]
   /// is not a multiple of 2.
   ///
-  /// Throws an [RangeError] if range defined by [start] and [end] is not a
-  /// valid range for the [indices] list.
+  /// Throws a [RangeError] if range defined by [start] and [end] is not a valid
+  /// range for the [indices] list.
   Lines(this.vertices, IndexList indices, [int start = 0, int end])
       : indices = indices,
         offset = start,
