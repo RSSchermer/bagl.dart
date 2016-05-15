@@ -51,7 +51,7 @@ class LineStrip extends IterableBase<LineStripLineView>
   LineStrip(this.vertices, IndexList indices, [int start = 0, int end])
       : indices = indices,
         offset = start,
-        length = ((end ?? indices.length) - start) - 1 {
+        length = (end ?? indices.length) - start - 1 {
     RangeError.checkValidRange(start, end, indices.length);
   }
 
