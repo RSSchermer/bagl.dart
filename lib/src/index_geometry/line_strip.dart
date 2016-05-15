@@ -69,7 +69,7 @@ class LineStrip extends IterableBase<LineStripLineView>
   }
 }
 
-/// Iterator over the lines in a [LineStrip] collection.
+/// Iterator over the lines in a [LineStrip].
 class LineStripIterator extends Iterator<LineStripLineView> {
   final LineStrip lines;
 
