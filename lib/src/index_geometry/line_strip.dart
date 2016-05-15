@@ -25,7 +25,7 @@ part of index_geometry;
 ///   `start` vertex. The final line segment is an exception as it has no
 ///   succeeding line segment.
 ///
-/// See also [LineStrip] and [LineLoop].
+/// See also [Lines] and [LineLoop].
 class LineStrip extends IterableBase<LineStripLineView>
     implements IndexGeometry {
   final VertexArray vertices;
