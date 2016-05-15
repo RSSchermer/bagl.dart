@@ -71,7 +71,7 @@ class LineStrip extends IterableBase<LineStripLineView>
 
 /// Iterator over the lines in a [LineStrip].
 class LineStripIterator extends Iterator<LineStripLineView> {
-  final LineStrip lines;
+  final LineStrip lineStrip;
 
   int _lineStripLength;
 
@@ -79,12 +79,12 @@ class LineStripIterator extends Iterator<LineStripLineView> {
 
   /// Instantiates a new iterator over the given [lineStrip].
   LineStripIterator(LineStrip lineStrip)
-      : lines = lineStrip,
+      : lineStrip = lineStrip,
         _lineStripLength = lineStrip.length;
 
   LineStripLineView get current {
     if (_currentLineIndex >= 0 && _currentLineIndex < _lineStripLength) {
-      return new LineStripLineView(lines, _currentLineIndex);
+      return new LineStripLineView(lineStrip, _currentLineIndex);
     } else {
       return null;
     }
