@@ -61,7 +61,7 @@ class LineStrip extends IterableBase<LineStripLineView>
 
   /// Returns the line at the given [index].
   ///
-  /// Throws a [RangeError] if the index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   LineStripLineView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 

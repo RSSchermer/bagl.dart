@@ -57,7 +57,7 @@ class LineLoop extends IterableBase<LineLoopLineView> implements IndexGeometry {
 
   /// Returns the line at the given [index].
   ///
-  /// Throws a [RangeError] if the index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   LineLoopLineView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 

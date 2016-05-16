@@ -53,7 +53,7 @@ class Lines extends IterableBase<LinesLineView> implements IndexGeometry {
 
   /// Returns the line at the given [index].
   ///
-  /// Throws a [RangeError] if the index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   LinesLineView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 

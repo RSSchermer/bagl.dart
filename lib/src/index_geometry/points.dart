@@ -42,7 +42,7 @@ class Points extends IterableBase<PointsPointView> implements IndexGeometry {
 
   /// Returns the point at the given [index].
   ///
-  /// Throws a [RangeError] if the index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   PointsPointView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 

@@ -54,7 +54,7 @@ class Triangles extends IterableBase<TrianglesTriangleView>
 
   /// Returns the triangle at the given [index].
   ///
-  /// Throws a [RangeError] if the index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   TrianglesTriangleView operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
