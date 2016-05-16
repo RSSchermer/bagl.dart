@@ -19,14 +19,14 @@ part of index_geometry;
 /// - Triangle `5`: (`a`:`v6`, `b`:`v5`, `c`:`v7`)
 /// - Triangle `6`: ...
 ///
-/// Note that each triangle shares 2 vertices with the preceding triangle:
-///
-///     v1---v3---v5---v7
-///     |\   |\   |\   |
-///     | \  | \  | \  |
-///     |  \ |  \ |  \ |
-///     |   \|   \|   \|
-///     v0---v2---v4---v6
+///     // The connectedness of the vertices in a triangle strip:
+///     //
+///     // v1---v3---v5---v7
+///     // |\   |\   |\   |
+///     // | \  | \  | \  |
+///     // |  \ |  \ |  \ |
+///     // |   \|   \|   \|
+///     // v0---v2---v4---v6
 ///
 /// See also [Triangles] and [TriangleFan].
 class TriangleStrip extends IterableBase<TriangleStripTriangleView>
