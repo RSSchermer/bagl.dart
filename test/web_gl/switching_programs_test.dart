@@ -10,7 +10,7 @@ void main() {
   group('WebGL', () {
     group('multiple draw calls with different program', () {
       var canvas = document.querySelector('#main_canvas');
-      var context = new RenderingContext(canvas, preserveDrawingBuffer: true);
+      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
       var vertexShader1Source = """
         attribute vec2 position;
@@ -76,11 +76,11 @@ void main() {
         })
       ]);
 
-      var triangles1 = new Triangles(vertices, [0, 1, 2]);
-      var triangles2 = new Triangles(vertices, [3, 4, 5]);
+      var triangles1 = new Triangles(vertices, new IndexList.fromList([0, 1, 2]));
+      var triangles2 = new Triangles(vertices, new IndexList.fromList([3, 4, 5]));
 
-      program1.drawTriangles(triangles1);
-      program2.drawTriangles(triangles2);
+      context.draw(triangles1, program1);
+      context.draw(triangles2, program2);
 
       test('draws the correct frame', () {
         expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));

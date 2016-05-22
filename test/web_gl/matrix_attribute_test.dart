@@ -10,7 +10,7 @@ void main() {
   group('WebGL', () {
     group('draw with vertices with a matrix attribute', () {
       var canvas = document.querySelector('#main_canvas');
-      var context = new RenderingContext(canvas, preserveDrawingBuffer: true);
+      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
       var vertexShaderSource = """
         attribute vec2 position;
@@ -70,9 +70,9 @@ void main() {
         })
       ]);
 
-      var triangles = new Triangles(vertices);
+      var triangles = new Triangles(vertices, new IndexList.incrementing(3));
 
-      program.drawTriangles(triangles);
+      context.draw(triangles, program);
 
       test('draws the correct frame', () {
         expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));

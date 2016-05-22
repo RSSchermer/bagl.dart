@@ -5,7 +5,7 @@ import 'package:bagl/web_gl.dart';
 
 main() {
   var canvas = document.querySelector('#main_canvas');
-  var context = new RenderingContext(canvas);
+  var context = RenderingContext.forCanvas(canvas);
 
   var vertexShaderSource = """
     attribute vec2 position;
@@ -46,7 +46,7 @@ main() {
     })
   ]);
 
-  var triangles = new Triangles(vertices);
+  var triangles = new Triangles(vertices, new IndexList.incrementing(3));
 
-  program.drawTriangles(triangles);
+  context.draw(triangles, program);
 }

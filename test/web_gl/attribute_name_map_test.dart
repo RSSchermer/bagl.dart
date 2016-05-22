@@ -10,7 +10,7 @@ void main() {
   group('WebGL', () {
     group('draw with an attributeNameMap', () {
       var canvas = document.querySelector('#main_canvas');
-      var context = new RenderingContext(canvas, preserveDrawingBuffer: true);
+      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
       var vertexShaderSource = """
         attribute vec2 aPos;
@@ -63,9 +63,9 @@ void main() {
         })
       ]);
 
-      var triangles = new Triangles(vertices);
+      var triangles = new Triangles(vertices, new IndexList.incrementing(6));
 
-      program.drawTriangles(triangles, attributeNameMap: {
+      context.draw(triangles, program, attributeNameMap: {
         'position': 'aPos',
         'color': 'aColor'
       });

@@ -10,7 +10,7 @@ void main() {
   group('WebGL', () {
     group('multiple draw calls with different vertex arrays', () {
       var canvas = document.querySelector('#main_canvas');
-      var context = new RenderingContext(canvas, preserveDrawingBuffer: true);
+      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
       var vertexShaderSource = """
         attribute vec2 position;
@@ -66,11 +66,11 @@ void main() {
         })
       ]);
 
-      var triangles1 = new Triangles(vertices1);
-      var triangles2 = new Triangles(vertices2);
+      var triangles1 = new Triangles(vertices1, new IndexList.incrementing(3));
+      var triangles2 = new Triangles(vertices2, new IndexList.incrementing(3));
 
-      program.drawTriangles(triangles1);
-      program.drawTriangles(triangles2);
+      context.draw(triangles1, program);
+      context.draw(triangles2, program);
 
       test('draws the correct frame', () {
         expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
