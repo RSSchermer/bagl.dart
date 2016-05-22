@@ -9,6 +9,8 @@ part of index_geometry;
 ///
 /// See also [LineStrip] and [LineLoop].
 class Lines extends IterableBase<LinesLineView> implements IndexGeometry {
+  final topology = Topology.lines;
+
   final VertexArray vertices;
 
   final Uint16List indices;

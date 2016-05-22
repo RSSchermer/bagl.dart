@@ -10,14 +10,14 @@ part of index_geometry;
 /// See also [TriangleStrip] and [TriangleFan].
 class Triangles extends IterableBase<TrianglesTriangleView>
     implements IndexGeometry {
+  final topology = Topology.triangles;
+
   final VertexArray vertices;
 
   final Uint16List indices;
 
   final int length;
 
-  /// The number of indices to skip at the start of the [indices] list before
-  /// the values for these triangles begin.
   final int offset;
 
   /// Creates a new instance of [Triangles] from the [vertices] and the

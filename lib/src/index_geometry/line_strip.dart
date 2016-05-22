@@ -28,6 +28,8 @@ part of index_geometry;
 /// See also [Lines] and [LineLoop].
 class LineStrip extends IterableBase<LineStripLineView>
     implements IndexGeometry {
+  final topology = Topology.lineStrip;
+
   final VertexArray vertices;
 
   final Uint16List indices;

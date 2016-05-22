@@ -31,6 +31,8 @@ part of index_geometry;
 /// See also [Triangles] and [TriangleFan].
 class TriangleStrip extends IterableBase<TriangleStripTriangleView>
     implements IndexGeometry {
+  final topology = Topology.triangleStrip;
+
   final VertexArray vertices;
 
   final Uint16List indices;

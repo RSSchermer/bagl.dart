@@ -7,6 +7,8 @@ part of index_geometry;
 /// [VertexArray]. Each index uniquely identifies a vertex in the [VertexArray].
 /// Each index defines 1 point.
 class Points extends IterableBase<PointsPointView> implements IndexGeometry {
+  final topology = Topology.points;
+
   final VertexArray vertices;
 
   final Uint16List indices;

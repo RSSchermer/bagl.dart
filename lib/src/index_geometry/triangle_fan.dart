@@ -35,6 +35,8 @@ part of index_geometry;
 /// See also [Triangles] and [TriangleFan].
 class TriangleFan extends IterableBase<TriangleFanTriangleView>
     implements IndexGeometry {
+  final topology = Topology.triangleFan;
+
   final VertexArray vertices;
 
   final Uint16List indices;

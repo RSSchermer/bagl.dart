@@ -14,6 +14,8 @@ part of index_geometry;
 ///
 /// See also [Lines] and [LineStrip].
 class LineLoop extends IterableBase<LineLoopLineView> implements IndexGeometry {
+  final topology = Topology.lineLoop;
+
   final VertexArray vertices;
 
   final Uint16List indices;
