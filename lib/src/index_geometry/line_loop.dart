@@ -22,35 +22,32 @@ class LineLoop extends IterableBase<LineLoopLineView> implements IndexGeometry {
 
   final int length;
 
-  /// The number of indices to skip at the start of the [indices] list before
-  /// the values for these lines begin.
   final int offset;
 
-  /// Creates a new instance of [LineLoop] from the [vertices] and the
-  /// [indices].
-  ///
-  /// Optionally, these [LineLoop] can be defined as a range on the [indices]
-  /// list from [start] inclusive to [end] exclusive. If omitted [start]
-  /// defaults to `0`. If omitted [end] defaults to `null` which means the range
-  /// will extend to the end of the [indices] list.
-  ///
-  /// Throws a [RangeError] if range defined by [start] and [end] is not a
-  /// valid range for the [indices] list.
-  ///
-  /// Throws an [ArgumentError] if the difference between [start] and [end] is
-  /// 1.
-  LineLoop(this.vertices, IndexList indices, [int start = 0, int end])
-      : indices = indices,
-        offset = start,
-        length = (end ?? indices.length) - start {
-    end ??= indices.length;
+  final int indexCount;
 
-    RangeError.checkValidRange(start, end, indices.length);
+  /// Creates a new [LineLoop] instance from the [vertices] and the [indices].
+  ///
+  /// An [offset] and [count] may be specified to limit this [LineLoop] to a
+  /// subset of the [indices]. If omitted, the [offset] defaults to `0`. If
+  /// omitted, the [count] defaults to `null` which indicates all indices
+  /// between the [offset] and the end of the list of [indices] will be used.
+  ///
+  /// Throws a [RangeError] if the [offset] is negative or equal to or greater
+  /// than the length of the list of [indices].
+  ///
+  /// Throws a [RangeError] if the [count] is negative or `offset + count` is
+  /// greater than the length of the list of [indices].
+  factory LineLoop(VertexArray vertices, IndexList indices,
+      [int offset = 0, int count]) =>
+      new LineLoop._internal(
+          vertices, indices, offset, count ?? (indices.length - offset));
 
-    if (end - start == 1) {
-      throw new ArgumentError('The difference between the start of the range '
-          '($start) and the end of the range ($end) cannot be 1.');
-    }
+  LineLoop._internal(this.vertices, this.indices, this.offset, int count)
+      : indexCount = count,
+        length = count < 2 ? 0 : count {
+    RangeError.checkValueInInterval(offset, 0, indices.length - 1, 'offset');
+    RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
   LineLoopIterator get iterator => new LineLoopIterator(this);
@@ -113,12 +110,12 @@ class LineLoopLineView implements Line {
         index = index,
         _offset = lineLoop.offset + index;
 
-  /// The index of the [start] vertex of this line in the [VertexArray] on which
-  /// this line view is defined.
+  /// The index of the [start] vertex in the [VertexArray] on which this line
+  /// view is defined.
   int get startIndex => lineLoop.indices[_offset];
 
-  /// The index of the [end] vertex of this line in the [VertexArray] on which
-  /// this line view is defined.
+  /// The index of the [end] vertex in the [VertexArray] on which this line view
+  /// is defined.
   int get endIndex => index == lineLoop.length - 1
       ? lineLoop.indices[lineLoop.offset]
       : lineLoop.indices[_offset + 1];

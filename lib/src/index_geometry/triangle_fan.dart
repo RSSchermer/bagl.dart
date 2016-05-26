@@ -43,36 +43,33 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
 
   final int length;
 
-  /// The number of indices to skip at the start of the [indices] list before
-  /// the values for this [TriangleFan] begin.
   final int offset;
 
-  /// Creates a new instance of [TriangleFan] from the [vertices] and the
+  final int indexCount;
+
+  /// Creates a new [TriangleFan] instance from the [vertices] and the
   /// [indices].
   ///
-  /// Optionally, these [TriangleFan] can be defined as a range on the
-  /// [indices] list from [start] inclusive to [end] exclusive. If omitted
-  /// [start] defaults to `0`. If omitted [end] defaults to `null` which means
-  /// the range will extend to the end of the [indices] list.
+  /// An [offset] and [count] may be specified to limit this [TriangleFan] to a
+  /// subset of the [indices]. If omitted, the [offset] defaults to `0`. If
+  /// omitted, the [count] defaults to `null` which indicates all indices
+  /// between the [offset] and the end of the list of [indices] will be used.
   ///
-  /// Throws an [ArgumentError] if the difference between the [start] and [end]
-  /// is less than 3.
+  /// Throws a [RangeError] if the [offset] is negative or equal to or greater
+  /// than the length of the list of [indices].
   ///
-  /// Throws a [RangeError] if range defined by [start] and [end] is not a valid
-  /// range for the [indices] list.
-  TriangleFan(this.vertices, IndexList indices, [int start = 0, int end])
-      : indices = indices,
-        offset = start,
-        length = (end ?? indices.length) - start - 2 {
-    end ??= indices.length;
+  /// Throws a [RangeError] if the [count] is negative or `offset + count` is
+  /// greater than the length of the list of [indices].
+  factory TriangleFan(VertexArray vertices, IndexList indices,
+      [int offset = 0, int count]) =>
+      new TriangleFan._internal(
+          vertices, indices, offset, count ?? (indices.length - offset));
 
-    RangeError.checkValidRange(start, end, indices.length);
-
-    if (end - start < 3) {
-      throw new ArgumentError('The difference between the start ($start) '
-          'position of the range and end position of the range ($end) must be '
-          'at least 3.');
-    }
+  TriangleFan._internal(this.vertices, this.indices, this.offset, int count)
+      : indexCount = count,
+        length = count < 3 ? 0 : count - 2 {
+    RangeError.checkValueInInterval(offset, 0, indices.length - 1, 'offset');
+    RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
   TriangleFanIterator get iterator => new TriangleFanIterator(this);
@@ -137,16 +134,16 @@ class TriangleFanTriangleView implements Triangle {
         index = index,
         _offset = triangleFan.offset + index;
 
-  /// The index of the first vertex of this triangle in the [VertexArray] on
-  /// which this triangle view is defined.
+  /// The index of the vertex [a] in the [VertexArray] on which this triangle
+  /// view is defined.
   int get aIndex => triangleFan.indices[triangleFan.offset];
 
-  /// The index of the second vertex of this triangle in the [VertexArray] on
-  /// which this triangle view is defined.
+  /// The index of the vertex [b] in the [VertexArray] on which this triangle
+  /// view is defined.
   int get bIndex => triangleFan.indices[_offset + 1];
 
-  /// The index of the third vertex of this triangle in the [VertexArray] on
-  /// which this triangle view is defined.
+  /// The index of the vertex [c] in the [VertexArray] on which this triangle
+  /// view is defined.
   int get cIndex => triangleFan.indices[_offset + 2];
 
   Vertex get a => triangleFan.vertices[aIndex];

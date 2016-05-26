@@ -42,4 +42,7 @@ abstract class IndexGeometry {
   /// The number of indices to skip at the start of the [indices] list before
   /// the values for this [IndexGeometry] begin.
   int get offset;
+
+  /// The number of indices used to define this [IndexGeometry].
+  int get indexCount;
 }

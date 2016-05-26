@@ -280,11 +280,8 @@ class RenderingContext {
 
     // Draw elements
     _bindIndexData(geometry.indices);
-    _context.drawElements(
-        _topologyMap[geometry.topology],
-        geometry.indices.length,
-        WebGL.UNSIGNED_SHORT,
-        geometry.offset * IndexList.BYTES_PER_ELEMENT);
+    _context.drawElements(_topologyMap[geometry.topology], geometry.indexCount,
+        WebGL.UNSIGNED_SHORT, geometry.offset * IndexList.BYTES_PER_ELEMENT);
   }
 
   void _bindAttributeData(AttributeDataTable attributeData) {

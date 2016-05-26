@@ -20,32 +20,31 @@ class Triangles extends IterableBase<TrianglesTriangleView>
 
   final int offset;
 
+  final int indexCount;
+
   /// Creates a new instance of [Triangles] from the [vertices] and the
   /// [indices].
   ///
-  /// Optionally, these [Triangles] can be defined as a range on the [indices]
-  /// list from [start] inclusive to [end] exclusive. If omitted [start]
-  /// defaults to `0`. If omitted [end] defaults to `null` which means the range
-  /// will extend to the end of the [indices] list.
+  /// An [offset] and [count] may be specified to limit these [Triangles] to
+  /// a subset of the [indices]. If omitted, the [offset] defaults to `0`. If
+  /// omitted, the [count] defaults to `null` which indicates all indices
+  /// between the [offset] and the end of the list of [indices] will be used.
   ///
-  /// Throws an [ArgumentError] if the difference between the [start] and [end]
-  /// is not a multiple of 3.
+  /// Throws a [RangeError] if the [offset] is negative or equal to or greater
+  /// than the length of the list of [indices].
   ///
-  /// Throws a [RangeError] if range defined by [start] and [end] is not a valid
-  /// range for the [indices] list.
-  Triangles(this.vertices, IndexList indices, [int start = 0, int end])
-      : indices = indices,
-        offset = start,
-        length = ((end ?? indices.length) - start) ~/ 3 {
-    end ??= indices.length;
+  /// Throws a [RangeError] if the [count] is negative or `offset + count` is
+  /// greater than the length of the list of [indices].
+  factory Triangles(VertexArray vertices, IndexList indices,
+          [int offset = 0, int count]) =>
+      new Triangles._internal(
+          vertices, indices, offset, count ?? (indices.length - offset));
 
-    RangeError.checkValidRange(start, end, indices.length);
-
-    if ((end - start).remainder(3) != 0) {
-      throw new ArgumentError('The difference between the start ($start) '
-          'position of the range and end position of the range ($end) must be '
-          'a multiple of 3.');
-    }
+  Triangles._internal(this.vertices, this.indices, this.offset, int count)
+      : indexCount = count,
+        length = count ~/ 3 {
+    RangeError.checkValueInInterval(offset, 0, indices.length - 1, 'offset');
+    RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
   TrianglesIterator get iterator => new TrianglesIterator(this);
@@ -109,19 +108,11 @@ class TrianglesTriangleView implements Triangle {
         index = index,
         _offset = triangles.offset + index * 3;
 
-  /// The index of the first vertex of this triangle in the [VertexArray] on
-  /// which this triangle view is defined.
+  /// The index of the vertex [a] in the [VertexArray] on which this triangle
+  /// view is defined.
   int get aIndex => triangles.indices[_offset];
 
-  /// The index of the second vertex of this triangle in the [VertexArray] on
-  /// which this triangle view is defined.
-  int get bIndex => triangles.indices[_offset + 1];
-
-  /// The index of the third vertex of this triangle in the [VertexArray] on
-  /// which this triangle view is defined.
-  int get cIndex => triangles.indices[_offset + 2];
-
-  /// Sets the index of the triangles first vertex to the given [index].
+  /// Sets the index of vertex [a] of this to the given [index].
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the
   /// [VertexArray] on which the triangle is defined.
@@ -131,7 +122,11 @@ class TrianglesTriangleView implements Triangle {
     triangles.indices[_offset] = index;
   }
 
-  /// Sets the index of the triangles second vertex to the given [index].
+  /// The index of the vertex [b] in the [VertexArray] on which this triangle
+  /// view is defined.
+  int get bIndex => triangles.indices[_offset + 1];
+
+  /// Sets the index of vertex [b] of this to the given [index].
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the
   /// [VertexArray] on which the triangle is defined.
@@ -141,7 +136,11 @@ class TrianglesTriangleView implements Triangle {
     triangles.indices[_offset + 1] = index;
   }
 
-  /// Sets the index of the triangles third vertex to the given [index].
+  /// The index of the vertex [c] in the [VertexArray] on which this triangle
+  /// view is defined.
+  int get cIndex => triangles.indices[_offset + 2];
+
+  /// Sets the index of vertex [c] of this to the given [index].
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the
   /// [VertexArray] on which the triangle is defined.
@@ -154,52 +153,4 @@ class TrianglesTriangleView implements Triangle {
   Vertex get a => triangles.vertices[aIndex];
   Vertex get b => triangles.vertices[bIndex];
   Vertex get c => triangles.vertices[cIndex];
-
-  /// Sets the triangle's first vertex to be the given [vertex].
-  ///
-  /// Throws an [ArgumentError] if the [vertex] is not found in the
-  /// [VertexArray] on which this triangle is defined.
-  void set a(Vertex vertex) {
-    final vertexIndex = triangles.vertices.indexOf(vertex);
-
-    if (vertexIndex == -1) {
-      throw new ArgumentError(
-          'The vertex was not found in the vertex array on which this '
-          'triangle is defined.');
-    } else {
-      aIndex = vertexIndex;
-    }
-  }
-
-  /// Sets the triangle's second vertex to be the given [vertex].
-  ///
-  /// Throws an [ArgumentError] if the [vertex] is not found in the
-  /// [VertexArray] on which this triangle is defined.
-  void set b(Vertex vertex) {
-    final vertexIndex = triangles.vertices.indexOf(vertex);
-
-    if (vertexIndex == -1) {
-      throw new ArgumentError(
-          'The vertex was not found in the vertex array on which this '
-          'triangle is defined.');
-    } else {
-      bIndex = vertexIndex;
-    }
-  }
-
-  /// Sets the triangle's third vertex to be the given [vertex].
-  ///
-  /// Throws an [ArgumentError] if the [vertex] is not found in the
-  /// [VertexArray] on which this triangle is defined.
-  void set c(Vertex vertex) {
-    final vertexIndex = triangles.vertices.indexOf(vertex);
-
-    if (vertexIndex == -1) {
-      throw new ArgumentError(
-          'The vertex was not found in the vertex array on which this '
-          'triangle is defined.');
-    } else {
-      cIndex = vertexIndex;
-    }
-  }
 }

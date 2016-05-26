@@ -17,36 +17,32 @@ class Lines extends IterableBase<LinesLineView> implements IndexGeometry {
 
   final int length;
 
-  /// The number of indices to skip at the start of the [indices] list before
-  /// the values for these lines begin.
   final int offset;
 
-  /// Creates a new instance of [Lines] from the [vertices] and the
-  /// [indices].
-  ///
-  /// Optionally, these [Lines] can be defined as a range on the [indices]
-  /// list from [start] inclusive to [end] exclusive. If omitted [start]
-  /// defaults to `0`. If omitted [end] defaults to `null` which means the range
-  /// will extend to the end of the [indices] list.
-  ///
-  /// Throws an [ArgumentError] if the difference between the [start] and [end]
-  /// is not a multiple of 2.
-  ///
-  /// Throws a [RangeError] if range defined by [start] and [end] is not a valid
-  /// range for the [indices] list.
-  Lines(this.vertices, IndexList indices, [int start = 0, int end])
-      : indices = indices,
-        offset = start,
-        length = ((end ?? indices.length) - start) ~/ 2 {
-    end ??= indices.length;
+  final int indexCount;
 
-    RangeError.checkValidRange(start, end, indices.length);
+  /// Creates a new instance of [Lines] from the [vertices] and the [indices].
+  ///
+  /// An [offset] and [count] may be specified to limit these [Lines] to a
+  /// subset of the [indices]. If omitted, the [offset] defaults to `0`. If
+  /// omitted, the [count] defaults to `null` which indicates all indices
+  /// between the [offset] and the end of the list of [indices] will be used.
+  ///
+  /// Throws a [RangeError] if the [offset] is negative or equal to or greater
+  /// than the length of the list of [indices].
+  ///
+  /// Throws a [RangeError] if the [count] is negative or `offset + count` is
+  /// greater than the length of the list of [indices].
+  factory Lines(VertexArray vertices, IndexList indices,
+      [int offset = 0, int count]) =>
+      new Lines._internal(
+          vertices, indices, offset, count ?? (indices.length - offset));
 
-    if ((end - start).remainder(2) != 0) {
-      throw new ArgumentError('The difference between the start ($start) '
-          'position of the range and end position of the range ($end) must be '
-          'a multiple of 2.');
-    }
+  Lines._internal(this.vertices, this.indices, this.offset, int count)
+      : indexCount = count,
+        length = count ~/ 2 {
+    RangeError.checkValueInInterval(offset, 0, indices.length - 1, 'offset');
+    RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
   LinesIterator get iterator => new LinesIterator(this);
@@ -109,15 +105,11 @@ class LinesLineView implements Line {
         index = index,
         _offset = lines.offset + index * 2;
 
-  /// The index of the [start] vertex of this line in the [VertexArray] on
-  /// which this line view is defined.
+  /// The index of the [start] vertex in the [VertexArray] on which this line
+  /// view is defined.
   int get startIndex => lines.indices[_offset];
 
-  /// The index of the [end] vertex of this line in the [VertexArray] on
-  /// which this line view is defined.
-  int get endIndex => lines.indices[_offset + 1];
-
-  /// Sets the index of the lines [start] vertex to the given [index].
+  /// Sets the index of the [start] vertex to the given [index].
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the
   /// [VertexArray] on which the line is defined.
@@ -127,7 +119,11 @@ class LinesLineView implements Line {
     lines.indices[_offset] = index;
   }
 
-  /// Sets the index of the lines [end] vertex to the given [index].
+  /// The index of the [end] vertex in the [VertexArray] on which this line view
+  /// is defined.
+  int get endIndex => lines.indices[_offset + 1];
+
+  /// Sets the index of the [end] vertex to the given [index].
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the
   /// [VertexArray] on which the line is defined.
@@ -139,35 +135,4 @@ class LinesLineView implements Line {
 
   Vertex get start => lines.vertices[startIndex];
   Vertex get end => lines.vertices[endIndex];
-
-  /// Sets the line's start vertex to be the given [vertex].
-  ///
-  /// Throws an [ArgumentError] if the [vertex] is not found in the
-  /// [VertexArray] on which this line is defined.
-  void set start(Vertex vertex) {
-    final vertexIndex = lines.vertices.indexOf(vertex);
-
-    if (vertexIndex == -1) {
-      throw new ArgumentError('The vertex was not found in the vertex array on '
-          'which this line is defined.');
-    } else {
-      startIndex = vertexIndex;
-    }
-  }
-
-  /// Sets the line's end vertex to be the given [vertex].
-  ///
-  /// Throws an [ArgumentError] if the [vertex] is not found in the
-  /// [VertexArray] on which this line is defined.
-  void set end(Vertex vertex) {
-    final vertexIndex = lines.vertices.indexOf(vertex);
-
-    if (vertexIndex == -1) {
-      throw new ArgumentError(
-          'The vertex was not found in the vertex array on which this '
-          'line is defined.');
-    } else {
-      endIndex = vertexIndex;
-    }
-  }
 }

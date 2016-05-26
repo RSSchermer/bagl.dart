@@ -15,25 +15,33 @@ void main() {
     group('default constructor', () {
       final indices = new IndexList.incrementing(4);
 
-      test('results in an instance with the correct length', () {
-        final points = new Points(vertices, indices);
-
-        expect(points.length, equals(4));
-      });
-
-      group('with a range start', () {
-        final points = new Points(vertices, indices, 1);
-        
-        test('results in an instance with the correct length', () {
-          expect(points.length, equals(3));
+      group('with a negative offset', () {
+        test('throws a RangeError', () {
+          expect(() => new Points(vertices, indices, -1), throwsRangeError);
         });
       });
 
-      group('with a range start and end', () {
-        final points = new Points(vertices, indices, 1, 3);
+      group('with a offset equal to the length of the list of indices', () {
+        test('throws a RangeError', () {
+          expect(() => new Points(vertices, indices, 4), throwsRangeError);
+        });
+      });
 
-        test('results in an instance with the correct length', () {
-          expect(points.length, equals(2));
+      group('with a valid offset and a negative count', () {
+        test('throws a RangeError', () {
+          expect(() => new Points(vertices, indices, 1, -1), throwsRangeError);
+        });
+      });
+
+      group('with an offset and count whose sum is greater than the length of the indices', () {
+        test('throws a RangeError', () {
+          expect(() => new Points(vertices, indices, 1, 4), throwsRangeError);
+        });
+      });
+
+      group('with a valid offset and count', () {
+        test('returns an instance with the correct length', () {
+          expect(new Points(vertices, indices, 1, 3).length, equals(3));
         });
       });
     });
@@ -125,26 +133,6 @@ void main() {
 
       test('returns the correct vertex', () {
         expect(pointView.vertex['position'], equals(1.0));
-      });
-    });
-
-    group('set vertex', () {
-      final indices = new IndexList.incrementing(4);
-      final points = new Points(vertices, indices);
-      final pointView = new PointsPointView(points, 1);
-
-      group('with a vertex that does not belong to the vertex array on which the points are defined', () {
-        test('throws an ArgumentError', () {
-          expect(() => pointView.vertex = new Vertex({'position': 0.0}), throwsArgumentError);
-        });
-      });
-
-      group('with a vertex that does belong to the vertex array on which the points are defined', () {
-        pointView.vertex = vertices[0];
-
-        test('correctly updates the index list', () {
-          expect(indices[1], equals(0));
-        });
       });
     });
   });

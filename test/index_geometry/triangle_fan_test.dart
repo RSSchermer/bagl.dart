@@ -18,41 +18,44 @@ void main() {
 
   group('TriangleFan', () {
     group('default constructor', () {
-      group('with an index list with a length that less than 3', () {
-        test('throws an ArgumentError', () {
-          final indices = new IndexList.incrementing(2);
+      final indices = new IndexList.incrementing(8);
 
-          expect(() => new TriangleFan(vertices, indices), throwsArgumentError);
+      group('with a negative offset', () {
+        test('throws a RangeError', () {
+          expect(() => new TriangleFan(vertices, indices, -1), throwsRangeError);
         });
       });
 
-      group('with an index list with a length that greater than 3', () {
-        final indices = new IndexList.incrementing(6);
-
-        test('results in an instance with the correct length', () {
-          final triangleFan = new TriangleFan(vertices, indices);
-
-          expect(triangleFan.length, equals(4));
+      group('with a offset equal to the length of the list of indices', () {
+        test('throws a RangeError', () {
+          expect(() => new TriangleFan(vertices, indices, 8), throwsRangeError);
         });
       });
 
-      group('with a range start', () {
-        final indices = new IndexList.incrementing(7);
-
-        test('results in an instance with the correct length', () {
-          final triangleFan = new TriangleFan(vertices, indices, 1);
-
-          expect(triangleFan.length, equals(4));
+      group('with a valid offset and a negative count', () {
+        test('throws a RangeError', () {
+          expect(() => new TriangleFan(vertices, indices, 1, -1), throwsRangeError);
         });
       });
 
-      group('with a range start and end', () {
-        final indices = new IndexList.incrementing(8);
+      group(
+          'with an offset and count whose sum is greater than the length of the indices', () {
+        test('throws a RangeError', () {
+          expect(() => new TriangleFan(vertices, indices, 1, 8), throwsRangeError);
+        });
+      });
 
-        test('results in an instance with the correct length', () {
-          final triangleFan = new TriangleFan(vertices, indices, 1, 7);
+      group('with a valid offset and count', () {
+        group('with a count smaller than 3', () {
+          test('returns an instance with a length of 0', () {
+            expect(new TriangleFan(vertices, indices, 1, 2).length, equals(0));
+          });
+        });
 
-          expect(triangleFan.length, equals(4));
+        group('with a count of 2', () {
+          test('returns an instance with a length of 3', () {
+            expect(new TriangleFan(vertices, indices, 1, 3).length, equals(1));
+          });
         });
       });
     });

@@ -15,41 +15,35 @@ void main() {
 
   group('Lines', () {
     group('default constructor', () {
-      group('with an index list with a length that is not a multiple of 2', () {
-        test('throws an ArgumentError', () {
-          final indices = new IndexList.incrementing(5);
+      final indices = new IndexList.incrementing(5);
 
-          expect(() => new Lines(vertices, indices), throwsArgumentError);
+      group('with a negative offset', () {
+        test('throws a RangeError', () {
+          expect(() => new Lines(vertices, indices, -1), throwsRangeError);
         });
       });
 
-      group('with an index list with a length that is a multiple of 2', () {
-        final indices = new IndexList.incrementing(4);
-
-        test('results in an instance with the correct length', () {
-          final lines = new Lines(vertices, indices);
-
-          expect(lines.length, equals(2));
+      group('with a offset equal to the length of the list of indices', () {
+        test('throws a RangeError', () {
+          expect(() => new Lines(vertices, indices, 5), throwsRangeError);
         });
       });
 
-      group('with a range start', () {
-        final indices = new IndexList.incrementing(5);
-
-        test('results in an instance with the correct length', () {
-          final lines = new Lines(vertices, indices, 1);
-
-          expect(lines.length, equals(2));
+      group('with a valid offset and a negative count', () {
+        test('throws a RangeError', () {
+          expect(() => new Lines(vertices, indices, 1, -1), throwsRangeError);
         });
       });
 
-      group('with a range start and end', () {
-        final indices = new IndexList.incrementing(6);
+      group('with an offset and count whose sum is greater than the length of the indices', () {
+        test('throws a RangeError', () {
+          expect(() => new Lines(vertices, indices, 1, 6), throwsRangeError);
+        });
+      });
 
-        test('results in an instance with the correct length', () {
-          final lines = new Lines(vertices, indices, 1, 5);
-
-          expect(lines.length, equals(2));
+      group('with a valid offset and count', () {
+        test('returns an instance with the correct length', () {
+          expect(new Lines(vertices, indices, 1, 4).length, equals(2));
         });
       });
     });
@@ -174,26 +168,6 @@ void main() {
       });
     });
 
-    group('set start', () {
-      final indices = new IndexList.incrementing(6);
-      final lines = new Lines(vertices, indices);
-      final lineView = new LinesLineView(lines, 1);
-
-      group('with a vertex that does not belong to the vertex array on which the lines are defined', () {
-        test('throws an ArgumentError', () {
-          expect(() => lineView.start = new Vertex({'position': 0.0}), throwsArgumentError);
-        });
-      });
-
-      group('with a vertex that does belong to the vertex array on which the lines are defined', () {
-        lineView.start = vertices[0];
-
-        test('correctly updates the index list', () {
-          expect(indices[2], equals(0));
-        });
-      });
-    });
-
     group('get end', () {
       final indices = new IndexList.incrementing(6);
       final lines = new Lines(vertices, indices);
@@ -201,26 +175,6 @@ void main() {
 
       test('returns the correct vertex', () {
         expect(lineView.end['position'], equals(3.0));
-      });
-    });
-
-    group('set end', () {
-      final indices = new IndexList.incrementing(6);
-      final lines = new Lines(vertices, indices);
-      final lineView = new LinesLineView(lines, 1);
-
-      group('with a vertex that does not belong to the vertex array on which the lines are defined', () {
-        test('throws an ArgumentError', () {
-          expect(() => lineView.end = new Vertex({'position': 0.0}), throwsArgumentError);
-        });
-      });
-
-      group('with a vertex that does belong to the vertex array on which the lines are defined', () {
-        lineView.end = vertices[0];
-
-        test('correctly updates the index list', () {
-          expect(indices[3], equals(0));
-        });
       });
     });
   });

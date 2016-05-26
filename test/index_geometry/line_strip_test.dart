@@ -17,27 +17,41 @@ void main() {
     group('default constructor', () {
       final indices = new IndexList.incrementing(6);
 
-      group('without a range', () {
-        test('results in an instance with the correct length', () {
-          final lineStrip = new LineStrip(vertices, indices);
-
-          expect(lineStrip.length, equals(5));
+      group('with a negative offset', () {
+        test('throws a RangeError', () {
+          expect(() => new LineStrip(vertices, indices, -1), throwsRangeError);
         });
       });
 
-      group('with a range start', () {
-        final lineStrip = new LineStrip(vertices, indices, 1);
-
-        test('results in an instance with the correct length', () {
-          expect(lineStrip.length, equals(4));
+      group('with a offset equal to the length of the list of indices', () {
+        test('throws a RangeError', () {
+          expect(() => new LineStrip(vertices, indices, 6), throwsRangeError);
         });
       });
 
-      group('with a range start and end', () {
-        final lineStrip = new LineStrip(vertices, indices, 1, 5);
+      group('with a valid offset and a negative count', () {
+        test('throws a RangeError', () {
+          expect(() => new LineStrip(vertices, indices, 1, -1), throwsRangeError);
+        });
+      });
 
-        test('results in an instance with the correct length', () {
-          expect(lineStrip.length, equals(3));
+      group('with an offset and count whose sum is greater than the length of the indices', () {
+        test('throws a RangeError', () {
+          expect(() => new LineStrip(vertices, indices, 1, 6), throwsRangeError);
+        });
+      });
+
+      group('with a valid offset and count', () {
+        group('with a count smaller than 2', () {
+          test('returns an instance with a length of 0', () {
+            expect(new LineStrip(vertices, indices, 1, 1).length, equals(0));
+          });
+        });
+
+        group('with a count of 2', () {
+          test('returns an instance with a length of 2', () {
+            expect(new LineStrip(vertices, indices, 1, 2).length, equals(1));
+          });
         });
       });
     });

@@ -18,41 +18,35 @@ void main() {
 
   group('Triangles', () {
     group('default constructor', () {
-      group('with an index list with a length that is not a multiple of 3', () {
-        test('throws an ArgumentError', () {
-          final indices = new IndexList.incrementing(7);
+      final indices = new IndexList.incrementing(7);
 
-          expect(() => new Triangles(vertices, indices), throwsArgumentError);
+      group('with a negative offset', () {
+        test('throws a RangeError', () {
+          expect(() => new Triangles(vertices, indices, -1), throwsRangeError);
         });
       });
 
-      group('with an index list with a length that is a multiple of 3', () {
-        final indices = new IndexList.incrementing(6);
-
-        test('results in an instance with the correct length', () {
-          final triangles = new Triangles(vertices, indices);
-
-          expect(triangles.length, equals(2));
+      group('with a offset equal to the length of the list of indices', () {
+        test('throws a RangeError', () {
+          expect(() => new Triangles(vertices, indices, 7), throwsRangeError);
         });
       });
 
-      group('with a range start', () {
-        final indices = new IndexList.incrementing(7);
-
-        test('results in an instance with the correct length', () {
-          final triangles = new Triangles(vertices, indices, 1);
-
-          expect(triangles.length, equals(2));
+      group('with a valid offset and a negative count', () {
+        test('throws a RangeError', () {
+          expect(() => new Triangles(vertices, indices, 1, -1), throwsRangeError);
         });
       });
 
-      group('with a range start and end', () {
-        final indices = new IndexList.incrementing(8);
+      group('with an offset and count whose sum is greater than the length of the indices', () {
+        test('throws a RangeError', () {
+          expect(() => new Triangles(vertices, indices, 1, 7), throwsRangeError);
+        });
+      });
 
-        test('results in an instance with the correct length', () {
-          final triangles = new Triangles(vertices, indices, 1, 7);
-
-          expect(triangles.length, equals(2));
+      group('with a valid offset and count', () {
+        test('returns an instance with the correct length', () {
+          expect(new Triangles(vertices, indices, 1, 6).length, equals(2));
         });
       });
     });
@@ -207,26 +201,6 @@ void main() {
       });
     });
 
-    group('set a', () {
-      final indices = new IndexList.incrementing(9);
-      final triangles = new Triangles(vertices, indices);
-      final triangleView = new TrianglesTriangleView(triangles, 1);
-
-      group('with a vertex that does not belong to the vertex array on which the triangles are defined', () {
-        test('throws an ArgumentError', () {
-          expect(() => triangleView.a = new Vertex({'position': 0.0}), throwsArgumentError);
-        });
-      });
-
-      group('with a vertex that does belong to the vertex array on which the triangles are defined', () {
-        triangleView.a = vertices[0];
-
-        test('correctly updates the index list', () {
-          expect(indices[3], equals(0));
-        });
-      });
-    });
-
     group('get b', () {
       final indices = new IndexList.incrementing(9);
       final triangles = new Triangles(vertices, indices);
@@ -237,26 +211,6 @@ void main() {
       });
     });
 
-    group('set b', () {
-      final indices = new IndexList.incrementing(9);
-      final triangles = new Triangles(vertices, indices);
-      final triangleView = new TrianglesTriangleView(triangles, 1);
-
-      group('with a vertex that does not belong to the vertex array on which the triangles are defined', () {
-        test('throws an ArgumentError', () {
-          expect(() => triangleView.b = new Vertex({'position': 0.0}), throwsArgumentError);
-        });
-      });
-
-      group('with a vertex that does belong to the vertex array on which the triangles are defined', () {
-        triangleView.b = vertices[0];
-
-        test('correctly updates the index list', () {
-          expect(indices[4], equals(0));
-        });
-      });
-    });
-
     group('get c', () {
       final indices = new IndexList.incrementing(9);
       final triangles = new Triangles(vertices, indices);
@@ -264,26 +218,6 @@ void main() {
 
       test('returns the correct vertex', () {
         expect(triangleView.c['position'], equals(5.0));
-      });
-    });
-
-    group('set c', () {
-      final indices = new IndexList.incrementing(9);
-      final triangles = new Triangles(vertices, indices);
-      final triangleView = new TrianglesTriangleView(triangles, 1);
-
-      group('with a vertex that does not belong to the vertex array on which the triangles are defined', () {
-        test('throws an ArgumentError', () {
-          expect(() => triangleView.c = new Vertex({'position': 0.0}), throwsArgumentError);
-        });
-      });
-
-      group('with a vertex that does belong to the vertex array on which the triangles are defined', () {
-        triangleView.c = vertices[0];
-
-        test('correctly updates the index list', () {
-          expect(indices[5], equals(0));
-        });
       });
     });
   });

@@ -15,27 +15,32 @@ class Points extends IterableBase<PointsPointView> implements IndexGeometry {
 
   final int length;
 
-  /// The number of indices to skip at the start of the [indices] list before
-  /// the values for these points begin.
   final int offset;
 
-  /// Creates a new instance of [Points] from the [vertices] and the
-  /// [indices].
-  ///
-  /// Optionally, these [Points] can be defined as a range on the [indices] list
-  /// from [start] inclusive to [end] exclusive. If omitted [start] defaults to
-  /// `0`. If omitted [end] defaults to `null` which means the range will extend
-  /// to the end of the [indices] list.
-  ///
-  /// Throws a [RangeError] if range defined by [start] and [end] is not a valid
-  /// range for the [indices] list.
-  Points(this.vertices, IndexList indices, [int start = 0, int end])
-      : indices = indices,
-        offset = start,
-        length = (end ?? indices.length) - start {
-    end ??= indices.length;
+  final int indexCount;
 
-    RangeError.checkValidRange(start, end, indices.length);
+  /// Creates a new instance of [Points] from the [vertices] and the [indices].
+  ///
+  /// An [offset] and [count] may be specified to limit these [Points] to a
+  /// subset of the [indices]. If omitted, the [offset] defaults to `0`. If
+  /// omitted, the [count] defaults to `null` which indicates all indices
+  /// between the [offset] and the end of the list of [indices] will be used.
+  ///
+  /// Throws a [RangeError] if the [offset] is negative or equal to or greater
+  /// than the length of the list of [indices].
+  ///
+  /// Throws a [RangeError] if the [count] is negative or `offset + count` is
+  /// greater than the length of the list of [indices].
+  factory Points(VertexArray vertices, IndexList indices,
+      [int offset = 0, int count]) =>
+      new Points._internal(
+          vertices, indices, offset, count ?? (indices.length - offset));
+
+  Points._internal(this.vertices, this.indices, this.offset, int count)
+      : indexCount = count,
+        length = count {
+    RangeError.checkValueInInterval(offset, 0, indices.length - 1, 'offset');
+    RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
   PointsIterator get iterator => new PointsIterator(this);
@@ -98,11 +103,11 @@ class PointsPointView implements Point {
         index = index,
         _offset = points.offset + index;
 
-  /// The index of vertex of for point in the [VertexArray] on which this point
-  /// view is defined.
+  /// The index of the [vertex] in the [VertexArray] on which this point view is
+  /// defined.
   int get vertexIndex => points.indices[_offset];
 
-  /// Sets the index of the points first vertex to the given [index].
+  /// Sets the index of the [vertex] to the given [index].
   ///
   /// Throws a [RangeError] if the [index] is not a valid index for the
   /// [VertexArray] on which the point is defined.
@@ -113,19 +118,4 @@ class PointsPointView implements Point {
   }
 
   Vertex get vertex => points.vertices[vertexIndex];
-
-  /// Sets the point's vertex to be the given [vertex].
-  ///
-  /// Throws an [ArgumentError] if the [vertex] is not found in the
-  /// [VertexArray] on which this point is defined.
-  void set vertex(Vertex vertex) {
-    final index = points.vertices.indexOf(vertex);
-
-    if (index == -1) {
-      throw new ArgumentError('The vertex was not found in the vertex array on '
-          'which this point is defined.');
-    } else {
-      vertexIndex = index;
-    }
-  }
 }
