@@ -3,9 +3,9 @@ part of web_gl;
 class Program {
   final RenderingContext context;
 
-  final String vertexShaderSource;
+  final VertexShader vertexShader;
 
-  final String fragmentShaderSource;
+  final FragmentShader fragmentShader;
 
   final WebGL.RenderingContext _context;
 
@@ -13,18 +13,22 @@ class Program {
 
   final Map<String, int> _attributeNameLocationMap = new Map();
 
-  Program(RenderingContext context, this.vertexShaderSource,
-      this.fragmentShaderSource)
+  Program(RenderingContext context, this.vertexShader, this.fragmentShader)
       : context = context,
         _context = context._context,
         _program = context._context.createProgram() {
-    final vertexShader =
-        _compileShader(WebGL.VERTEX_SHADER, vertexShaderSource);
-    final fragmentShader =
-        _compileShader(WebGL.FRAGMENT_SHADER, fragmentShaderSource);
+    if (vertexShader.context != context) {
+      throw new ArgumentError('The vertex shader must be defined on the same '
+          'rendering context as the program.');
+    }
 
-    _context.attachShader(_program, vertexShader);
-    _context.attachShader(_program, fragmentShader);
+    if (fragmentShader.context != context) {
+      throw new ArgumentError('The fragment shader must be defined on the same '
+          'rendering context as the program.');
+    }
+
+    _context.attachShader(_program, vertexShader._shader);
+    _context.attachShader(_program, fragmentShader._shader);
 
     _context.linkProgram(_program);
 
@@ -35,21 +39,10 @@ class Program {
     }
   }
 
-  WebGL.Shader _compileShader(int type, String source) {
-    final shader = _context.createShader(type);
-
-    _context.shaderSource(shader, source);
-    _context.compileShader(shader);
-
-    final success = _context.getShaderParameter(shader, WebGL.COMPILE_STATUS);
-
-    if (!success) {
-      throw new ShaderCompilationError(
-          type, source, _context.getShaderInfoLog(shader));
-    }
-
-    return shader;
-  }
+  factory Program.fromSource(RenderingContext context,
+          String vertexShaderSource, String fragmentShaderSource) =>
+      new Program(context, new VertexShader(context, vertexShaderSource),
+          new FragmentShader(context, fragmentShaderSource));
 
   int _getLocation(String attributeName) {
     if (_attributeNameLocationMap.containsKey(attributeName)) {
