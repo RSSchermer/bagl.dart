@@ -12,3 +12,4 @@ import 'index_geometry.dart';
 part 'src/web_gl/errors.dart';
 part 'src/web_gl/rendering_context.dart';
 part 'src/web_gl/program.dart';
+part 'src/web_gl/shader.dart';
