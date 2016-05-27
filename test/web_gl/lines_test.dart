@@ -8,7 +8,7 @@ import 'package:bagl/web_gl.dart';
 
 void main() {
   group('WebGL', () {
-    group('draw Triangles', () {
+    group('draw Lines', () {
       var canvas = document.querySelector('#main_canvas');
       var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
@@ -34,36 +34,28 @@ void main() {
         }
       """;
 
-      var program = new Program(context, vertexShaderSource, fragmentShaderSource);
+      var program = new Program.fromSource(context, vertexShaderSource, fragmentShaderSource);
 
       var vertices = new VertexArray([
         new Vertex({
-          'position': new Vector2(-0.5, 0.5),
+          'position': new Vector2(-0.5, -0.5),
           'color': new Vector3(1.0, 0.0, 0.0)
         }),
         new Vertex({
-          'position': new Vector2(-1.0, -0.5),
+          'position': new Vector2(-0.5, 0.5),
           'color': new Vector3(0.0, 1.0, 0.0)
-        }),
-        new Vertex({
-          'position': new Vector2(0.0, -0.5),
-          'color': new Vector3(0.0, 0.0, 1.0)
         }),
         new Vertex({
           'position': new Vector2(0.5, -0.5),
-          'color': new Vector3(1.0, 0.0, 0.0)
-        }),
-        new Vertex({
-          'position': new Vector2(1.0, 0.5),
-          'color': new Vector3(0.0, 1.0, 0.0)
-        }),
-        new Vertex({
-          'position': new Vector2(0.0, 0.5),
           'color': new Vector3(0.0, 0.0, 1.0)
+        }),
+        new Vertex({
+          'position': new Vector2(0.5, 0.5),
+          'color': new Vector3(1.0, 0.0, 0.0)
         })
       ]);
 
-      var triangles = new Triangles(vertices, new IndexList.incrementing(6));
+      var triangles = new Lines(vertices, new IndexList.incrementing(4));
 
       context.draw(triangles, program);
 

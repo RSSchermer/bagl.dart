@@ -8,19 +8,18 @@ import 'package:bagl/web_gl.dart';
 
 void main() {
   group('WebGL', () {
-    group('draw with vertices with a matrix attribute', () {
+    group('draw TriangleStrip', () {
       var canvas = document.querySelector('#main_canvas');
       var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
       var vertexShaderSource = """
         attribute vec2 position;
-        attribute mat4 translation;
         attribute vec3 color;
 
         varying vec3 vColor;
 
         void main(void) {
-          gl_Position = translation * vec4(position, 0., 1.);
+          gl_Position = vec4(position, 0., 1.);
           vColor = color;
         }
       """;
@@ -39,38 +38,32 @@ void main() {
 
       var vertices = new VertexArray([
         new Vertex({
+          'position': new Vector2(0.5, -0.5),
+          'color': new Vector3(1.0, 0.0, 0.0)
+        }),
+        new Vertex({
+          'position': new Vector2(0.5, 0.5),
+          'color': new Vector3(0.0, 1.0, 0.0)
+        }),
+        new Vertex({
+          'position': new Vector2(0.0, -0.5),
+          'color': new Vector3(0.0, 0.0, 1.0)
+        }),
+        new Vertex({
           'position': new Vector2(0.0, 0.5),
-          'translation': new Matrix4(
-              1.0, 0.0, 0.0, -0.5,
-              0.0, 1.0, 0.0,  0.0,
-              0.0, 0.0, 1.0,  0.0,
-              0.0, 0.0, 0.0,  1.0
-          ),
           'color': new Vector3(1.0, 0.0, 0.0)
         }),
         new Vertex({
           'position': new Vector2(-0.5, -0.5),
-          'translation': new Matrix4(
-              1.0, 0.0, 0.0, 0.0,
-              0.0, 1.0, 0.0, 0.5,
-              0.0, 0.0, 1.0, 0.0,
-              0.0, 0.0, 0.0, 1.0
-          ),
           'color': new Vector3(0.0, 1.0, 0.0)
         }),
         new Vertex({
-          'position': new Vector2(0.5, -0.5),
-          'translation': new Matrix4(
-              1.0, 0.0, 0.0,  0.0,
-              0.0, 1.0, 0.0, -0.5,
-              0.0, 0.0, 1.0,  0.0,
-              0.0, 0.0, 0.0,  1.0
-          ),
+          'position': new Vector2(-0.5, 0.5),
           'color': new Vector3(0.0, 0.0, 1.0)
         })
       ]);
 
-      var triangles = new Triangles(vertices, new IndexList.incrementing(3));
+      var triangles = new TriangleStrip(vertices, new IndexList.incrementing(6));
 
       context.draw(triangles, program);
 

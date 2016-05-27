@@ -46,8 +46,8 @@ void main() {
         }
       """;
 
-      var program1 = new Program(context, vertexShader1Source, fragmentShaderSource);
-      var program2 = new Program(context, vertexShader2Source, fragmentShaderSource);
+      var program1 = new Program.fromSource(context, vertexShader1Source, fragmentShaderSource);
+      var program2 = new Program.fromSource(context, vertexShader2Source, fragmentShaderSource);
 
       var vertices = new VertexArray([
         new Vertex({
