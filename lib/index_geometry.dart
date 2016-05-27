@@ -19,3 +19,4 @@ part 'src/index_geometry/points.dart';
 part 'src/index_geometry/triangle_fan.dart';
 part 'src/index_geometry/triangle_strip.dart';
 part 'src/index_geometry/triangles.dart';
+part 'src/index_geometry/topology.dart';
