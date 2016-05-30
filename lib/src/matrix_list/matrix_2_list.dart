@@ -30,19 +30,20 @@ class Matrix2List extends ListBase<Matrix2>
       final value = elements[i];
 
       _storage[s] = value.r0c0;
-      _storage[s + 1] = value.r0c1;
-      _storage[s + 2] = value.r1c0;
+      _storage[s + 1] = value.r1c0;
+      _storage[s + 2] = value.r0c1;
       _storage[s + 3] = value.r1c1;
     }
   }
 
   /// Creates a [Matrix2List] view of the specified region in [buffer].
   ///
-  /// Changes in the [Matrix2List] will be visible in the byte buffer and vice
-  /// versa. If the [offsetInBytes] index of the region is not specified, it
-  /// defaults to zero (the first byte in the byte buffer). If the [length] is
-  /// not specified, it defaults to `null`, which indicates that the view
-  /// extends to the end of the byte buffer.
+  /// The buffer is viewed in column major order. Changes in the [Matrix2List]
+  /// will be visible in the byte buffer and vice versa. If the [offsetInBytes]
+  /// index of the region is not specified, it defaults to zero (the first byte
+  /// in the byte buffer). If the [length] is not specified, it defaults to
+  /// `null`, which indicates that the view extends to the end of the byte
+  /// buffer.
   ///
   /// Throws [RangeError] if [offsetInBytes] or [length] are negative, or if
   /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
@@ -63,9 +64,10 @@ class Matrix2List extends ListBase<Matrix2>
   Matrix2 operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
-    return new Matrix2.fromFloat32List(new Float32List(_elementSizeInFloats)
-      ..setRange(
-          0, _elementSizeInFloats, _storage, index * _elementSizeInFloats));
+    final s = index * _elementSizeInFloats;
+
+    return new Matrix2(
+        _storage[s], _storage[s + 2], _storage[s + 1], _storage[s + 3]);
   }
 
   void operator []=(int index, Matrix2 value) {
@@ -74,8 +76,8 @@ class Matrix2List extends ListBase<Matrix2>
     var s = index * _elementSizeInFloats;
 
     _storage[s] = value.r0c0;
-    _storage[s + 1] = value.r0c1;
-    _storage[s + 2] = value.r1c0;
+    _storage[s + 1] = value.r1c0;
+    _storage[s + 2] = value.r0c1;
     _storage[s + 3] = value.r1c1;
   }
 }

@@ -30,31 +30,32 @@ class Matrix4List extends ListBase<Matrix4>
       final value = elements[i];
 
       _storage[s] = value.r0c0;
-      _storage[s + 1] = value.r0c1;
-      _storage[s + 2] = value.r0c2;
-      _storage[s + 3] = value.r0c3;
-      _storage[s + 4] = value.r1c0;
+      _storage[s + 1] = value.r1c0;
+      _storage[s + 2] = value.r2c0;
+      _storage[s + 3] = value.r3c0;
+      _storage[s + 4] = value.r0c1;
       _storage[s + 5] = value.r1c1;
-      _storage[s + 6] = value.r1c2;
-      _storage[s + 7] = value.r1c3;
-      _storage[s + 8] = value.r2c0;
-      _storage[s + 9] = value.r2c1;
+      _storage[s + 6] = value.r2c1;
+      _storage[s + 7] = value.r3c1;
+      _storage[s + 8] = value.r0c2;
+      _storage[s + 9] = value.r1c2;
       _storage[s + 10] = value.r2c2;
-      _storage[s + 11] = value.r2c3;
-      _storage[s + 12] = value.r3c0;
-      _storage[s + 13] = value.r3c1;
-      _storage[s + 14] = value.r3c2;
+      _storage[s + 11] = value.r3c2;
+      _storage[s + 12] = value.r0c3;
+      _storage[s + 13] = value.r1c3;
+      _storage[s + 14] = value.r2c3;
       _storage[s + 15] = value.r3c3;
     }
   }
 
   /// Creates a [Matrix4List] view of the specified region in [buffer].
   ///
-  /// Changes in the [Matrix4List] will be visible in the byte buffer and vice
-  /// versa. If the [offsetInBytes] index of the region is not specified, it
-  /// defaults to zero (the first byte in the byte buffer). If the [length] is
-  /// not specified, it defaults to `null`, which indicates that the view
-  /// extends to the end of the byte buffer.
+  /// The buffer is viewed in column major order. Changes in the [Matrix4List]
+  /// will be visible in the byte buffer and vice versa. If the [offsetInBytes]
+  /// index of the region is not specified, it defaults to zero (the first byte
+  /// in the byte buffer). If the [length] is not specified, it defaults to
+  /// `null`, which indicates that the view extends to the end of the byte
+  /// buffer.
   ///
   /// Throws [RangeError] if [offsetInBytes] or [length] are negative, or if
   /// `offsetInBytes + (length * elementSizeInBytes)` is greater than the length
@@ -75,9 +76,25 @@ class Matrix4List extends ListBase<Matrix4>
   Matrix4 operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
-    return new Matrix4.fromFloat32List(new Float32List(_elementSizeInFloats)
-      ..setRange(
-          0, _elementSizeInFloats, _storage, index * _elementSizeInFloats));
+    final s = index * _elementSizeInFloats;
+
+    return new Matrix4(
+        _storage[s],
+        _storage[s + 4],
+        _storage[s + 8],
+        _storage[s + 12],
+        _storage[s + 1],
+        _storage[s + 5],
+        _storage[s + 9],
+        _storage[s + 13],
+        _storage[s + 2],
+        _storage[s + 6],
+        _storage[s + 10],
+        _storage[s + 14],
+        _storage[s + 3],
+        _storage[s + 7],
+        _storage[s + 11],
+        _storage[s + 15]);
   }
 
   void operator []=(int index, Matrix4 value) {
@@ -86,20 +103,20 @@ class Matrix4List extends ListBase<Matrix4>
     var s = index * _elementSizeInFloats;
 
     _storage[s] = value.r0c0;
-    _storage[s + 1] = value.r0c1;
-    _storage[s + 2] = value.r0c2;
-    _storage[s + 3] = value.r0c3;
-    _storage[s + 4] = value.r1c0;
+    _storage[s + 1] = value.r1c0;
+    _storage[s + 2] = value.r2c0;
+    _storage[s + 3] = value.r3c0;
+    _storage[s + 4] = value.r0c1;
     _storage[s + 5] = value.r1c1;
-    _storage[s + 6] = value.r1c2;
-    _storage[s + 7] = value.r1c3;
-    _storage[s + 8] = value.r2c0;
-    _storage[s + 9] = value.r2c1;
+    _storage[s + 6] = value.r2c1;
+    _storage[s + 7] = value.r3c1;
+    _storage[s + 8] = value.r0c2;
+    _storage[s + 9] = value.r1c2;
     _storage[s + 10] = value.r2c2;
-    _storage[s + 11] = value.r2c3;
-    _storage[s + 12] = value.r3c0;
-    _storage[s + 13] = value.r3c1;
-    _storage[s + 14] = value.r3c2;
+    _storage[s + 11] = value.r3c2;
+    _storage[s + 12] = value.r0c3;
+    _storage[s + 13] = value.r1c3;
+    _storage[s + 14] = value.r2c3;
     _storage[s + 15] = value.r3c3;
   }
 }

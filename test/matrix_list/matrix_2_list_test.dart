@@ -33,16 +33,16 @@ void main() {
     group('fromList constructor', () {
       final l = new Matrix2List.fromList([
         new Matrix2(
-            0.0, 0.0,
-            0.0, 0.0
+            0.0, 0.2,
+            0.1, 0.3
         ),
         new Matrix2(
-            1.0, 1.0,
-            1.0, 1.0
+            1.0, 1.2,
+            1.1, 1.3
         ),
         new Matrix2(
-            2.0, 2.0,
-            2.0, 2.0
+            2.0, 2.2,
+            2.1, 2.3
         )
       ]);
 
@@ -53,16 +53,16 @@ void main() {
       test('instantiates a Matrix2List with the correct values', () {
         expect(l.toList(), equals([
           new Matrix2(
-              0.0, 0.0,
-              0.0, 0.0
+              0.0, 0.2,
+              0.1, 0.3
           ),
           new Matrix2(
-              1.0, 1.0,
-              1.0, 1.0
+              1.0, 1.2,
+              1.1, 1.3
           ),
           new Matrix2(
-              2.0, 2.0,
-              2.0, 2.0
+              2.0, 2.2,
+              2.1, 2.3
           )
         ]));
       });
@@ -70,11 +70,11 @@ void main() {
 
     group('view constructor', () {
       final values = new Float32List.fromList([
-        0.0, 0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0, 1.0,
-        2.0, 2.0, 2.0, 2.0,
-        3.0, 3.0, 3.0, 3.0,
-        4.0, 4.0, 4.0, 4.0
+        0.0, 0.1, 0.2, 0.3,
+        1.0, 1.1, 1.2, 1.3,
+        2.0, 2.1, 2.2, 2.3,
+        3.0, 3.1, 3.2, 3.3,
+        4.0, 4.1, 4.2, 4.3
       ]);
       final l = new Matrix2List.view(values.buffer, 16, 3);
 
@@ -85,16 +85,16 @@ void main() {
       test('instantiates a Matrix2List with the correct values', () {
         expect(l.toList(), equals([
           new Matrix2(
-              1.0, 1.0,
-              1.0, 1.0
+              1.0, 1.2,
+              1.1, 1.3
           ),
           new Matrix2(
-              2.0, 2.0,
-              2.0, 2.0
+              2.0, 2.2,
+              2.1, 2.3
           ),
           new Matrix2(
-              3.0, 3.0,
-              3.0, 3.0
+              3.0, 3.2,
+              3.1, 3.3
           )
         ]));
       });
