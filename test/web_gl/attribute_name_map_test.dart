@@ -19,7 +19,7 @@ void main() {
         varying vec3 vColor;
 
         void main(void) {
-          gl_Position = vec4(aPos, 0., 1.);
+          gl_Position = vec4(aPos, 0.0, 1.0);
           vColor = aColor;
         }
       """;
@@ -30,7 +30,7 @@ void main() {
         varying vec3 vColor;
 
         void main(void) {
-          gl_FragColor = vec4(vColor, 1.);
+          gl_FragColor = vec4(vColor, 1.0);
         }
       """;
 
@@ -65,7 +65,7 @@ void main() {
 
       var triangles = new Triangles(vertices, new IndexList.incrementing(6));
 
-      context.draw(triangles, program, attributeNameMap: {
+      context.defaultFrame.draw(triangles, program, {}, attributeNameMap: {
         'position': 'aPos',
         'color': 'aColor'
       });

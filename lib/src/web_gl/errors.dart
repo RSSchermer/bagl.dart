@@ -11,11 +11,11 @@ class ShaderCompilationError extends Error {
 
   String toString() {
     if (shaderType == WebGL.VERTEX_SHADER) {
-      'Failed to compile vertex shader:\n$shaderLogInfo';
+      return 'Failed to compile vertex shader:\n$shaderLogInfo';
     } else if (shaderType == WebGL.FRAGMENT_SHADER) {
-      'Failed to compile fragment shader:\n$shaderLogInfo';
+      return 'Failed to compile fragment shader:\n$shaderLogInfo';
     } else {
-      'Failed to compile shader:\n$shaderLogInfo';
+      return 'Failed to compile shader:\n$shaderLogInfo';
     }
   }
 }

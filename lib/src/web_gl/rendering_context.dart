@@ -7,8 +7,14 @@ class RenderingContext {
   /// The canvas element this rendering context is associated with.
   final CanvasElement canvas;
 
+  Frame _defaultFrame;
+
   /// The WebGL rendering context associated with the [canvas].
   WebGL.RenderingContext _context;
+
+  /// The frame that is currently bound to the WebGL context as the draw
+  /// context.
+  Frame _boundFrame;
 
   /// The shader program that is currently used by the WebGL context.
   Program _activeProgram;
@@ -49,6 +55,13 @@ class RenderingContext {
   /// vertexAttribPointer is already set up correctly.
   Map<int, VertexAttribute> _locationAttributeMap = new Map();
 
+  /// Map from shader program uniform locations to the values currently bound to
+  /// these locations.
+  ///
+  /// Used to verify if the value bound to a uniform location needs to be
+  /// changed.
+  Map<WebGL.UniformLocation, VertexAttribute> _uniformValueMap = new Map();
+
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
 
@@ -60,6 +73,10 @@ class RenderingContext {
 
   /// The value that is currently set as the clearStencil on the WebGL context.
   int _clearStencil = 0;
+
+  Region _scissor;
+
+  bool _scissorTest;
 
   RenderingContext._internal(this.canvas,
       {bool alpha: true,
@@ -90,6 +107,9 @@ class RenderingContext {
           'preferLowPowerToHighPerformance': preferLowPowerToHighPerformance,
           'failIfMajorPerformanceCaveat': failIfMajorPerformanceCaveat
         });
+
+    _defaultFrame = new Frame._default(this);
+    _boundFrame = _defaultFrame;
   }
 
   static RenderingContext forCanvas(CanvasElement canvas,
@@ -119,6 +139,8 @@ class RenderingContext {
       return context;
     }
   }
+
+  Frame get defaultFrame => _defaultFrame;
 
   void attach(IndexGeometry geometry) {
     if (!isAttached(geometry)) {
@@ -192,98 +214,6 @@ class RenderingContext {
   bool isAttached(IndexGeometry geometry) =>
       _attachedGeometries.contains(geometry);
 
-  void clear({Vector4 color, double depth, int stencil}) {
-    var mask = 0;
-
-    if (color != null) {
-      if (color != _clearColor) {
-        _context.clearColor(color.r, color.g, color.b, color.a);
-        _clearColor = color;
-      }
-
-      mask &= WebGL.COLOR_BUFFER_BIT;
-    }
-
-    if (depth != null) {
-      if (depth != _clearDepth) {
-        _context.clearDepth(depth);
-        _clearDepth = depth;
-      }
-
-      mask &= WebGL.DEPTH_BUFFER_BIT;
-    }
-
-    if (stencil != null) {
-      if (stencil != _clearStencil) {
-        _context.clearStencil(stencil);
-        _clearStencil = stencil;
-      }
-
-      mask &= WebGL.STENCIL_BUFFER_BIT;
-    }
-
-    if (mask != 0) {
-      _context.clear(mask);
-    }
-  }
-
-  void draw(IndexGeometry geometry, Program program,
-      {Map<String, String> attributeNameMap}) {
-    attributeNameMap ??= new Map();
-
-    attach(geometry);
-    _useProgram(program);
-
-    final unusedAttribLocations = _enabledAttributeLocations.toSet();
-
-    // Enable vertex attributes and adjust vertex attribute pointers if
-    // necessary
-    geometry.vertices.attributes.forEach((name, attribute) {
-      final columnCount = attribute.columnCount;
-      final columnSize = attribute.columnSize;
-      final startLocation =
-          program._getLocation(attributeNameMap[name] ?? name);
-      final table = attribute.attributeDataTable;
-      final stride = table.elementSizeInBytes;
-
-      for (var i = 0; i < columnCount; i++) {
-        var location = startLocation + i;
-
-        // If the attribute bound to the location is null or an attribute other
-        // than the current attribute, set up a new vertex attribute pointer.
-        if (_locationAttributeMap[location] != attribute) {
-          var offset = attribute.offsetInBytes + i * columnSize * 4;
-
-          _bindAttributeData(table);
-          _context.vertexAttribPointer(
-              location, columnSize, WebGL.FLOAT, false, stride, offset);
-
-          _locationAttributeMap[location] = attribute;
-        }
-
-        if (!_enabledAttributeLocations.contains(location)) {
-          _context.enableVertexAttribArray(location);
-          _enabledAttributeLocations.add(location);
-        }
-
-        unusedAttribLocations.remove(location);
-      }
-    });
-
-    // Disable unused attribute positions
-    for (var position in unusedAttribLocations) {
-      _context.disableVertexAttribArray(position);
-      _enabledAttributeLocations.remove(position);
-    }
-
-    // Set up uniforms
-
-    // Draw elements
-    _bindIndexData(geometry.indices);
-    _context.drawElements(_topologyMap[geometry.topology], geometry.indexCount,
-        WebGL.UNSIGNED_SHORT, geometry.offset * IndexList.BYTES_PER_ELEMENT);
-  }
-
   void _bindAttributeData(AttributeDataTable attributeData) {
     if (attributeData != _boundAttributeData) {
       _context.bindBuffer(
@@ -300,10 +230,60 @@ class RenderingContext {
     }
   }
 
+  void _bindFrame(Frame frame) {
+    if (frame != _boundFrame) {
+      if (frame == defaultFrame) {
+        _context.bindFramebuffer(WebGL.FRAMEBUFFER, null);
+      } else {
+        _context.bindFramebuffer(WebGL.FRAMEBUFFER, frame._framebufferObject);
+      }
+
+      _boundFrame = frame;
+    }
+  }
+
   void _useProgram(Program program) {
     if (program != _activeProgram) {
       _context.useProgram(program._program);
       _activeProgram = program;
+    }
+  }
+
+  void _updateClearColor(Vector4 color) {
+    if (color != _clearColor) {
+      _context.clearColor(color.r, color.g, color.b, color.a);
+      _clearColor = color;
+    }
+  }
+
+  void _updateClearDepth(double depth) {
+    if (depth != _clearDepth) {
+      _context.clearDepth(depth);
+      _clearDepth = depth;
+    }
+  }
+
+  void _updateClearStencil(int stencil) {
+    if (stencil != _clearStencil) {
+      _context.clearStencil(stencil);
+      _clearStencil = stencil;
+    }
+  }
+
+  void _updateScissor(Region region) {
+    if (region == null) {
+      if (_scissorTest == true) {
+        _context.disable(WebGL.SCISSOR_TEST);
+        _scissorTest = false;
+      }
+    } else if (region != _scissor) {
+      _context.scissor(region.x, region.y, region.width, region.height);
+      _scissor = region;
+
+      if (_scissorTest == false) {
+        _context.enable(WebGL.SCISSOR_TEST);
+        _scissorTest = true;
+      }
     }
   }
 }

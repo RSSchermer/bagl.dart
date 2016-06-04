@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:bagl/bagl.dart';
 import 'package:bagl/web_gl.dart';
@@ -11,10 +12,12 @@ main() {
     attribute vec2 position;
     attribute vec3 color;
 
+    uniform float scale;
+
     varying vec3 vColor;
 
     void main(void) {
-      gl_Position = vec4(position, 0.0, 1.0);
+      gl_Position = vec4(scale * position, 0.0, 1.0);
       vColor = color;
     }
   """;
@@ -49,5 +52,11 @@ main() {
 
   var triangles = new Triangles(vertices, new IndexList.incrementing(3));
 
-  context.defaultFrame.draw(triangles, program, {});
+  update(num time) {
+    context.defaultFrame.draw(triangles, program, {'scale': sin(time / 1000)});
+
+    window.requestAnimationFrame(update);
+  }
+
+  window.requestAnimationFrame(update);
 }

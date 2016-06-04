@@ -19,7 +19,7 @@ void main() {
         varying vec3 vColor;
 
         void main(void) {
-          gl_Position = vec4(position, 0., 1.);
+          gl_Position = vec4(position, 0.0, 1.0);
           vColor = color;
         }
       """;
@@ -30,7 +30,7 @@ void main() {
         varying vec3 vColor;
 
         void main(void) {
-          gl_FragColor = vec4(vColor, 1.);
+          gl_FragColor = vec4(vColor, 1.0);
         }
       """;
 
@@ -69,8 +69,8 @@ void main() {
       var triangles1 = new Triangles(vertices1, new IndexList.incrementing(3));
       var triangles2 = new Triangles(vertices2, new IndexList.incrementing(3));
 
-      context.draw(triangles1, program);
-      context.draw(triangles2, program);
+      context.defaultFrame.draw(triangles1, program, {});
+      context.defaultFrame.draw(triangles2, program, {});
 
       test('draws the correct frame', () {
         expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
