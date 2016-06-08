@@ -18,20 +18,78 @@ class Frame {
   /// This [Frame]'s height in pixels.
   int get height => context.canvas.height;
 
+  /// Draws the [geometry] using the [program] and the [uniforms].
   ///
+  /// Sets up the rendering pipeline to use the [program]. Each of the
+  /// [program]'s active uniform variables is looked up by name in the
+  /// [uniforms] map and set to the specified value. Valid value types for
+  /// uniform values are: [int], [double], [Vector2], [Vector3], [Vector4],
+  /// [Matrix2], [Matrix3], [Matrix4], [Int32List], [Float32List],
+  /// [Vector2List], [Vector3List], [Vector4List], [Matrix2List], [Matrix3List],
+  /// [Matrix4List], and [Sampler].
   ///
+  /// The rendering process may be further configured with the following
+  /// optional parameters:
   ///
-  /// - [scissorBox]: fragments outside the given [Region] will not be updated
-  ///   by this draw call.
-  /// - [viewport]: primitives outside the given [Region] will be culled before
-  ///   rasterization.
+  /// - [depthTest]: instructs the rendering back-end on how the depth test
+  ///   should be performed, see the documentation for [DepthTest] for details.
+  ///   Defaults to `null`, in which case depth testing will be disabled.
+  /// - [stencilTest]: instructs the rendering back-end on how the stencil test
+  ///   should be performed, see the documentation for [StencilTest] for
+  ///   details. Defaults to `null`, in which case stencil testing will be
+  ///   disabled.
+  /// - [blending]: instructs the rendering back-end on how blending should be
+  ///   performed, see the documentation for [Blending] for details. Defaults to
+  ///   `null`, in which case blending will be disabled.
+  /// - [dithering]: whether or not dithering will be performed before writing
+  ///   color components or indices to the color buffer. Defaults to `true`.
+  /// - [faceCulling]: sets the [CullingMode] that will be used for face
+  ///   culling. Defaults to `null`, in which case face culling will be
+  ///   disabled.
+  /// - [frontFace]: sets the [WindingOrder] that will be used to determine
+  ///   which of a triangle primitive's 2 faces is the front face. Defaults to
+  ///   `WindingOrder.counterClockwise`.
+  /// - [colorMask]:
+  /// - [lineWidth]: sets the width with which [Line] primitives will be drawn.
+  ///   Defaults to `1`.
+  /// - [scissorBox]: fragments outside the given [Region] will be discarded by
+  ///   the scissor test. Defaults to `null`, in which case scissor testing will
+  ///   be disabled.
+  /// - [viewport]: sets the viewport to the given region of this [Frame].
+  ///   Defaults to `null`, in which case the viewport is set to cover the frame
+  ///   exactly.
+  /// - [attributeNameMap]: may be used to map the [geometry]'s attributes to
+  ///   different attribute names in case the [geometry]'s attribute names do
+  ///   not match the attribute names used by the rendering program.
+  ///
+  /// Finally, the thus configured rendering pipeline is used to process the
+  /// [geometry], updating this [Frame]'s relevant output buffers accordingly.
+  ///
+  /// Throws an [ArgumentError] if the [RenderingContext] for which the
+  /// [program] was linked does not match this [Frame]'s [context].
+  ///
+  /// Throws an [ArgumentError] if one of the [geometry]'s vertex attributes
+  /// has no matching active attribute in the [program].
+  ///
+  /// Throws an [ArgumentError] if a uniform variable is active in the
+  /// [program], but no [value] with a matching name is found in the [uniforms]
+  /// map.
+  ///
+  /// Throws an [ArgumentError] if a uniform value is provided by the [uniforms]
+  /// map, but no matching uniform variable is active in the [program].
+  ///
+  /// Throws an [ArgumentError] if one of the uniform values provided in the
+  /// [uniforms] map is not of a valid type ([int], [double], [Vector2],
+  /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Int32List],
+  /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
+  /// [Matrix3List], [Matrix4List], [Sampler]).
   void draw(
       IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
       {Map<String, String> attributeNameMap: const {},
-      Blend blend: null,
-      ColorMask colorMask: null,
+      Blending blending: null,
+      ColorMask colorMask: const ColorMask(true, true, true, true),
       DepthTest depthTest: null,
-      bool dithering: false,
+      bool dithering: true,
       CullingMode faceCulling: null,
       WindingOrder frontFace: WindingOrder.counterClockwise,
       int lineWidth: 1,
@@ -223,24 +281,43 @@ class Frame {
         WebGL.UNSIGNED_SHORT, geometry.offset * IndexList.BYTES_PER_ELEMENT);
   }
 
+  /// Resets this [Frame]'s color attachment to the specified [color] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearColor(Vector4 color, [Region region]) {
     context._updateClearColor(color);
     context._updateScissor(region);
     _context.clear(WebGL.COLOR_BUFFER_BIT);
   }
 
+  /// Resets this [Frame]'s depth attachment to the specified [depth] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearDepth(double depth, [Region region]) {
     context._updateClearDepth(depth);
     context._updateScissor(region);
     _context.clear(WebGL.DEPTH_BUFFER_BIT);
   }
 
+  /// Resets this [Frame]'s stencil attachment to the specified [stencil] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearStencil(int stencil, [Region region]) {
     context._updateClearStencil(stencil);
     context._updateScissor(region);
     _context.clear(WebGL.STENCIL_BUFFER_BIT);
   }
 
+  /// Resets this [Frame]'s color and depth attachments.
+  ///
+  /// Resets this [Frame]'s color attachment to the specified [color] value and
+  /// resets this [Frame]'s depth attachment to the specified [depth] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
@@ -248,6 +325,13 @@ class Frame {
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.DEPTH_BUFFER_BIT);
   }
 
+  /// Resets this [Frame]'s color and stencil attachments.
+  ///
+  /// Resets this [Frame]'s color attachment to the specified [color] value and
+  /// resets this [Frame]'s stencil attachment to the specified [stencil] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
     context._updateClearColor(color);
     context._updateClearStencil(stencil);
@@ -255,6 +339,13 @@ class Frame {
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
+  /// Resets this [Frame]'s depth and stencil attachments.
+  ///
+  /// Resets this [Frame]'s depth attachment to the specified [depth] value and
+  /// resets this [Frame]'s stencil attachment to the specified [stencil] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearDepthAndStencil(double depth, int stencil, [Region region]) {
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
@@ -262,6 +353,14 @@ class Frame {
     _context.clear(WebGL.DEPTH_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
+  /// Resets all of this [Frame]'s output attachments.
+  ///
+  /// Resets this [Frame]'s color attachment to the specified [color] value,
+  /// resets this [Frame]'s depth attachment to the specified [depth] value and
+  /// resets this [Frame]'s stencil attachment to the specified [stencil] value.
+  ///
+  /// Optionally a [region] may be specified, which restricts this clear
+  /// operation to a rectangular area.
   void clearAll(Vector4 color, double depth, int stencil, [Region region]) {
     context._updateClearColor(color);
     context._updateClearDepth(depth);

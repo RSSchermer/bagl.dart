@@ -1,6 +1,6 @@
 part of web_gl;
 
-/// Describes how the depth test should be performed.
+/// Provides instructions on how depth testing should be performed.
 ///
 /// In order to do a depth test, a [Frame] must have a depth buffer. A depth
 /// buffer stores a depth value between `0.0` (close) and `1.0` (far) for each
@@ -85,7 +85,7 @@ class DepthTest {
   /// otherwise rendering will result in an error.
   final double rangeFar;
 
-  /// Returns a [DepthTest] description.
+  /// Returns new instructions for the [DepthTest].
   ///
   /// Takes 4 optional parameters:
   ///

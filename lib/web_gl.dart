@@ -12,7 +12,7 @@ import 'math.dart';
 import 'matrix_list.dart';
 import 'vertex_data.dart';
 
-part 'src/web_gl/blend.dart';
+part 'src/web_gl/blending.dart';
 part 'src/web_gl/color_mask.dart';
 part 'src/web_gl/culling_mode.dart';
 part 'src/web_gl/depth_test.dart';

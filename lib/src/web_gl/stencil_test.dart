@@ -1,6 +1,6 @@
 part of web_gl;
 
-/// Describes how the stencil test should be performed.
+/// Provides instructions on how stencil testing should be performed.
 ///
 /// In order to do a stencil test, a [Frame] must have a stencil buffer. A
 /// stencil buffer stores two stencil values for each fragment:
@@ -201,7 +201,7 @@ class StencilTest {
   /// write-protected.
   final int writeMask;
 
-  /// Returns a new [StencilTest] description.
+  /// Returns new instructions for the [StencilTest].
   ///
   /// Takes 11 optional parameters:
   ///
