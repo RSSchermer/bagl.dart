@@ -1,10 +1,14 @@
 part of web_gl;
 
+/// Links the programmable shader stages of the rendering pipeline.
 class Program {
+  /// The [RenderingContext] for which this [Program] is linked.
   final RenderingContext context;
 
+  /// The [VertexShader] used by this [Program].
   final VertexShader vertexShader;
 
+  /// The [FragmentShader] used by this [Program].
   final FragmentShader fragmentShader;
 
   final WebGL.RenderingContext _context;
@@ -15,6 +19,16 @@ class Program {
 
   final Map<String, WebGL.UniformLocation> _uniformNameLocationMap = new Map();
 
+  /// Instantiates a new [Program] for the given [context] by linking the
+  /// [vertexShader] and the [fragmentShader].
+  ///
+  /// Throws an [ArgumentError] if the [RenderingContext] for which the
+  /// [vertexShader] is compiled does not match the [context].
+  ///
+  /// Throws an [ArgumentError] if the [RenderingContext] for which the
+  /// [fragmentShader] is compiled does not match the [context].
+  ///
+  /// Throws a [ProgramLinkingError] if the [Program] fails to link.
   Program(RenderingContext context, this.vertexShader, this.fragmentShader)
       : context = context,
         _context = context._context,
@@ -55,6 +69,17 @@ class Program {
     }
   }
 
+  /// Instantiates a new [Program] for the given [context] from the
+  /// [vertexShaderSource] string and the [fragmentShaderSource] string.
+  ///
+  /// A [VertexShader] is compiled from the [vertexShaderSource] string and a
+  /// [FragmentShader] is compiled from the [fragmentShaderSource] string. The
+  /// resulting shaders are then linked into a [Program].
+  ///
+  /// Throws an [ShaderCompilationError] if [vertexShaderSource] string fails
+  /// to compile or if the [fragmentShaderSource] string fails to compile.
+  ///
+  /// Throws a [ProgramLinkingError] if the [Program] fails to link.
   factory Program.fromSource(RenderingContext context,
           String vertexShaderSource, String fragmentShaderSource) =>
       new Program(context, new VertexShader(context, vertexShaderSource),
