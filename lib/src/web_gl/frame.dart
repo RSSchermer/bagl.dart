@@ -41,15 +41,15 @@ class Frame {
   /// - [blending]: instructs the rendering back-end on how blending should be
   ///   performed, see the documentation for [Blending] for details. Defaults to
   ///   `null`, in which case blending will be disabled.
-  /// - [dithering]: whether or not dithering will be performed before writing
-  ///   color components or indices to the color buffer. Defaults to `true`.
   /// - [faceCulling]: sets the [CullingMode] that will be used for face
   ///   culling. Defaults to `null`, in which case face culling will be
   ///   disabled.
   /// - [frontFace]: sets the [WindingOrder] that will be used to determine
   ///   which of a triangle primitive's 2 faces is the front face. Defaults to
   ///   `WindingOrder.counterClockwise`.
-  /// - [colorMask]:
+  /// - [colorMask]: specifies which color color components can be written to
+  ///   the color attachment. See [ColorMask] for details. By default all color
+  ///   components will be written to the color attachment.
   /// - [lineWidth]: sets the width with which [Line] primitives will be drawn.
   ///   Defaults to `1`.
   /// - [scissorBox]: fragments outside the given [Region] will be discarded by
@@ -58,6 +58,8 @@ class Frame {
   /// - [viewport]: sets the viewport to the given region of this [Frame].
   ///   Defaults to `null`, in which case the viewport is set to cover the frame
   ///   exactly.
+  /// - [dithering]: whether or not dithering will be performed before writing
+  ///   color components or indices to the color buffer. Defaults to `true`.
   /// - [attributeNameMap]: may be used to map the [geometry]'s attributes to
   ///   different attribute names in case the [geometry]'s attribute names do
   ///   not match the attribute names used by the rendering program.
@@ -85,17 +87,17 @@ class Frame {
   /// [Matrix3List], [Matrix4List], [Sampler]).
   void draw(
       IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
-      {Map<String, String> attributeNameMap: const {},
+      {DepthTest depthTest: null,
+      StencilTest stencilTest: null,
       Blending blending: null,
-      ColorMask colorMask: const ColorMask(true, true, true, true),
-      DepthTest depthTest: null,
-      bool dithering: true,
       CullingMode faceCulling: null,
       WindingOrder frontFace: WindingOrder.counterClockwise,
-      int lineWidth: 1,
+      ColorMask colorMask: const ColorMask(true, true, true, true),
+      num lineWidth: 1,
       Region scissorBox: null,
-      StencilTest stencilTest: null,
-      Region viewport: null}) {
+      Region viewport: null,
+      bool dithering: true,
+      Map<String, String> attributeNameMap: const {}}) {
     if (program.context != context) {
       throw new ArgumentError('The context on which the program is defined '
           'does not match this frame\'s context.');
@@ -273,6 +275,16 @@ class Frame {
     }
 
     // Set the remaining draw options
+    context._updateDepthTest(depthTest);
+    context._updateStencilTest(stencilTest);
+    context._updateBlending(blending);
+    context._updateFaceCulling(faceCulling);
+    context._updateFrontFace(frontFace);
+    context._updateColorMask(colorMask);
+    context._updateLineWidth(lineWidth);
+    context._updateScissorBox(scissorBox);
+    context._updateViewport(viewport ?? new Region(0, 0, width, height));
+    context._updateDithering(dithering);
 
     // Draw elements to this frame
     context._bindFrame(this);
@@ -287,7 +299,7 @@ class Frame {
   /// operation to a rectangular area.
   void clearColor(Vector4 color, [Region region]) {
     context._updateClearColor(color);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.COLOR_BUFFER_BIT);
   }
 
@@ -297,7 +309,7 @@ class Frame {
   /// operation to a rectangular area.
   void clearDepth(double depth, [Region region]) {
     context._updateClearDepth(depth);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.DEPTH_BUFFER_BIT);
   }
 
@@ -307,7 +319,7 @@ class Frame {
   /// operation to a rectangular area.
   void clearStencil(int stencil, [Region region]) {
     context._updateClearStencil(stencil);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -321,7 +333,7 @@ class Frame {
   void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.DEPTH_BUFFER_BIT);
   }
 
@@ -335,7 +347,7 @@ class Frame {
   void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
     context._updateClearColor(color);
     context._updateClearStencil(stencil);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -349,7 +361,7 @@ class Frame {
   void clearDepthAndStencil(double depth, int stencil, [Region region]) {
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.DEPTH_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -365,7 +377,7 @@ class Frame {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
-    context._updateScissor(region);
+    context._updateScissorBox(region);
     _context.clear(WebGL.COLOR_BUFFER_BIT &
         WebGL.DEPTH_BUFFER_BIT &
         WebGL.STENCIL_BUFFER_BIT);
