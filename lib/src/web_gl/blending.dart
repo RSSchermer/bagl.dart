@@ -109,6 +109,22 @@ class Blending {
       this.destinationAlphaFactor: BlendingFactor.one,
       this.colorFunction: BlendingFunction.addition,
       this.alphaFunction: BlendingFunction.addition});
+
+  bool operator ==(other) =>
+      identical(other, this) ||
+      other is Blending &&
+          other.sourceColorFactor == sourceColorFactor &&
+          other.sourceAlphaFactor == sourceAlphaFactor &&
+          other.destinationColorFactor == destinationColorFactor &&
+          other.destinationAlphaFactor == destinationAlphaFactor &&
+          other.colorFunction == colorFunction &&
+          other.alphaFunction == alphaFunction;
+
+  int get hashCode => hash2(
+      hash3(sourceColorFactor.hashCode, sourceAlphaFactor.hashCode,
+          destinationColorFactor.hashCode),
+      hash3(destinationAlphaFactor.hashCode, colorFunction.hashCode,
+          alphaFunction.hashCode));
 }
 
 /// Enumerates the possible blending factors that can be applied to color

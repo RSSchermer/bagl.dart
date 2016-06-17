@@ -259,6 +259,28 @@ class StencilTest {
       this.referenceValue: 0,
       this.testMask: 0xffffffff,
       this.writeMask: 0xffffffff});
+
+  bool operator ==(other) =>
+      identical(other, this) ||
+      other is StencilTest &&
+          other.testFunctionFront == testFunctionFront &&
+          other.failOperationFront == failOperationFront &&
+          other.passDepthFailOperationFront == passDepthFailOperationFront &&
+          other.passOperationFront == passOperationFront &&
+          other.testFunctionBack == testFunctionBack &&
+          other.failOperationBack == failOperationBack &&
+          other.passDepthFailOperationBack == passDepthFailOperationBack &&
+          other.passOperationBack == passOperationBack &&
+          other.referenceValue == referenceValue &&
+          other.testMask == testMask &&
+          other.writeMask == writeMask;
+
+  int get hashCode => hash3(
+      hash4(testFunctionFront.hashCode, failOperationFront.hashCode,
+          passDepthFailOperationFront.hashCode, passOperationFront.hashCode),
+      hash4(testFunctionBack.hashCode, failOperationBack.hashCode,
+          passDepthFailOperationBack.hashCode, passOperationBack.hashCode),
+      hash3(referenceValue.hashCode, testMask.hashCode, writeMask.hashCode));
 }
 
 /// Enumerates the operations that can be performed on a stencil fragment as a

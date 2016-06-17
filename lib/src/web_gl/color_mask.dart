@@ -26,4 +26,15 @@ class ColorMask {
   /// Returns a new [ColorMask].
   const ColorMask(
       this.writeRed, this.writeGreen, this.writeBlue, this.writeAlpha);
+
+  bool operator ==(other) =>
+      identical(other, this) ||
+      other is ColorMask &&
+          other.writeRed == writeRed &&
+          other.writeGreen == writeGreen &&
+          other.writeBlue == writeBlue &&
+          other.writeAlpha == writeAlpha;
+
+  int get hashCode => hash4(writeRed.hashCode, writeGreen.hashCode,
+      writeBlue.hashCode, writeAlpha.hashCode);
 }

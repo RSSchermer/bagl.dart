@@ -102,4 +102,15 @@ class DepthTest {
       this.write: true,
       this.rangeNear: 0.0,
       this.rangeFar: 1.0});
+
+  bool operator ==(other) =>
+      identical(other, this) ||
+      other is DepthTest &&
+          other.testFunction == testFunction &&
+          other.write == write &&
+          other.rangeNear == rangeNear &&
+          other.rangeFar == rangeFar;
+
+  int get hashCode => hash4(testFunction.hashCode, write.hashCode,
+      rangeNear.hashCode, rangeFar.hashCode);
 }

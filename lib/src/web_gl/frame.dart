@@ -23,10 +23,10 @@ class Frame {
   /// Sets up the rendering pipeline to use the [program]. Each of the
   /// [program]'s active uniform variables is looked up by name in the
   /// [uniforms] map and set to the specified value. Valid value types for
-  /// uniform values are: [int], [double], [Vector2], [Vector3], [Vector4],
-  /// [Matrix2], [Matrix3], [Matrix4], [Int32List], [Float32List],
+  /// uniform values are: [bool], [int], [double], [Vector2], [Vector3],
+  /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Int32List], [Float32List],
   /// [Vector2List], [Vector3List], [Vector4List], [Matrix2List], [Matrix3List],
-  /// [Matrix4List], and [Sampler].
+  /// [Matrix4List], [Sampler2D], [SamplerCube].
   ///
   /// The rendering process may be further configured with the following
   /// optional parameters:
@@ -67,8 +67,10 @@ class Frame {
   /// Finally, the thus configured rendering pipeline is used to process the
   /// [geometry], updating this [Frame]'s relevant output buffers accordingly.
   ///
-  /// Throws an [ArgumentError] if the [RenderingContext] for which the
-  /// [program] was linked does not match this [Frame]'s [context].
+  /// Throws a [ShaderCompilationError] if the [program]'s vertex shader or
+  /// fragment shader fails to compile.
+  ///
+  /// Throws a [ProgramLinkingError] if the [program] fails to link.
   ///
   /// Throws an [ArgumentError] if one of the [geometry]'s vertex attributes
   /// has no matching active attribute in the [program].
@@ -81,10 +83,10 @@ class Frame {
   /// map, but no matching uniform variable is active in the [program].
   ///
   /// Throws an [ArgumentError] if one of the uniform values provided in the
-  /// [uniforms] map is not of a valid type ([int], [double], [Vector2],
+  /// [uniforms] map is not of a valid type ([bool], [int], [double], [Vector2],
   /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Int32List],
   /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
-  /// [Matrix3List], [Matrix4List], [Sampler]).
+  /// [Matrix3List], [Matrix4List], [Sampler2D], [SamplerCube]).
   void draw(
       IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
       {DepthTest depthTest: null,
@@ -98,13 +100,11 @@ class Frame {
       Region viewport: null,
       bool dithering: true,
       Map<String, String> attributeNameMap: const {}}) {
-    if (program.context != context) {
-      throw new ArgumentError('The context on which the program is defined '
-          'does not match this frame\'s context.');
-    }
-
-    context.attach(geometry);
+    context.provisionGeometry(geometry);
+    context.provisionProgram(program);
     context._useProgram(program);
+
+    final glProgramInfo = context._programGLProgramInfoMap[program];
 
     final unusedAttribLocations = context._enabledAttributeLocations.toSet();
 
@@ -114,11 +114,11 @@ class Frame {
       name = attributeNameMap[name] ?? name;
       final columnCount = attribute.columnCount;
       final columnSize = attribute.columnSize;
-      final startLocation = program._getAttributeLocation(name);
+      final startLocation = glProgramInfo.attributeLocationsByName[name];
       final table = attribute.attributeDataTable;
       final stride = table.elementSizeInBytes;
 
-      if (startLocation == -1) {
+      if (startLocation == null) {
         throw new ArgumentError('No active attribute named "$name" was found '
             'in shader program.');
       }
@@ -154,10 +154,10 @@ class Frame {
     }
 
     // Set uniform values
-    final missingUniforms = program._uniformNameLocationMap.keys.toSet();
+    final missingUniforms = glProgramInfo.uniformLocationsByName.keys.toSet();
 
     uniforms.forEach((name, value) {
-      final location = program._uniformNameLocationMap[name];
+      final location = glProgramInfo.uniformLocationsByName[name];
 
       if (location == null) {
         throw new ArgumentError('A value was provided for a uniform named '
@@ -165,8 +165,10 @@ class Frame {
             'current shader program.');
       }
 
-      if (context._uniformValueMap[location] != value) {
-        if (value is int) {
+      if (context._uniformValues[location] != value) {
+        if (value is bool) {
+          _context.uniform1i(location, value ? 1 : 0);
+        } else if (value is int) {
           _context.uniform1i(location, value);
         } else if (value is double) {
           _context.uniform1f(location, value);
@@ -257,14 +259,14 @@ class Frame {
         } else {
           new ArgumentError('The value provided for the uniform named "$name" '
               'is of an unsupported type (${value.runtimeType}). Supported '
-              'types are: int, double, Vector2, Vector3, Vector4, Matrix2, '
-              'Matrix3, Matrix4, Int32List, Float32List, Vector2List, '
+              'types are: bool, int, double, Vector2, Vector3, Vector4, '
+              'Matrix2, Matrix3, Matrix4, Int32List, Float32List, Vector2List, '
               'Vector3List, Vector4List, Matrix2List, Matrix3List, '
-              'Matrix4List, Sampler.');
+              'Matrix4List, Sampler2D, SamplerCube.');
         }
       }
 
-      context._uniformValueMap[location] = value;
+      context._uniformValues[location] = value;
       missingUniforms.remove(name);
     });
 

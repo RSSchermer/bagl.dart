@@ -21,4 +21,15 @@ class Region {
   /// Returns a new [Region] with the given [x] and [y] offset and the given
   /// [width] and [height].
   const Region(this.x, this.y, this.width, this.height);
+
+  bool operator ==(other) =>
+      identical(other, this) ||
+      other is Region &&
+          other.x == x &&
+          other.y == y &&
+          other.width == width &&
+          other.height == height;
+
+  int get hashCode =>
+      hash4(x.hashCode, y.hashCode, width.hashCode, height.hashCode);
 }

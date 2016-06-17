@@ -7,7 +7,7 @@ main() {
   var canvas = document.querySelector('#main_canvas');
   var context = RenderingContext.forCanvas(canvas);
 
-  var vertexShaderSource = """
+  const vertexShaderSource = """
     attribute vec2 position;
     attribute vec3 color;
 
@@ -19,7 +19,7 @@ main() {
     }
   """;
 
-  var fragmentShaderSource = """
+  const fragmentShaderSource = """
     precision mediump float;
 
     varying vec3 vColor;
@@ -29,8 +29,7 @@ main() {
     }
   """;
 
-  var program =
-      new Program.fromSource(context, vertexShaderSource, fragmentShaderSource);
+  const program = const Program(vertexShaderSource, fragmentShaderSource);
 
   var vertices = new VertexArray([
     new Vertex({
