@@ -24,9 +24,9 @@ class Frame {
   /// [program]'s active uniform variables is looked up by name in the
   /// [uniforms] map and set to the specified value. Valid value types for
   /// uniform values are: [bool], [int], [double], [Vector2], [Vector3],
-  /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Int32List], [Float32List],
-  /// [Vector2List], [Vector3List], [Vector4List], [Matrix2List], [Matrix3List],
-  /// [Matrix4List], [Sampler2D], [SamplerCube].
+  /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D], [Int32List],
+  /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
+  /// [Matrix3List], [Matrix4List], [List<Sampler2D>].
   ///
   /// The rendering process may be further configured with the following
   /// optional parameters:
@@ -84,9 +84,9 @@ class Frame {
   ///
   /// Throws an [ArgumentError] if one of the uniform values provided in the
   /// [uniforms] map is not of a valid type ([bool], [int], [double], [Vector2],
-  /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Int32List],
-  /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
-  /// [Matrix3List], [Matrix4List], [Sampler2D], [SamplerCube]).
+  /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D],
+  /// [Int32List], [Float32List], [Vector2List], [Vector3List], [Vector4List],
+  /// [Matrix2List], [Matrix3List], [Matrix4List], [List<Sampler2D>]).
   void draw(
       IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
       {DepthTest depthTest: null,
@@ -100,11 +100,11 @@ class Frame {
       Region viewport: null,
       bool dithering: true,
       Map<String, String> attributeNameMap: const {}}) {
-    context.provisionGeometry(geometry);
-    context.provisionProgram(program);
+    context._geometryResources.provision(geometry);
+    context._programResources.provision(program);
     context._useProgram(program);
 
-    final glProgramInfo = context._programGLProgramInfoMap[program];
+    final glProgram = context._programResources.getGLProgram(program);
 
     final unusedAttribLocations = context._enabledAttributeLocations.toSet();
 
@@ -114,7 +114,7 @@ class Frame {
       name = attributeNameMap[name] ?? name;
       final columnCount = attribute.columnCount;
       final columnSize = attribute.columnSize;
-      final startLocation = glProgramInfo.attributeLocationsByName[name];
+      final startLocation = glProgram.attributeInfoByName[name].location;
       final table = attribute.attributeDataTable;
       final stride = table.elementSizeInBytes;
 
@@ -131,7 +131,7 @@ class Frame {
         if (context._locationAttributeMap[location] != attribute) {
           var offset = attribute.offsetInBytes + i * columnSize * 4;
 
-          context._bindAttributeData(table);
+          context._bindAttributeDataTable(table);
           _context.vertexAttribPointer(
               location, columnSize, WebGL.FLOAT, false, stride, offset);
 
@@ -154,126 +154,17 @@ class Frame {
     }
 
     // Set uniform values
-    final missingUniforms = glProgramInfo.uniformLocationsByName.keys.toSet();
+    final missingUniforms = glProgram.uniformInfoByName.keys.toSet();
 
     uniforms.forEach((name, value) {
-      final location = glProgramInfo.uniformLocationsByName[name];
-
-      if (location == null) {
-        throw new ArgumentError('A value was provided for a uniform named '
-            '"$name", but no active uniform with that name was found in the '
-            'current shader program.');
-      }
-
-      if (context._uniformValues[location] != value) {
-        if (value is bool) {
-          _context.uniform1i(location, value ? 1 : 0);
-        } else if (value is int) {
-          _context.uniform1i(location, value);
-        } else if (value is double) {
-          _context.uniform1f(location, value);
-        } else if (value is Vector2) {
-          _context.uniform2f(location, value.x, value.y);
-        } else if (value is Vector3) {
-          _context.uniform3f(location, value.x, value.y, value.z);
-        } else if (value is Vector4) {
-          _context.uniform4f(location, value.x, value.y, value.z, value.w);
-        } else if (value is Matrix2) {
-          var columnPacked = new Float32List(4);
-
-          columnPacked[0] = value.r0c0;
-          columnPacked[1] = value.r1c0;
-          columnPacked[2] = value.r0c1;
-          columnPacked[3] = value.r1c1;
-
-          _context.uniformMatrix2fv(location, false, columnPacked);
-        } else if (value is Matrix3) {
-          var columnPacked = new Float32List(9);
-
-          columnPacked[0] = value.r0c0;
-          columnPacked[1] = value.r1c0;
-          columnPacked[2] = value.r2c0;
-          columnPacked[3] = value.r0c1;
-          columnPacked[4] = value.r1c1;
-          columnPacked[5] = value.r2c1;
-          columnPacked[6] = value.r0c2;
-          columnPacked[7] = value.r1c2;
-          columnPacked[8] = value.r2c2;
-
-          _context.uniformMatrix2fv(location, false, columnPacked);
-        } else if (value is Matrix4) {
-          var columnPacked = new Float32List(16);
-
-          columnPacked[0] = value.r0c0;
-          columnPacked[1] = value.r1c0;
-          columnPacked[2] = value.r2c0;
-          columnPacked[3] = value.r3c0;
-          columnPacked[4] = value.r0c1;
-          columnPacked[5] = value.r1c1;
-          columnPacked[6] = value.r2c1;
-          columnPacked[7] = value.r3c1;
-          columnPacked[8] = value.r0c2;
-          columnPacked[9] = value.r1c2;
-          columnPacked[10] = value.r2c2;
-          columnPacked[11] = value.r3c2;
-          columnPacked[12] = value.r0c3;
-          columnPacked[13] = value.r1c3;
-          columnPacked[14] = value.r2c3;
-          columnPacked[15] = value.r3c3;
-
-          _context.uniformMatrix2fv(location, false, columnPacked);
-        } else if (value is Int32List) {
-          _context.uniform1iv(location, value);
-        } else if (value is Float32List) {
-          _context.uniform2fv(location, value);
-        } else if (value is Vector2List) {
-          final view = new Float32List.view(
-              value.buffer, value.offsetInBytes, value.length * 2);
-
-          _context.uniform2fv(location, view);
-        } else if (value is Vector3List) {
-          final view = new Float32List.view(
-              value.buffer, value.offsetInBytes, value.length * 3);
-
-          _context.uniform3fv(location, view);
-        } else if (value is Vector4List) {
-          final view = new Float32List.view(
-              value.buffer, value.offsetInBytes, value.length * 4);
-
-          _context.uniform4fv(location, view);
-        } else if (value is Matrix2List) {
-          final view = new Float32List.view(
-              value.buffer, value.offsetInBytes, value.length * 4);
-
-          _context.uniformMatrix2fv(location, false, view);
-        } else if (value is Matrix3List) {
-          final view = new Float32List.view(
-              value.buffer, value.offsetInBytes, value.length * 9);
-
-          _context.uniformMatrix3fv(location, false, view);
-        } else if (value is Matrix4List) {
-          final view = new Float32List.view(
-              value.buffer, value.offsetInBytes, value.length * 16);
-
-          _context.uniformMatrix4fv(location, false, view);
-        } else {
-          new ArgumentError('The value provided for the uniform named "$name" '
-              'is of an unsupported type (${value.runtimeType}). Supported '
-              'types are: bool, int, double, Vector2, Vector3, Vector4, '
-              'Matrix2, Matrix3, Matrix4, Int32List, Float32List, Vector2List, '
-              'Vector3List, Vector4List, Matrix2List, Matrix3List, '
-              'Matrix4List, Sampler2D, SamplerCube.');
-        }
-      }
-
-      context._uniformValues[location] = value;
+      glProgram.bindUniformValue(name, value);
       missingUniforms.remove(name);
     });
 
     if (missingUniforms.isNotEmpty) {
       throw new ArgumentError('No value was provided for the uniform named '
           '"${missingUniforms.first}". Values must be provided for all '
-          'uniforms.');
+          'active uniforms.');
     }
 
     // Set the remaining draw options
@@ -290,7 +181,7 @@ class Frame {
 
     // Draw elements to this frame
     context._bindFrame(this);
-    context._bindIndexData(geometry.indices);
+    context._bindIndexList(geometry.indices);
     _context.drawElements(_topologyMap[geometry.topology], geometry.indexCount,
         WebGL.UNSIGNED_SHORT, geometry.offset * IndexList.BYTES_PER_ELEMENT);
   }

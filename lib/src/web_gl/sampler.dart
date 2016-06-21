@@ -30,8 +30,6 @@ class Sampler2D implements Sampler {
       this.wrapT: Wrapping.repeat});
 }
 
-class SamplerCube implements Sampler {}
-
 enum MagnificationFilter { nearest, linear }
 
 enum MinificationFilter {

@@ -12,49 +12,26 @@ class RenderingContext {
   /// The WebGL rendering context associated with the [canvas].
   WebGL.RenderingContext _context;
 
-  /// The frame that is currently bound to the WebGL context as the draw
-  /// context.
-  Frame _boundFrame;
+  /// The geometry related resource provisioning manager for this
+  /// [RenderingContext].
+  _ContextGeometryResourceManager _geometryResources;
+
+  /// The program related resource provisioning manager for this
+  /// [RenderingContext].
+  _ContextProgramResourceManager _programResources;
 
   /// The shader program that is currently used by the WebGL context.
   Program _activeProgram;
 
-  /// The geometries that are currently provisioned for this context.
-  Set<IndexGeometry> _provisionedGeometries = new Set();
-
-  /// The programs that are currently provisioned for this context.
-  Set<Program> _provisionedPrograms = new Set();
+  /// The frame that is currently bound to the WebGL context as the draw
+  /// context.
+  Frame _boundFrame;
 
   /// The [AttributeDataTable] currently bound to the WebGL context.
   AttributeDataTable _boundAttributeDataTable;
 
   /// The [IndexList] currently bound to the WebGL context.
   IndexList _boundIndexList;
-
-  /// Map from index lists to their associated index buffer objects (IBOs).
-  Map<IndexList, WebGL.Buffer> _indexListIBOs = new Map();
-
-  /// Map from attribute data tables to their associated vertex buffer objects
-  /// (VBOs).
-  Map<AttributeDataTable, WebGL.Buffer> _attributeDataTableVBOs = new Map();
-
-  /// Map to keep track of reference counts for index lists.
-  ///
-  /// An [IndexList] may be used by multiple geometries attached to this
-  /// context. If 3 different geometries use the same [IndexList], then the
-  /// reference count for that [IndexList] will be 3.
-  Map<IndexList, int> _indexListReferenceCounts = new Map();
-
-  /// Map to keep track of reference counts for attribute data tables.
-  ///
-  /// An [AttributeDataTable] may be used by multiple geometries attached to
-  /// this context. If 3 different geometries use the same [AttributeDataTable],
-  /// then the reference count for that [AttributeDataTable] will be 3.
-  Map<AttributeDataTable, int> _attributeDataTableReferenceCounts = new Map();
-
-  /// Map from [Program]s to their associated [_GLProgramInfo] for all currently
-  /// provisioned programs for this context.
-  Map<Program, _GLProgramInfo> _programGLProgramInfoMap = new Map();
 
   /// Map from shader program attribute locations to the [VertexAttribute]
   /// currently bound to this location.
@@ -72,6 +49,8 @@ class RenderingContext {
 
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
+
+  final int _maxTextureUnits = 32;
 
   /// The value that is currently set as the clearColor on the WebGL context.
   Vector4 _clearColor = new Vector4.zero();
@@ -178,10 +157,13 @@ class RenderingContext {
           'failIfMajorPerformanceCaveat': failIfMajorPerformanceCaveat
         });
 
+    _geometryResources = new _ContextGeometryResourceManager(this);
+    _programResources = new _ContextProgramResourceManager(this);
     _defaultFrame = new Frame._default(this);
     _boundFrame = _defaultFrame;
   }
 
+  /// Retrieves a [RenderingContext] for the [canvas].
   static RenderingContext forCanvas(CanvasElement canvas,
       {bool alpha: true,
       bool depth: true,
@@ -210,143 +192,51 @@ class RenderingContext {
     }
   }
 
+  /// The default [Frame] for this [RenderingContext].
+  ///
+  /// The default [Frame] is the [Frame] whose color output is displayed on the
+  /// [canvas] associated with this [RenderingContext].
   Frame get defaultFrame => _defaultFrame;
 
+  /// The geometries for which resources are currently provisioned for this
+  /// [RenderingContext].
   Iterable<IndexGeometry> get provisionedGeometries =>
-      new UnmodifiableSetView(_provisionedGeometries);
+      _geometryResources.provisionedGeometries;
 
+  /// The programs for which resources are currently provisioned for this
+  /// [RenderingContext].
   Iterable<Program> get provisionedPrograms =>
-      new UnmodifiableSetView(_provisionedPrograms);
+      _programResources.provisionedPrograms;
 
-  void provisionGeometry(IndexGeometry geometry) {
-    if (!_provisionedGeometries.contains(geometry)) {
-      final indices = geometry.indices;
+  /// Deprovisions the resources associated with the [geometry].
+  ///
+  /// Frees each resource associated with the [geometry], unless the [geometry]
+  /// shares the resource with another currently provisioned geometry. Returns
+  /// `true` if resources were provisioned for the [geometry], `false`
+  /// otherwise.
+  bool deprovisionGeometry(IndexGeometry geometry) =>
+      _geometryResources.deprovision(geometry);
 
-      if ((_indexListReferenceCounts[indices] ?? 0) >= 1) {
-        _indexListReferenceCounts[indices] += 1;
-      } else {
-        final indexDataVBO = _context.createBuffer();
-        final usage =
-            indices.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
+  /// Deprovisions the resources associated with the [program].
+  ///
+  /// Frees all resources associated with the [program]. Returns `true` if
+  /// resources were provisioned for the [program], `false` otherwise.
+  bool deprovisionProgram(Program program) =>
+      _programResources.deprovision(program);
 
-        _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, indexDataVBO);
-        _context.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, indices.buffer, usage);
-        _indexListIBOs[indices] = indexDataVBO;
-        _indexListReferenceCounts[indices] = 1;
-      }
-
-      geometry.vertices.attributeDataTables.forEach((table) {
-        if ((_attributeDataTableReferenceCounts[table] ?? 0) >= 1) {
-          _attributeDataTableReferenceCounts[table] += 1;
-        } else {
-          var frameVBO = _context.createBuffer();
-          var usage = table.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
-
-          _context.bindBuffer(WebGL.ARRAY_BUFFER, frameVBO);
-          _context.bufferData(WebGL.ARRAY_BUFFER, table.buffer, usage);
-          _attributeDataTableVBOs[table] = frameVBO;
-          _attributeDataTableReferenceCounts[table] = 1;
-        }
-      });
-
-      _provisionedGeometries.add(geometry);
-    }
-  }
-
-  bool deprovisionGeometry(IndexGeometry geometry) {
-    if (_provisionedGeometries.contains(geometry)) {
-      final indices = geometry.indices;
-
-      // When index geometry is detached but its index list is still used by
-      // another index geometry, then the index list's index buffer object (IBO)
-      // should not yet be deleted. The IBO is only deleted when the reference
-      // count drops to 0.
-      if (_indexListReferenceCounts[indices] > 1) {
-        _indexListReferenceCounts[indices] -= 1;
-      } else {
-        _context.deleteBuffer(_indexListIBOs[indices]);
-        _indexListIBOs.remove(geometry);
-        _indexListReferenceCounts.remove(indices);
-      }
-
-      geometry.vertices.attributeDataTables.forEach((frame) {
-        // When geometry is detached but an attribute data table is still used
-        // by another geometry, then the attribute data table's vertex buffer
-        // object (VBO) should not yet be deleted. The VBO is only deleted when
-        // the reference count drops to 0.
-        if (_attributeDataTableReferenceCounts[frame] > 1) {
-          _attributeDataTableReferenceCounts[frame] -= 1;
-        } else {
-          _context.deleteBuffer(_attributeDataTableVBOs[frame]);
-          _attributeDataTableVBOs.remove(frame);
-          _attributeDataTableReferenceCounts.remove(frame);
-        }
-      });
-
-      _provisionedGeometries.remove(geometry);
-
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void provisionProgram(Program program) {
-    if (!_provisionedPrograms.contains(program)) {
-      final glProgramHandle = _context.createProgram();
-      final vertexShader =
-          _compileShader(WebGL.VERTEX_SHADER, program.vertexShaderSource);
-      final fragmentShader =
-          _compileShader(WebGL.FRAGMENT_SHADER, program.fragmentShaderSource);
-
-      _context.attachShader(glProgramHandle, vertexShader);
-      _context.attachShader(glProgramHandle, fragmentShader);
-      _context.linkProgram(glProgramHandle);
-
-      final success =
-          _context.getProgramParameter(glProgramHandle, WebGL.LINK_STATUS);
-
-      if (!success) {
-        throw new ProgramLinkingError(
-            _context.getProgramInfoLog(glProgramHandle));
-      }
-
-      _programGLProgramInfoMap[program] = new _GLProgramInfo(
-          this, glProgramHandle, vertexShader, fragmentShader);
-      _provisionedPrograms.add(program);
-    }
-  }
-
-  bool deprovisionProgram(Program program) {
-    if (_provisionedPrograms.contains(program)) {
-      final glProgramInfo = _programGLProgramInfoMap[program];
-
-      _context.deleteProgram(glProgramInfo.glProgramHandle);
-      _context.deleteShader(glProgramInfo.glVertexShaderHandle);
-      _context.deleteShader(glProgramInfo.glFragmentShaderHandle);
-
-      _provisionedPrograms.remove(program);
-      _programGLProgramInfoMap.remove(program);
-
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void _bindAttributeData(AttributeDataTable attributeData) {
-    if (attributeData != _boundAttributeDataTable) {
+  void _bindAttributeDataTable(AttributeDataTable attributeDataTable) {
+    if (attributeDataTable != _boundAttributeDataTable) {
       _context.bindBuffer(
-          WebGL.ARRAY_BUFFER, _attributeDataTableVBOs[attributeData]);
-      _boundAttributeDataTable = attributeData;
+          WebGL.ARRAY_BUFFER, _geometryResources.getVBO(attributeDataTable));
+      _boundAttributeDataTable = attributeDataTable;
     }
   }
 
-  void _bindIndexData(IndexList indexData) {
-    if (indexData != _boundIndexList) {
+  void _bindIndexList(IndexList indexList) {
+    if (indexList != _boundIndexList) {
       _context.bindBuffer(
-          WebGL.ELEMENT_ARRAY_BUFFER, _indexListIBOs[indexData]);
-      _boundIndexList = indexData;
+          WebGL.ELEMENT_ARRAY_BUFFER, _geometryResources.getIBO(indexList));
+      _boundIndexList = indexList;
     }
   }
 
@@ -364,7 +254,8 @@ class RenderingContext {
 
   void _useProgram(Program program) {
     if (program != _activeProgram) {
-      _context.useProgram(_programGLProgramInfoMap[program].glProgramHandle);
+      _context
+          .useProgram(_programResources.getGLProgram(program).glProgramObject);
       _activeProgram = program;
     }
   }
@@ -584,140 +475,4 @@ class RenderingContext {
       _dithering = dithering;
     }
   }
-
-  WebGL.Shader _compileShader(int type, String source) {
-    final shader = _context.createShader(type);
-
-    _context.shaderSource(shader, source);
-    _context.compileShader(shader);
-
-    final success = _context.getShaderParameter(shader, WebGL.COMPILE_STATUS);
-
-    if (!success) {
-      throw new ShaderCompilationError(
-          type, source, _context.getShaderInfoLog(shader));
-    }
-
-    return shader;
-  }
-}
-
-const Map<Topology, int> _topologyMap = const {
-  Topology.points: WebGL.POINTS,
-  Topology.lines: WebGL.LINES,
-  Topology.lineStrip: WebGL.LINE_STRIP,
-  Topology.lineLoop: WebGL.LINE_LOOP,
-  Topology.triangles: WebGL.TRIANGLES,
-  Topology.triangleStrip: WebGL.TRIANGLE_STRIP,
-  Topology.triangleFan: WebGL.TRIANGLE_FAN
-};
-
-const Map<TestFunction, int> _testFunctionMap = const {
-  TestFunction.equal: WebGL.EQUAL,
-  TestFunction.notEqual: WebGL.NOTEQUAL,
-  TestFunction.less: WebGL.LESS,
-  TestFunction.greater: WebGL.GREATER,
-  TestFunction.lessOrEqual: WebGL.LEQUAL,
-  TestFunction.greaterOrEqual: WebGL.GEQUAL,
-  TestFunction.neverPass: WebGL.NEVER,
-  TestFunction.alwaysPass: WebGL.ALWAYS
-};
-
-const Map<StencilOperation, int> _stencilOperationMap = const {
-  StencilOperation.keep: WebGL.KEEP,
-  StencilOperation.zero: WebGL.ZERO,
-  StencilOperation.replace: WebGL.REPLACE,
-  StencilOperation.increment: WebGL.INCR,
-  StencilOperation.wrappingIncrement: WebGL.INCR_WRAP,
-  StencilOperation.decrement: WebGL.DECR,
-  StencilOperation.wrappingDecrement: WebGL.DECR_WRAP,
-  StencilOperation.invert: WebGL.INVERT
-};
-
-const Map<BlendingFunction, int> _blendingFunctionMap = const {
-  BlendingFunction.addition: WebGL.FUNC_ADD,
-  BlendingFunction.subtraction: WebGL.FUNC_SUBTRACT,
-  BlendingFunction.reverseSubtraction: WebGL.FUNC_REVERSE_SUBTRACT
-};
-
-const Map<BlendingFactor, int> _blendingFactorMap = const {
-  BlendingFactor.zero: WebGL.ZERO,
-  BlendingFactor.one: WebGL.ONE,
-  BlendingFactor.sourceColor: WebGL.SRC_COLOR,
-  BlendingFactor.oneMinusSourceColor: WebGL.ONE_MINUS_SRC_COLOR,
-  BlendingFactor.destinationColor: WebGL.DST_COLOR,
-  BlendingFactor.oneMinusDestinationColor: WebGL.ONE_MINUS_DST_COLOR,
-  BlendingFactor.sourceAlpha: WebGL.SRC_ALPHA,
-  BlendingFactor.oneMinusSourceAlpha: WebGL.ONE_MINUS_SRC_ALPHA,
-  BlendingFactor.destinationAlpha: WebGL.DST_ALPHA,
-  BlendingFactor.oneMinusDestinationAlpha: WebGL.ONE_MINUS_DST_ALPHA,
-  BlendingFactor.sourceAlphaSaturate: WebGL.SRC_ALPHA_SATURATE
-};
-
-const Map<CullingMode, int> _cullingModeMap = const {
-  CullingMode.frontFaces: WebGL.FRONT,
-  CullingMode.backFaces: WebGL.BACK,
-  CullingMode.frontAndBackFaces: WebGL.FRONT_AND_BACK
-};
-
-const Map<WindingOrder, int> _windingOrderMap = const {
-  WindingOrder.clockwise: WebGL.CW,
-  WindingOrder.counterClockwise: WebGL.CCW
-};
-
-class _GLProgramInfo {
-  final RenderingContext context;
-
-  final WebGL.Program glProgramHandle;
-
-  final WebGL.Shader glVertexShaderHandle;
-
-  final WebGL.Shader glFragmentShaderHandle;
-
-  Map<String, int> _attributeLocationsByName;
-
-  Map<String, WebGL.UniformLocation> _uniformLocationsByName;
-
-  _GLProgramInfo(this.context, this.glProgramHandle, this.glVertexShaderHandle,
-      this.glFragmentShaderHandle) {
-    final glContext = context._context;
-
-    // Create attribute name -> attribute location map
-    final attributeLocationsByName = {};
-    final activeAttributes =
-        glContext.getProgramParameter(glProgramHandle, WebGL.ACTIVE_ATTRIBUTES);
-
-    for (var i = 0; i < activeAttributes; i++) {
-      final name = glContext.getActiveAttrib(glProgramHandle, i).name;
-      final location = glContext.getAttribLocation(glProgramHandle, name);
-
-      if (location != -1) {
-        attributeLocationsByName[name] = location;
-      }
-    }
-
-    _attributeLocationsByName =
-        new UnmodifiableMapView(attributeLocationsByName);
-
-    // Create uniform name -> uniform location map
-    final uniformLocationsByName = {};
-    final activeUniforms =
-        glContext.getProgramParameter(glProgramHandle, WebGL.ACTIVE_UNIFORMS);
-
-    for (var i = 0; i < activeUniforms; i++) {
-      final name = glContext.getActiveUniform(glProgramHandle, i).name;
-      final location = glContext.getUniformLocation(glProgramHandle, name);
-
-      if (location != null) {
-        uniformLocationsByName[name] = location;
-      }
-    }
-
-    _uniformLocationsByName = new UnmodifiableMapView(uniformLocationsByName);
-  }
-
-  Map<String, int> get attributeLocationsByName => _attributeLocationsByName;
-
-  Map<String, WebGL.UniformLocation> get uniformLocationsByName =>
-      _uniformLocationsByName;
 }

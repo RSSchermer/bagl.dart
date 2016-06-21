@@ -4,6 +4,7 @@ library web_gl;
 import 'dart:typed_data';
 import 'dart:web_gl' as WebGL;
 import 'dart:html';
+import 'dart:collection';
 
 import 'package:collection/wrappers.dart';
 import 'package:quiver/core.dart';
@@ -28,3 +29,9 @@ part 'src/web_gl/stencil_test.dart';
 part 'src/web_gl/test_function.dart';
 part 'src/web_gl/texture.dart';
 part 'src/web_gl/winding_order.dart';
+
+part 'src/web_gl/_context_geometry_resource_manager.dart';
+part 'src/web_gl/_context_program_resource_manager.dart';
+part 'src/web_gl/_context_sampler_resource_manager.dart';
+part 'src/web_gl/_gl_enum_mapping.dart';
+part 'src/web_gl/_gl_program.dart';

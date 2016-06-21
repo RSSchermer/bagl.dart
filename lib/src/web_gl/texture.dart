@@ -1,23 +1,23 @@
 part of web_gl;
 
-enum PixelFormat { RGB, RGBA, luminance, luminanceAlpha, alpha, _depth }
+abstract class Texture {
+  PixelFormat get internalFormat;
 
-enum PixelType {
-  unsignedByte,
-  unsignedShort_5_6_5,
-  unsignedShort_4_4_4_4,
-  unsignedShort_5_5_5_1,
-  _unsignedShort
+  int get width;
+
+  int get height;
+
+  bool get isReady;
 }
 
-class Texture2D {
-  final TextureSource source;
+class Texture2D implements Texture {
+  final TextureImage image;
 
   final PixelFormat internalFormat;
 
-  Texture2D(TextureSource source)
-      : source = source,
-        internalFormat = source.format;
+  Texture2D(TextureImage image)
+      : image = image,
+        internalFormat = image.format;
 
   factory Texture2D.fromURL(String url, {internalFormat: PixelFormat.RGBA}) =>
       new Texture2D.fromImageElement(new ImageElement(src: url),
@@ -25,22 +25,32 @@ class Texture2D {
 
   Texture2D.fromImageData(ImageData imageData,
       {this.internalFormat: PixelFormat.RGBA})
-      : source = new ImageDataTextureSource(imageData);
+      : image = new ImageDataImage(imageData);
 
   Texture2D.fromImageElement(ImageElement imageElement,
       {this.internalFormat: PixelFormat.RGBA})
-      : source = new ImageElementTextureSource(imageElement);
+      : image = new ImageElementImage(imageElement);
 
   Texture2D.fromCanvasElement(CanvasElement canvasElement,
       {this.internalFormat: PixelFormat.RGBA})
-      : source = new CanvasElementTextureSource(canvasElement);
+      : image = new CanvasElementImage(canvasElement);
 
   Texture2D.fromVideoElement(VideoElement videoElement,
       {this.internalFormat: PixelFormat.RGBA})
-      : source = new VideoElementTextureSource(videoElement);
+      : image = new VideoElementImage(videoElement);
+
+  PixelFormat get externalFormat => image.format;
+
+  PixelType get externalType => image.type;
+
+  int get width => image.width;
+
+  int get height => image.height;
+
+  bool get isReady => image.isReady;
 }
 
-abstract class TextureSource {
+abstract class TextureImage {
   int get width;
 
   int get height;
@@ -53,10 +63,10 @@ abstract class TextureSource {
 
   PixelType get type;
 
-  TypedData getData();
+  TypedData getPixelData();
 }
 
-class ImageDataTextureSource implements TextureSource {
+class ImageDataImage implements TextureImage {
   final ImageData imageData;
 
   final PixelFormat format = PixelFormat.RGBA;
@@ -69,20 +79,20 @@ class ImageDataTextureSource implements TextureSource {
 
   Uint8ClampedList _data;
 
-  ImageDataTextureSource(this.imageData);
+  ImageDataImage(this.imageData);
 
   int get width => imageData.width;
 
   int get height => imageData.height;
 
-  Uint8ClampedList getData() {
+  Uint8ClampedList getPixelData() {
     _data ??= new Uint8ClampedList.fromList(imageData.data);
 
     return _data;
   }
 }
 
-class ImageElementTextureSource implements TextureSource {
+class ImageElementImage implements TextureImage {
   final ImageElement imageElement;
 
   final PixelFormat format = PixelFormat.RGBA;
@@ -93,7 +103,7 @@ class ImageElementTextureSource implements TextureSource {
 
   Uint8ClampedList _data;
 
-  ImageElementTextureSource(this.imageElement);
+  ImageElementImage(this.imageElement);
 
   int get width => imageElement.naturalWidth;
 
@@ -101,7 +111,7 @@ class ImageElementTextureSource implements TextureSource {
 
   bool get isReady => imageElement.complete;
 
-  Uint8ClampedList getData() {
+  Uint8ClampedList getPixelData() {
     if (!isReady) {
       throw new StateError('The image element has not finished loading.');
     }
@@ -121,7 +131,7 @@ class ImageElementTextureSource implements TextureSource {
   }
 }
 
-class CanvasElementTextureSource implements TextureSource {
+class CanvasElementImage implements TextureImage {
   final CanvasElement canvasElement;
 
   final PixelFormat format = PixelFormat.RGBA;
@@ -134,13 +144,13 @@ class CanvasElementTextureSource implements TextureSource {
 
   Uint8ClampedList _data;
 
-  CanvasElementTextureSource(this.canvasElement, {this.isDynamic: false});
+  CanvasElementImage(this.canvasElement, {this.isDynamic: false});
 
   int get width => canvasElement.width;
 
   int get height => canvasElement.height;
 
-  Uint8ClampedList getData() {
+  Uint8ClampedList getPixelData() {
     if (isDynamic || _data == null) {
       final context = canvasElement.context2D;
       final data = context.getImageData(0, 0, width, height).data;
@@ -152,7 +162,7 @@ class CanvasElementTextureSource implements TextureSource {
   }
 }
 
-class VideoElementTextureSource implements TextureSource {
+class VideoElementImage implements TextureImage {
   final VideoElement videoElement;
 
   final PixelFormat format = PixelFormat.RGBA;
@@ -161,7 +171,7 @@ class VideoElementTextureSource implements TextureSource {
 
   final isDynamic = true;
 
-  VideoElementTextureSource(this.videoElement);
+  VideoElementImage(this.videoElement);
 
   bool get isReady => videoElement.readyState >= 2;
 
@@ -169,7 +179,7 @@ class VideoElementTextureSource implements TextureSource {
 
   int get height => videoElement.videoHeight;
 
-  Uint8ClampedList getData() {
+  Uint8ClampedList getPixelData() {
     if (!isReady) {
       throw new StateError(
           'The video element has not yet loaded sufficient data.');
@@ -186,7 +196,7 @@ class VideoElementTextureSource implements TextureSource {
   }
 }
 
-class Uint8ListTextureSource implements TextureSource {
+class Uint8ListImage implements TextureImage {
   final Uint8List data;
 
   final PixelFormat format;
@@ -201,35 +211,35 @@ class Uint8ListTextureSource implements TextureSource {
 
   final int height;
 
-  Uint8ListTextureSource.RGB(this.width, this.height, this.data,
+  Uint8ListImage.RGB(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGB,
         type = PixelType.unsignedByte;
 
-  Uint8ListTextureSource.RGBA(this.width, this.height, this.data,
+  Uint8ListImage.RGBA(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGBA,
         type = PixelType.unsignedByte;
 
-  Uint8ListTextureSource.luminance(this.width, this.height, this.data,
+  Uint8ListImage.luminance(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.luminance,
         type = PixelType.unsignedByte;
 
-  Uint8ListTextureSource.luminanceAlpha(this.width, this.height, this.data,
+  Uint8ListImage.luminanceAlpha(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.luminanceAlpha,
         type = PixelType.unsignedByte;
 
-  Uint8ListTextureSource.alpha(this.width, this.height, this.data,
+  Uint8ListImage.alpha(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.alpha,
         type = PixelType.unsignedByte;
 
-  Uint8List getData() => data;
+  Uint8List getPixelData() => data;
 }
 
-class Uint8ClampedListTextureSource implements TextureSource {
+class Uint8ClampedListImage implements TextureImage {
   final Uint8ClampedList data;
 
   final PixelFormat format;
@@ -244,36 +254,35 @@ class Uint8ClampedListTextureSource implements TextureSource {
 
   final int height;
 
-  Uint8ClampedListTextureSource.RGB(this.width, this.height, this.data,
+  Uint8ClampedListImage.RGB(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGB,
         type = PixelType.unsignedByte;
 
-  Uint8ClampedListTextureSource.RGBA(this.width, this.height, this.data,
+  Uint8ClampedListImage.RGBA(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGBA,
         type = PixelType.unsignedByte;
 
-  Uint8ClampedListTextureSource.luminance(this.width, this.height, this.data,
+  Uint8ClampedListImage.luminance(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.luminance,
         type = PixelType.unsignedByte;
 
-  Uint8ClampedListTextureSource.luminanceAlpha(
-      this.width, this.height, this.data,
+  Uint8ClampedListImage.luminanceAlpha(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.luminanceAlpha,
         type = PixelType.unsignedByte;
 
-  Uint8ClampedListTextureSource.alpha(this.width, this.height, this.data,
+  Uint8ClampedListImage.alpha(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.alpha,
         type = PixelType.unsignedByte;
 
-  Uint8ClampedList getData() => data;
+  Uint8ClampedList getPixelData() => data;
 }
 
-class Uint16ListTextureSource implements TextureSource {
+class Uint16ListImage implements TextureImage {
   final Uint16List data;
 
   final PixelFormat format;
@@ -288,20 +297,30 @@ class Uint16ListTextureSource implements TextureSource {
 
   final int height;
 
-  Uint16ListTextureSource.R5G6B5(this.width, this.height, this.data,
+  Uint16ListImage.R5G6B5(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGB,
         type = PixelType.unsignedShort_5_6_5;
 
-  Uint16ListTextureSource.R4G4B4A4(this.width, this.height, this.data,
+  Uint16ListImage.R4G4B4A4(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGBA,
         type = PixelType.unsignedShort_4_4_4_4;
 
-  Uint16ListTextureSource.R5G5B5A1(this.width, this.height, this.data,
+  Uint16ListImage.R5G5B5A1(this.width, this.height, this.data,
       {this.isDynamic: false})
       : format = PixelFormat.RGBA,
         type = PixelType.unsignedShort_5_5_5_1;
 
-  Uint16List getData() => data;
+  Uint16List getPixelData() => data;
+}
+
+enum PixelFormat { RGB, RGBA, luminance, luminanceAlpha, alpha, _depth }
+
+enum PixelType {
+  unsignedByte,
+  unsignedShort_5_6_5,
+  unsignedShort_4_4_4_4,
+  unsignedShort_5_5_5_1,
+  _unsignedShort
 }
