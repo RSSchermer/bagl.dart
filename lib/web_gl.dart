@@ -1,10 +1,11 @@
 /// WebGL rendering driver.
 library web_gl;
 
+import 'dart:async';
+import 'dart:collection';
+import 'dart:html';
 import 'dart:typed_data';
 import 'dart:web_gl' as WebGL;
-import 'dart:html';
-import 'dart:collection';
 
 import 'package:collection/wrappers.dart';
 import 'package:quiver/core.dart';
