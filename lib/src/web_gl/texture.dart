@@ -8,6 +8,8 @@ abstract class Texture {
   int get height;
 
   bool get isReady;
+
+  Future<Texture> asFuture();
 }
 
 class Texture2D implements Texture {
@@ -19,8 +21,14 @@ class Texture2D implements Texture {
       : image = image,
         internalFormat = image.format;
 
-  factory Texture2D.fromURL(String url, {internalFormat: PixelFormat.RGBA}) =>
+  factory Texture2D.fromImageURL(String url,
+          {internalFormat: PixelFormat.RGBA}) =>
       new Texture2D.fromImageElement(new ImageElement(src: url),
+          internalFormat: internalFormat);
+
+  factory Texture2D.fromVideoURL(String url,
+          {internalFormat: PixelFormat.RGBA}) =>
+      new Texture2D.fromVideoElement(new VideoElement()..src = url,
           internalFormat: internalFormat);
 
   Texture2D.fromImageData(ImageData imageData,
@@ -48,6 +56,8 @@ class Texture2D implements Texture {
   int get height => image.height;
 
   bool get isReady => image.isReady;
+
+  Future<Texture2D> asFuture() => image.asFuture().then((_) => this);
 }
 
 abstract class TextureImage {
@@ -64,6 +74,8 @@ abstract class TextureImage {
   PixelType get type;
 
   TypedData getPixelData();
+
+  Future<TextureImage> asFuture();
 }
 
 class ImageDataImage implements TextureImage {
@@ -90,6 +102,8 @@ class ImageDataImage implements TextureImage {
 
     return _data;
   }
+
+  Future<ImageDataImage> asFuture() => new Future.value(this);
 }
 
 class ImageElementImage implements TextureImage {
@@ -129,6 +143,9 @@ class ImageElementImage implements TextureImage {
 
     return _data;
   }
+
+  Future<ImageDataImage> asFuture() =>
+      imageElement.onLoad.first.then((i) => this);
 }
 
 class CanvasElementImage implements TextureImage {
@@ -160,6 +177,8 @@ class CanvasElementImage implements TextureImage {
 
     return _data;
   }
+
+  Future<CanvasElementImage> asFuture() => new Future.value(this);
 }
 
 class VideoElementImage implements TextureImage {
@@ -194,6 +213,9 @@ class VideoElementImage implements TextureImage {
 
     return new Uint8ClampedList.fromList(data);
   }
+
+  Future<VideoElementImage> asFuture() =>
+      videoElement.onLoadedData.first.then((_) => this);
 }
 
 class Uint8ListImage implements TextureImage {
@@ -237,6 +259,8 @@ class Uint8ListImage implements TextureImage {
         type = PixelType.unsignedByte;
 
   Uint8List getPixelData() => data;
+
+  Future<Uint8ListImage> asFuture() => new Future.value(this);
 }
 
 class Uint8ClampedListImage implements TextureImage {
@@ -280,6 +304,8 @@ class Uint8ClampedListImage implements TextureImage {
         type = PixelType.unsignedByte;
 
   Uint8ClampedList getPixelData() => data;
+
+  Future<Uint8ClampedListImage> asFuture() => new Future.value(this);
 }
 
 class Uint16ListImage implements TextureImage {
@@ -313,6 +339,8 @@ class Uint16ListImage implements TextureImage {
         type = PixelType.unsignedShort_5_5_5_1;
 
   Uint16List getPixelData() => data;
+
+  Future<Uint16ListImage> asFuture() => new Future.value(this);
 }
 
 enum PixelFormat { RGB, RGBA, luminance, luminanceAlpha, alpha, _depth }
