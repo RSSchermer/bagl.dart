@@ -34,7 +34,7 @@ void main() {
         }
       """;
 
-      var program = new Program.fromSource(context, vertexShaderSource, fragmentShaderSource);
+      var program = new Program(vertexShaderSource, fragmentShaderSource);
 
       var vertices = new VertexArray([
         new Vertex({
