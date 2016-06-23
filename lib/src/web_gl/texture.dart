@@ -9,6 +9,8 @@ abstract class Texture {
 
   bool get isReady;
 
+  bool get isDynamic;
+
   Future<Texture> asFuture();
 }
 
@@ -56,6 +58,8 @@ class Texture2D implements Texture {
   int get height => image.height;
 
   bool get isReady => image.isReady;
+
+  bool get isDynamic => image.isDynamic;
 
   Future<Texture2D> asFuture() => image.asFuture().then((_) => this);
 }

@@ -62,3 +62,38 @@ const Map<WindingOrder, int> _windingOrderMap = const {
   WindingOrder.clockwise: WebGL.CW,
   WindingOrder.counterClockwise: WebGL.CCW
 };
+
+const Map<MinificationFilter, int> _minificationFilterMap = const {
+  MinificationFilter.linear: WebGL.LINEAR,
+  MinificationFilter.nearest: WebGL.NEAREST,
+  MinificationFilter.linearMipmapLinear: WebGL.LINEAR_MIPMAP_LINEAR,
+  MinificationFilter.linearMipMapNearest: WebGL.LINEAR_MIPMAP_NEAREST,
+  MinificationFilter.nearestMipmapLinear: WebGL.NEAREST_MIPMAP_LINEAR,
+  MinificationFilter.nearestMipmapNearest: WebGL.NEAREST_MIPMAP_NEAREST
+};
+
+const Map<MagnificationFilter, int> _magnificationFilterMap = const {
+  MagnificationFilter.linear: WebGL.LINEAR,
+  MagnificationFilter.nearest: WebGL.NEAREST
+};
+
+const Map<PixelFormat, int> _pixelFormatMap = const {
+  PixelFormat.RGB: WebGL.RGB,
+  PixelFormat.RGBA: WebGL.RGBA,
+  PixelFormat.luminance: WebGL.LUMINANCE,
+  PixelFormat.luminanceAlpha: WebGL.LUMINANCE_ALPHA,
+  PixelFormat.alpha: WebGL.ALPHA
+};
+
+const Map<PixelType, int> _pixelTypeMap = const {
+  PixelType.unsignedByte: WebGL.UNSIGNED_BYTE,
+  PixelType.unsignedShort_5_6_5: WebGL.UNSIGNED_SHORT_5_6_5,
+  PixelType.unsignedShort_4_4_4_4: WebGL.UNSIGNED_SHORT_4_4_4_4,
+  PixelType.unsignedShort_5_5_5_1: WebGL.UNSIGNED_SHORT_5_5_5_1
+};
+
+const Map<Wrapping, int> _wrappingMap = const {
+  Wrapping.repeat: WebGL.REPEAT,
+  Wrapping.mirroredRepeat: WebGL.MIRRORED_REPEAT,
+  Wrapping.clampToEdge: WebGL.CLAMP_TO_EDGE
+};

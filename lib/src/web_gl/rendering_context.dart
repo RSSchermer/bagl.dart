@@ -20,6 +20,10 @@ class RenderingContext {
   /// [RenderingContext].
   _ContextProgramResourceManager _programResources;
 
+  /// The sampler related resource provisioning manager for this
+  /// [RenderingContext].
+  _ContextSamplerResourceManager _samplerResources;
+
   /// The shader program that is currently used by the WebGL context.
   Program _activeProgram;
 
@@ -32,6 +36,9 @@ class RenderingContext {
 
   /// The [IndexList] currently bound to the WebGL context.
   IndexList _boundIndexList;
+
+  /// The [Sampler2D] currently bound to the WebGL context.
+  Sampler _boundSampler2D;
 
   /// Map from shader program attribute locations to the [VertexAttribute]
   /// currently bound to this location.
@@ -50,7 +57,13 @@ class RenderingContext {
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
 
-  final int _maxTextureUnits = 32;
+  final int maxTextureUnits = 32;
+
+  int _activeTextureUnit = 0;
+
+  Queue<int> _recentlyUsedTextureUnits;
+
+  BiMap<int, Sampler> _textureUnitsSamplers = new BiMap();
 
   /// The value that is currently set as the clearColor on the WebGL context.
   Vector4 _clearColor = new Vector4.zero();
@@ -159,8 +172,10 @@ class RenderingContext {
 
     _geometryResources = new _ContextGeometryResourceManager(this);
     _programResources = new _ContextProgramResourceManager(this);
+    _samplerResources = new _ContextSamplerResourceManager(this);
     _defaultFrame = new Frame._default(this);
     _boundFrame = _defaultFrame;
+    _recentlyUsedTextureUnits = new Queue.from(new List.generate(maxTextureUnits, (i) => i));
   }
 
   /// Retrieves a [RenderingContext] for the [canvas].
@@ -226,17 +241,41 @@ class RenderingContext {
 
   void _bindAttributeDataTable(AttributeDataTable attributeDataTable) {
     if (attributeDataTable != _boundAttributeDataTable) {
-      _context.bindBuffer(
-          WebGL.ARRAY_BUFFER, _geometryResources.getVBO(attributeDataTable));
+      if (attributeDataTable == null) {
+        _context.bindBuffer(WebGL.ARRAY_BUFFER, null);
+      } else {
+        _context.bindBuffer(
+            WebGL.ARRAY_BUFFER, _geometryResources.getVBO(attributeDataTable));
+      }
+
       _boundAttributeDataTable = attributeDataTable;
     }
   }
 
   void _bindIndexList(IndexList indexList) {
     if (indexList != _boundIndexList) {
-      _context.bindBuffer(
-          WebGL.ELEMENT_ARRAY_BUFFER, _geometryResources.getIBO(indexList));
+      if (indexList == null) {
+        _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, null);
+      } else {
+        _context.bindBuffer(
+            WebGL.ELEMENT_ARRAY_BUFFER, _geometryResources.getIBO(indexList));
+      }
+
       _boundIndexList = indexList;
+    }
+  }
+
+  void _bindSampler2D(Sampler2D sampler) {
+    if (sampler != _boundSampler2D) {
+      if (sampler == null) {
+        _context.bindTexture(WebGL.TEXTURE_2D, null);
+      } else {
+        _context.bindTexture(
+            WebGL.TEXTURE_2D, _samplerResources.getTO(sampler));
+      }
+
+      _boundSampler2D = sampler;
+      _textureUnitsSamplers[_activeTextureUnit] = sampler;
     }
   }
 
@@ -257,6 +296,13 @@ class RenderingContext {
       _context
           .useProgram(_programResources.getGLProgram(program).glProgramObject);
       _activeProgram = program;
+    }
+  }
+
+  void _updateActiveTextureUnit(int unit) {
+    if (unit != _activeTextureUnit) {
+      _context.activeTexture(WebGL.TEXTURE0 + unit);
+      _activeTextureUnit = unit;
     }
   }
 

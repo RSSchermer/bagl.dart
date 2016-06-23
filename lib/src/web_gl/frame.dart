@@ -87,6 +87,9 @@ class Frame {
   /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D],
   /// [Int32List], [Float32List], [Vector2List], [Vector3List], [Vector4List],
   /// [Matrix2List], [Matrix3List], [Matrix4List], [List<Sampler2D>]).
+  ///
+  /// Throws an [ArgumentError] if more [Sampler] type uniforms are provided
+  /// than [context.maxTextureUnits].
   void draw(
       IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
       {DepthTest depthTest: null,
@@ -155,16 +158,26 @@ class Frame {
 
     // Set uniform values
     final missingUniforms = glProgram.uniformInfoByName.keys.toSet();
+    var samplerCount = 0;
 
     uniforms.forEach((name, value) {
       glProgram.bindUniformValue(name, value);
       missingUniforms.remove(name);
+
+      if (value is Sampler) {
+        samplerCount++;
+      }
     });
 
     if (missingUniforms.isNotEmpty) {
       throw new ArgumentError('No value was provided for the uniform named '
           '"${missingUniforms.first}". Values must be provided for all '
           'active uniforms.');
+    }
+
+    if (samplerCount > context.maxTextureUnits) {
+      throw new ArgumentError('Tried to bind $samplerCount sampler uniforms, '
+          'but the current context only supports ${context.maxTextureUnits}.');
     }
 
     // Set the remaining draw options

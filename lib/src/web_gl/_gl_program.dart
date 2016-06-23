@@ -27,7 +27,7 @@ class _GLProgram {
 
   /// The values currently bound to each of this [_GLProgram]'s uniform
   /// variables, keyed by the uniform variable's name.
-  Map<String, dynamic> _uniformValues;
+  Map<String, dynamic> _uniformValues = {};
 
   /// Returns a new [_GLProgram].
   _GLProgram(this.context, this.program, this.glProgramObject,
@@ -103,7 +103,54 @@ class _GLProgram {
 
     final location = uniformInfoByName[uniformName].location;
 
-    if (_uniformValues[uniformName] != value) {
+    if (value is Sampler2D) {
+      context._samplerResources.provision(value);
+
+      if (context._textureUnitsSamplers.containsValue(value)) {
+        final unit = context._textureUnitsSamplers.inverse[value];
+
+        if (_uniformValues[uniformName] != unit) {
+          glContext.uniform1i(location, unit);
+          _uniformValues[uniformName] = unit;
+        }
+
+        context._recentlyUsedTextureUnits..remove(unit)..addFirst(unit);
+      } else {
+        final unit = context._recentlyUsedTextureUnits.last;
+
+        context._updateActiveTextureUnit(unit);
+        context._bindSampler2D(value);
+
+        if (_uniformValues[uniformName] != unit) {
+          glContext.uniform1i(location, unit);
+          _uniformValues[uniformName] = unit;
+        }
+
+        context._recentlyUsedTextureUnits..removeLast..addFirst(unit);
+      }
+    } else if (value is List<Sampler2D>) {
+      final units = value.map((sampler) {
+        if (context._textureUnitsSamplers.containsValue(sampler)) {
+          final unit = context._textureUnitsSamplers.inverse[sampler];
+
+          context._recentlyUsedTextureUnits..remove(unit)..addFirst(unit);
+
+          return unit;
+        } else {
+          final unit = context._recentlyUsedTextureUnits.last;
+
+          context._updateActiveTextureUnit(unit);
+          context._bindSampler2D(sampler);
+
+          context._recentlyUsedTextureUnits..removeLast..addFirst(unit);
+
+          return unit;
+        }
+      });
+
+      glContext.uniform1iv(location, units);
+      _uniformValues[uniformName] = units;
+    } else if (_uniformValues[uniformName] != value) {
       if (value is bool) {
         glContext.uniform1i(location, value ? 1 : 0);
       } else if (value is int) {
@@ -203,9 +250,9 @@ class _GLProgram {
             'Vector3List, Vector4List, Matrix2List, Matrix3List, Matrix4List, '
             'List<Sampler2D>.');
       }
-    }
 
-    _uniformValues[uniformName] = value;
+      _uniformValues[uniformName] = value;
+    }
   }
 }
 

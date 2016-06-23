@@ -7,7 +7,8 @@ class ShaderCompilationError extends Error {
 
   final String shaderLogInfo;
 
-  ShaderCompilationError(this.shaderType, this.shaderSource, this.shaderLogInfo);
+  ShaderCompilationError(
+      this.shaderType, this.shaderSource, this.shaderLogInfo);
 
   String toString() {
     if (shaderType == WebGL.VERTEX_SHADER) {

@@ -24,7 +24,7 @@ class Sampler2D implements Sampler {
   final Wrapping wrapT;
 
   Sampler2D(this.texture,
-      {this.minificationFilter: MinificationFilter.linear,
+      {this.minificationFilter: MinificationFilter.nearestMipmapLinear,
       this.magnificationFilter: MagnificationFilter.linear,
       this.wrapS: Wrapping.repeat,
       this.wrapT: Wrapping.repeat});

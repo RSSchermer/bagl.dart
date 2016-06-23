@@ -55,12 +55,13 @@ class _ContextGeometryResourceManager {
       } else {
         final indexDataVBO = _context.createBuffer();
         final usage =
-        indices.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
+            indices.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
 
-        _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, indexDataVBO);
-        _context.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, indices.buffer, usage);
         _indexListIBOs[indices] = indexDataVBO;
         _indexListReferenceCounts[indices] = 1;
+
+        context._bindIndexList(indices);
+        _context.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, indices.buffer, usage);
       }
 
       geometry.vertices.attributeDataTables.forEach((table) {
@@ -70,10 +71,11 @@ class _ContextGeometryResourceManager {
           var frameVBO = _context.createBuffer();
           var usage = table.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
 
-          _context.bindBuffer(WebGL.ARRAY_BUFFER, frameVBO);
-          _context.bufferData(WebGL.ARRAY_BUFFER, table.buffer, usage);
           _attributeDataTableVBOs[table] = frameVBO;
           _attributeDataTableReferenceCounts[table] = 1;
+
+          context._bindAttributeDataTable(table);
+          _context.bufferData(WebGL.ARRAY_BUFFER, table.buffer, usage);
         }
       });
 
@@ -89,31 +91,39 @@ class _ContextGeometryResourceManager {
   /// otherwise.
   bool deprovision(IndexGeometry geometry) {
     if (_provisionedGeometries.contains(geometry)) {
-      final indices = geometry.indices;
+      final indexList = geometry.indices;
 
       // When index geometry is deprovisioned but its index list is still used
       // by another index geometry, then the index list's index buffer object
       // (IBO) should not yet be deleted. The IBO is only deleted when the
       // reference count drops to 0.
-      if (_indexListReferenceCounts[indices] > 1) {
-        _indexListReferenceCounts[indices] -= 1;
+      if (_indexListReferenceCounts[indexList] > 1) {
+        _indexListReferenceCounts[indexList] -= 1;
       } else {
-        _context.deleteBuffer(_indexListIBOs[indices]);
+        _context.deleteBuffer(_indexListIBOs[indexList]);
         _indexListIBOs.remove(geometry);
-        _indexListReferenceCounts.remove(indices);
+        _indexListReferenceCounts.remove(indexList);
+
+        if (indexList == context._boundIndexList) {
+          context._bindIndexList(null);
+        }
       }
 
-      geometry.vertices.attributeDataTables.forEach((frame) {
+      geometry.vertices.attributeDataTables.forEach((table) {
         // When geometry is deprovisioned but an attribute data table is still
         // used by another geometry, then the attribute data table's vertex
         // buffer object (VBO) should not yet be deleted. The VBO is only
         // deleted when the reference count drops to 0.
-        if (_attributeDataTableReferenceCounts[frame] > 1) {
-          _attributeDataTableReferenceCounts[frame] -= 1;
+        if (_attributeDataTableReferenceCounts[table] > 1) {
+          _attributeDataTableReferenceCounts[table] -= 1;
         } else {
-          _context.deleteBuffer(_attributeDataTableVBOs[frame]);
-          _attributeDataTableVBOs.remove(frame);
-          _attributeDataTableReferenceCounts.remove(frame);
+          _context.deleteBuffer(_attributeDataTableVBOs[table]);
+          _attributeDataTableVBOs.remove(table);
+          _attributeDataTableReferenceCounts.remove(table);
+
+          if (table == context._boundAttributeDataTable) {
+            context._bindAttributeDataTable(null);
+          }
         }
       });
 

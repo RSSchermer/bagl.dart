@@ -37,16 +37,16 @@ class _ContextProgramResourceManager {
     if (!_provisionedPrograms.contains(program)) {
       final glProgramHandle = _context.createProgram();
       final vertexShader =
-      _compileShader(WebGL.VERTEX_SHADER, program.vertexShaderSource);
+          _compileShader(WebGL.VERTEX_SHADER, program.vertexShaderSource);
       final fragmentShader =
-      _compileShader(WebGL.FRAGMENT_SHADER, program.fragmentShaderSource);
+          _compileShader(WebGL.FRAGMENT_SHADER, program.fragmentShaderSource);
 
       _context.attachShader(glProgramHandle, vertexShader);
       _context.attachShader(glProgramHandle, fragmentShader);
       _context.linkProgram(glProgramHandle);
 
       final success =
-      _context.getProgramParameter(glProgramHandle, WebGL.LINK_STATUS);
+          _context.getProgramParameter(glProgramHandle, WebGL.LINK_STATUS);
 
       if (!success) {
         throw new ProgramLinkingError(
