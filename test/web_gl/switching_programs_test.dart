@@ -9,10 +9,10 @@ import 'package:bagl/web_gl.dart';
 void main() {
   group('WebGL', () {
     group('multiple draw calls with different program', () {
-      var canvas = document.querySelector('#main_canvas');
-      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
+      final canvas = document.querySelector('#main_canvas');
+      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
-      var vertexShader1Source = """
+      final vertexShader1Source = """
         attribute vec2 position;
         attribute vec3 color;
 
@@ -24,7 +24,7 @@ void main() {
         }
       """;
 
-      var vertexShader2Source = """
+      final vertexShader2Source = """
         attribute vec2 position;
         attribute vec3 color;
 
@@ -36,7 +36,7 @@ void main() {
         }
       """;
 
-      var fragmentShaderSource = """
+      const fragmentShaderSource = """
         precision mediump float;
 
         varying vec3 vColor;
@@ -46,10 +46,10 @@ void main() {
         }
       """;
 
-      var program1 = new Program(vertexShader1Source, fragmentShaderSource);
-      var program2 = new Program(vertexShader2Source, fragmentShaderSource);
+      final program1 = new Program(vertexShader1Source, fragmentShaderSource);
+      final program2 = new Program(vertexShader2Source, fragmentShaderSource);
 
-      var vertices = new VertexArray([
+      final vertices = new VertexArray([
         new Vertex({
           'position': new Vector2(-0.5, 0.5),
           'color': new Vector3(1.0, 0.0, 0.0)
@@ -76,8 +76,8 @@ void main() {
         })
       ]);
 
-      var triangles1 = new Triangles(vertices, new IndexList.fromList([0, 1, 2]));
-      var triangles2 = new Triangles(vertices, new IndexList.fromList([3, 4, 5]));
+      final triangles1 = new Triangles(vertices, new IndexList.fromList([0, 1, 2]));
+      final triangles2 = new Triangles(vertices, new IndexList.fromList([3, 4, 5]));
 
       context.defaultFrame.draw(triangles1, program1, {});
       context.defaultFrame.draw(triangles2, program2, {});

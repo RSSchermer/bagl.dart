@@ -9,10 +9,10 @@ import 'package:bagl/web_gl.dart';
 void main() {
   group('WebGL', () {
     group('draw Points', () {
-      var canvas = document.querySelector('#main_canvas');
-      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
+      final canvas = document.querySelector('#main_canvas');
+      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
-      var vertexShaderSource = """
+      const vertexShaderSource = """
         attribute vec2 position;
         attribute vec3 color;
 
@@ -24,7 +24,7 @@ void main() {
         }
       """;
 
-      var fragmentShaderSource = """
+      const fragmentShaderSource = """
         precision mediump float;
 
         varying vec3 vColor;
@@ -34,9 +34,9 @@ void main() {
         }
       """;
 
-      var program = new Program(vertexShaderSource, fragmentShaderSource);
+      const program = const Program(vertexShaderSource, fragmentShaderSource);
 
-      var vertices = new VertexArray([
+      final vertices = new VertexArray([
         new Vertex({
           'position': new Vector2(-0.5, -0.5),
           'color': new Vector3(1.0, 0.0, 0.0)
@@ -47,7 +47,7 @@ void main() {
         })
       ]);
 
-      var triangles = new Points(vertices, new IndexList.incrementing(2));
+      final triangles = new Points(vertices, new IndexList.incrementing(2));
 
       context.defaultFrame.draw(triangles, program, {});
 

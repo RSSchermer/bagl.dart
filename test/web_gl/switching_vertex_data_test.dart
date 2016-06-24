@@ -9,10 +9,10 @@ import 'package:bagl/web_gl.dart';
 void main() {
   group('WebGL', () {
     group('multiple draw calls with different vertex arrays', () {
-      var canvas = document.querySelector('#main_canvas');
-      var context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
+      final canvas = document.querySelector('#main_canvas');
+      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
-      var vertexShaderSource = """
+      const vertexShaderSource = """
         attribute vec2 position;
         attribute vec3 color;
 
@@ -24,7 +24,7 @@ void main() {
         }
       """;
 
-      var fragmentShaderSource = """
+      const fragmentShaderSource = """
         precision mediump float;
 
         varying vec3 vColor;
@@ -34,9 +34,9 @@ void main() {
         }
       """;
 
-      var program = new Program(vertexShaderSource, fragmentShaderSource);
+      const program = const Program(vertexShaderSource, fragmentShaderSource);
 
-      var vertices1 = new VertexArray([
+      final vertices1 = new VertexArray([
         new Vertex({
           'position': new Vector2(-0.5, 0.5),
           'color': new Vector3(1.0, 0.0, 0.0)
@@ -51,7 +51,7 @@ void main() {
         })
       ]);
 
-      var vertices2 = new VertexArray([
+      final vertices2 = new VertexArray([
         new Vertex({
           'position': new Vector2(0.5, -0.5),
           'color': new Vector3(1.0, 0.0, 0.0)
@@ -66,8 +66,8 @@ void main() {
         })
       ]);
 
-      var triangles1 = new Triangles(vertices1, new IndexList.incrementing(3));
-      var triangles2 = new Triangles(vertices2, new IndexList.incrementing(3));
+      final triangles1 = new Triangles(vertices1, new IndexList.incrementing(3));
+      final triangles2 = new Triangles(vertices2, new IndexList.incrementing(3));
 
       context.defaultFrame.draw(triangles1, program, {});
       context.defaultFrame.draw(triangles2, program, {});
