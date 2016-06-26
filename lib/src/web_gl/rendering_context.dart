@@ -266,7 +266,7 @@ class RenderingContext {
   }
 
   void _bindSampler2D(Sampler2D sampler) {
-    if (sampler != _boundSampler2D) {
+    if (sampler != _boundSampler2D || sampler != _textureUnitsSamplers[_activeTextureUnit]) {
       if (sampler == null) {
         _context.bindTexture(WebGL.TEXTURE_2D, null);
       } else {

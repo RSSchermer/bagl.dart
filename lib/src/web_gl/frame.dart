@@ -117,14 +117,16 @@ class Frame {
       name = attributeNameMap[name] ?? name;
       final columnCount = attribute.columnCount;
       final columnSize = attribute.columnSize;
-      final startLocation = glProgram.attributeInfoByName[name].location;
       final table = attribute.attributeDataTable;
       final stride = table.elementSizeInBytes;
+      final attributeInfo = glProgram.attributeInfoByName[name];
 
-      if (startLocation == null) {
+      if (attributeInfo == null) {
         throw new ArgumentError('No active attribute named "$name" was found '
             'in shader program.');
       }
+
+      final startLocation = attributeInfo.location;
 
       for (var i = 0; i < columnCount; i++) {
         var location = startLocation + i;

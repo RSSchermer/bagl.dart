@@ -58,7 +58,9 @@ class _GLProgram {
 
     for (var i = 0; i < activeUniforms; i++) {
       final info = glContext.getActiveUniform(glProgramObject, i);
-      final name = info.name;
+      final name = info.name.endsWith('[0]')
+          ? info.name.substring(0, info.name.length - 3)
+          : info.name;
       final location = glContext.getUniformLocation(glProgramObject, name);
 
       if (location != null) {
@@ -104,8 +106,6 @@ class _GLProgram {
     final location = uniformInfoByName[uniformName].location;
 
     if (value is Sampler2D) {
-      context._samplerResources.provision(value);
-
       if (context._textureUnitsSamplers.containsValue(value)) {
         final unit = context._textureUnitsSamplers.inverse[value];
 
@@ -114,11 +114,14 @@ class _GLProgram {
           _uniformValues[uniformName] = unit;
         }
 
-        context._recentlyUsedTextureUnits..remove(unit)..addFirst(unit);
+        context._recentlyUsedTextureUnits
+          ..remove(unit)
+          ..addFirst(unit);
       } else {
         final unit = context._recentlyUsedTextureUnits.last;
 
         context._updateActiveTextureUnit(unit);
+        context._samplerResources.provision(value);
         context._bindSampler2D(value);
 
         if (_uniformValues[uniformName] != unit) {
@@ -126,27 +129,39 @@ class _GLProgram {
           _uniformValues[uniformName] = unit;
         }
 
-        context._recentlyUsedTextureUnits..removeLast..addFirst(unit);
+        context._recentlyUsedTextureUnits
+          ..removeLast()
+          ..addFirst(unit);
       }
     } else if (value is List<Sampler2D>) {
-      final units = value.map((sampler) {
+      final length = value.length;
+      final units = new Int32List(length);
+
+      for (var i = 0; i < length; i++) {
+        final sampler = value[i];
+
         if (context._textureUnitsSamplers.containsValue(sampler)) {
           final unit = context._textureUnitsSamplers.inverse[sampler];
 
-          context._recentlyUsedTextureUnits..remove(unit)..addFirst(unit);
+          context._recentlyUsedTextureUnits
+            ..remove(unit)
+            ..addFirst(unit);
 
-          return unit;
+          units[i] = unit;
         } else {
           final unit = context._recentlyUsedTextureUnits.last;
 
           context._updateActiveTextureUnit(unit);
+          context._samplerResources.provision(sampler);
           context._bindSampler2D(sampler);
 
-          context._recentlyUsedTextureUnits..removeLast..addFirst(unit);
+          context._recentlyUsedTextureUnits
+            ..removeLast()
+            ..addFirst(unit);
 
-          return unit;
+          units[i] = unit;
         }
-      });
+      }
 
       glContext.uniform1iv(location, units);
       _uniformValues[uniformName] = units;
@@ -185,7 +200,7 @@ class _GLProgram {
         columnPacked[7] = value.r1c2;
         columnPacked[8] = value.r2c2;
 
-        glContext.uniformMatrix2fv(location, false, columnPacked);
+        glContext.uniformMatrix3fv(location, false, columnPacked);
       } else if (value is Matrix4) {
         var columnPacked = new Float32List(16);
 
@@ -206,7 +221,7 @@ class _GLProgram {
         columnPacked[14] = value.r2c3;
         columnPacked[15] = value.r3c3;
 
-        glContext.uniformMatrix2fv(location, false, columnPacked);
+        glContext.uniformMatrix4fv(location, false, columnPacked);
       } else if (value is Int32List) {
         glContext.uniform1iv(location, value);
       } else if (value is Float32List) {

@@ -8,19 +8,20 @@ import 'package:bagl/web_gl.dart';
 
 void main() {
   group('WebGL', () {
-    group('draw with vertices with a matrix attribute', () {
+    group('draw with a Matrix4List uniform', () {
       final canvas = document.querySelector('#main_canvas');
       final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
 
       const vertexShaderSource = """
         attribute vec2 position;
-        attribute mat4 translation;
         attribute vec3 color;
+
+        uniform mat4 translations[2];
 
         varying vec3 vColor;
 
         void main(void) {
-          gl_Position = translation * vec4(position, 0.0, 1.0);
+          gl_Position = translations[1] * translations[0] * vec4(position, 0.0, 1.0);
           vColor = color;
         }
       """;
@@ -40,39 +41,36 @@ void main() {
       final vertices = new VertexArray([
         new Vertex({
           'position': new Vector2(0.0, 0.5),
-          'translation': new Matrix4(
-              1.0, 0.0, 0.0, -0.5,
-              0.0, 1.0, 0.0,  0.0,
-              0.0, 0.0, 1.0,  0.0,
-              0.0, 0.0, 0.0,  1.0
-          ),
           'color': new Vector3(1.0, 0.0, 0.0)
         }),
         new Vertex({
           'position': new Vector2(-0.5, -0.5),
-          'translation': new Matrix4(
-              1.0, 0.0, 0.0, 0.0,
-              0.0, 1.0, 0.0, 0.5,
-              0.0, 0.0, 1.0, 0.0,
-              0.0, 0.0, 0.0, 1.0
-          ),
           'color': new Vector3(0.0, 1.0, 0.0)
         }),
         new Vertex({
           'position': new Vector2(0.5, -0.5),
-          'translation': new Matrix4(
-              1.0, 0.0, 0.0,  0.0,
-              0.0, 1.0, 0.0, -0.5,
-              0.0, 0.0, 1.0,  0.0,
-              0.0, 0.0, 0.0,  1.0
-          ),
           'color': new Vector3(0.0, 0.0, 1.0)
         })
       ]);
 
       final triangles = new Triangles(vertices, new IndexList.incrementing(3));
 
-      context.defaultFrame.draw(triangles, program, {});
+      context.defaultFrame.draw(triangles, program, {
+        'translations': new Matrix4List.fromList([
+          new Matrix4(
+              1.0, 0.0, 0.0, 0.25,
+              0.0, 1.0, 0.0, 0.25,
+              0.0, 0.0, 1.0, 0.0,
+              0.0, 0.0, 0.0, 1.0
+          ),
+          new Matrix4(
+              1.0, 0.0, 0.0,  0.25,
+              0.0, 1.0, 0.0, -0.5,
+              0.0, 0.0, 1.0,  0.0,
+              0.0, 0.0, 0.0,  1.0
+          )
+        ])
+      });
 
       test('draws the correct frame', () {
         expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
