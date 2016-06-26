@@ -10,7 +10,7 @@ void main() {
   group('WebGL', () {
     group('draw with vertices with a Matrix3 attribute', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
+      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
 
       const vertexShaderSource = """
         attribute vec2 position;

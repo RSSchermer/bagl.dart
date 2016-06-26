@@ -10,7 +10,7 @@ void main() {
   group('WebGL', () {
     group('multiple draw calls with different program', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true);
+      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
 
       final vertexShader1Source = """
         attribute vec2 position;
