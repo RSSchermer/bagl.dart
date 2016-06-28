@@ -1,16 +1,18 @@
 @TestOn('browser')
-
 import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:bagl/bagl.dart';
 import 'package:bagl/web_gl.dart';
 
+import '../helpers.dart';
+
 main() {
   group('WebGL', () {
     group('draw with a Sampler2D uniform', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
+      final context = RenderingContext.forCanvas(canvas,
+          preserveDrawingBuffer: true, antialias: false);
 
       const vertexShaderSource = """
         attribute vec2 position;
@@ -61,7 +63,8 @@ main() {
       context.defaultFrame.draw(triangles, program, {'samplerA': sampler});
 
       test('draws the correct frame', () {
-        expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
+        expect(canvas,
+            closeToImage(document.querySelector('#expected'), 0.005, 5));
       });
     });
   });

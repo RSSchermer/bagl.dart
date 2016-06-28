@@ -1,16 +1,18 @@
 @TestOn('browser')
-
 import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:bagl/bagl.dart';
 import 'package:bagl/web_gl.dart';
 
+import 'helpers.dart';
+
 void main() {
   group('WebGL', () {
     group('multiple draw calls with different vertex arrays', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
+      final context = RenderingContext.forCanvas(canvas,
+          preserveDrawingBuffer: true, antialias: false);
 
       const vertexShaderSource = """
         attribute vec2 position;
@@ -66,14 +68,17 @@ void main() {
         })
       ]);
 
-      final triangles1 = new Triangles(vertices1, new IndexList.incrementing(3));
-      final triangles2 = new Triangles(vertices2, new IndexList.incrementing(3));
+      final triangles1 =
+          new Triangles(vertices1, new IndexList.incrementing(3));
+      final triangles2 =
+          new Triangles(vertices2, new IndexList.incrementing(3));
 
       context.defaultFrame.draw(triangles1, program, {});
       context.defaultFrame.draw(triangles2, program, {});
 
       test('draws the correct frame', () {
-        expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
+        expect(canvas,
+            closeToImage(document.querySelector('#expected'), 0.005, 5));
       });
     });
   });

@@ -1,16 +1,18 @@
 @TestOn('browser')
-
 import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:bagl/bagl.dart';
 import 'package:bagl/web_gl.dart';
 
+import '../helpers.dart';
+
 main() {
   group('WebGL', () {
     group('draw with a List<Sampler2D> uniform', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
+      final context = RenderingContext.forCanvas(canvas,
+          preserveDrawingBuffer: true, antialias: false);
 
       const vertexShaderSource = """
         attribute vec2 position;
@@ -56,18 +58,20 @@ main() {
       ]);
 
       final triangles = new Triangles(vertices, new IndexList.incrementing(3));
-      final texture1 = new Texture2D.fromImageElement(
-          document.querySelector('#texture_1'));
-      final texture2 = new Texture2D.fromImageElement(
-          document.querySelector('#texture_2'));
+      final texture1 =
+          new Texture2D.fromImageElement(document.querySelector('#texture_1'));
+      final texture2 =
+          new Texture2D.fromImageElement(document.querySelector('#texture_2'));
       final sampler1 = new Sampler2D(texture1);
       final sampler2 = new Sampler2D(texture2);
 
-      context.defaultFrame.draw(triangles, program,
-          {'samplers': <Sampler2D>[sampler1, sampler2]});
+      context.defaultFrame.draw(triangles, program, {
+        'samplers': <Sampler2D>[sampler1, sampler2]
+      });
 
       test('draws the correct frame', () {
-        expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
+        expect(canvas,
+            closeToImage(document.querySelector('#expected'), 0.005, 5));
       });
     });
   });

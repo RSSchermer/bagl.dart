@@ -1,16 +1,18 @@
 @TestOn('browser')
-
 import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:bagl/bagl.dart';
 import 'package:bagl/web_gl.dart';
 
+import '../helpers.dart';
+
 void main() {
   group('WebGL', () {
     group('draw with a Matrix3 uniform', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
+      final context = RenderingContext.forCanvas(canvas,
+          preserveDrawingBuffer: true, antialias: false);
 
       const vertexShaderSource = """
         attribute vec2 position;
@@ -55,14 +57,13 @@ void main() {
 
       final triangles = new Triangles(vertices, new IndexList.incrementing(3));
 
-      context.defaultFrame.draw(triangles, program, {'translation': new Matrix3(
-          1.0, 0.0, -0.5,
-          0.0, 1.0,  0.5,
-          0.0, 0.0,  1.0
-      )});
+      context.defaultFrame.draw(triangles, program, {
+        'translation': new Matrix3(1.0, 0.0, -0.5, 0.0, 1.0, 0.5, 0.0, 0.0, 1.0)
+      });
 
       test('draws the correct frame', () {
-        expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
+        expect(canvas,
+            closeToImage(document.querySelector('#expected'), 0.005, 5));
       });
     });
   });

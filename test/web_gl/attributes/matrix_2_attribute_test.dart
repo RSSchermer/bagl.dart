@@ -1,16 +1,18 @@
 @TestOn('browser')
-
 import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:bagl/bagl.dart';
 import 'package:bagl/web_gl.dart';
 
+import '../helpers.dart';
+
 void main() {
   group('WebGL', () {
     group('draw with vertices with a Matrix2 attribute', () {
       final canvas = document.querySelector('#main_canvas');
-      final context = RenderingContext.forCanvas(canvas, preserveDrawingBuffer: true, antialias: false);
+      final context = RenderingContext.forCanvas(canvas,
+          preserveDrawingBuffer: true, antialias: false);
 
       const vertexShaderSource = """
         attribute vec2 position;
@@ -40,26 +42,17 @@ void main() {
       final vertices = new VertexArray([
         new Vertex({
           'position': new Vector2(0.0, 0.5),
-          'rotation': new Matrix2(
-              0.0, -1.0,
-              1.0, 0.0
-          ),
+          'rotation': new Matrix2(0.0, -1.0, 1.0, 0.0),
           'color': new Vector3(1.0, 0.0, 0.0)
         }),
         new Vertex({
           'position': new Vector2(-0.5, -0.5),
-          'rotation': new Matrix2(
-              0.0, 1.0,
-              -1.0, 0.0
-          ),
+          'rotation': new Matrix2(0.0, 1.0, -1.0, 0.0),
           'color': new Vector3(0.0, 1.0, 0.0)
         }),
         new Vertex({
           'position': new Vector2(0.5, -0.5),
-          'rotation': new Matrix2(
-              1.0, 0.0,
-              0.0, 1.0
-          ),
+          'rotation': new Matrix2(1.0, 0.0, 0.0, 1.0),
           'color': new Vector3(0.0, 0.0, 1.0)
         })
       ]);
@@ -69,7 +62,8 @@ void main() {
       context.defaultFrame.draw(triangles, program, {});
 
       test('draws the correct frame', () {
-        expect(canvas.toDataUrl(), equals(document.querySelector('#expected').src));
+        expect(canvas,
+            closeToImage(document.querySelector('#expected'), 0.005, 5));
       });
     });
   });
