@@ -24,7 +24,7 @@ closeToImage(image, [num mismatchThreshold = 0, int rgbaThreshold = 0]) {
 class _ImageMatcher extends Matcher {
   final _expected;
 
-  final _PixelData _expectedPixelData;
+  final CanvasElement _expectedCanvas;
 
   final num _mismatchThreshold;
 
@@ -33,28 +33,32 @@ class _ImageMatcher extends Matcher {
   _ImageMatcher(expected,
       [this._mismatchThreshold = 0, this._rgbaThreshold = 0])
       : _expected = expected,
-        _expectedPixelData = _resolvePixelData(expected);
+        _expectedCanvas = _resolveCanvas(expected);
 
   bool matches(item, Map matchState) {
-    var pixelData;
+    var canvas;
 
     try {
-      pixelData = _resolvePixelData(item);
+      canvas = _resolveCanvas(item);
     } catch (e) {
       return false;
     }
 
-    final width = pixelData.width;
-    final height = pixelData.height;
+    final width = canvas.width;
+    final height = canvas.height;
+    final context = canvas.context2D;
+    final imageData = context.getImageData(0, 0, width, height);
 
-    if (width != _expectedPixelData.width) {
+    if (width != _expectedCanvas.width) {
       return false;
-    } else if (height != _expectedPixelData.height) {
+    } else if (height != _expectedCanvas.height) {
       return false;
     } else {
-      final data = pixelData.data;
-      final expectedData = _expectedPixelData.data;
+      final data = imageData.data;
+      final expectedData =
+          _expectedCanvas.context2D.getImageData(0, 0, width, height).data;
       final pixelCount = width * height;
+      final diffData = new Uint8ClampedList(width * height * 4);
       var mismatchCount = 0;
 
       for (var i = 0; i < height; i++) {
@@ -72,13 +76,22 @@ class _ImageMatcher extends Matcher {
 
           if (mismatch) {
             mismatchCount++;
+
+            diffData[(i * width + j) * 4] = 256;
+            diffData[(i * width + j) * 4 + 2] = 256;
+            diffData[(i * width + j) * 4 + 3] = 256;
           }
         }
       }
 
       final mismatchRatio = mismatchCount / pixelCount;
+      final diffImageData = new ImageData(diffData, width, height);
+      final diff = new CanvasElement(width: width, height: height);
+
+      diff.context2D.putImageData(diffImageData, 0, 0);
 
       matchState['mismatchRatio'] = mismatchRatio;
+      matchState['diff'] = diff;
 
       if (mismatchCount / pixelCount < _mismatchThreshold) {
         return true;
@@ -95,58 +108,54 @@ class _ImageMatcher extends Matcher {
 
   Description describeMismatch(
       item, Description mismatchDescription, Map matchState, bool verbose) {
-    if (item is ImageElement || item is CanvasElement || item is ImageData) {
-      final pixelData = _resolvePixelData(item);
+    if (item is ImageElement ||
+        item is CanvasElement ||
+        item is ImageData ||
+        item is String && item.startsWith('data:image')) {
+      final canvas = _resolveCanvas(item);
 
-      if (pixelData.width != _expectedPixelData.width) {
+      if (canvas.width != canvas.width) {
         return mismatchDescription.add('does not have the expected width.');
-      } else if (pixelData.height != _expectedPixelData.height) {
+      } else if (canvas.height != canvas.height) {
         return mismatchDescription.add('does not have the expected width.');
       } else {
         final mismatchRatio = matchState['mismatchRatio'] ?? 0;
 
         return mismatchDescription
-            .add('differs at ${mismatchRatio * 100}% of pixels.');
+            .add('differs at ${mismatchRatio * 100}% of pixels.\n')
+            .add('Expected image: ${_expectedCanvas.toDataUrl()}\n')
+            .add('  Actual image: ${canvas.toDataUrl()}\n')
+            .add('    Diff image: ${matchState['diff'].toDataUrl()}\n');
       }
     } else {
       return mismatchDescription
-          .add('is not a canvas element, image element, or image data');
+          .add('is not a canvas element, image element, image data, or a valid '
+              'image data url');
     }
   }
 }
 
-class _PixelData {
-  final Uint8List data;
-
-  final int width;
-
-  final int height;
-
-  _PixelData(this.width, this.height, this.data);
-}
-
-_PixelData _resolvePixelData(value) {
+CanvasElement _resolveCanvas(value) {
   if (value is ImageData) {
-    return new _PixelData(value.width, value.height, value.data);
+    final canvas = new CanvasElement(width: value.width, height: value.height);
+    final context = canvas.context2D;
+
+    context.putImageData(value, 0, 0);
+
+    return canvas;
   } else if (value is CanvasElement) {
     final width = value.width;
     final height = value.height;
 
     if (value.context2D != null) {
-      final imageData = value.context2D.getImageData(0, 0, width, height);
-      final data = new Uint8List.fromList(imageData.data);
-
-      return new _PixelData(width, height, data);
+      return value;
     } else {
       final canvas = new CanvasElement(width: width, height: height);
       final context = canvas.context2D;
 
       context.drawImage(value, 0, 0);
 
-      final imageData = context.getImageData(0, 0, width, height);
-      final data = new Uint8List.fromList(imageData.data);
-
-      return new _PixelData(width, height, data);
+      return canvas;
     }
   } else if (value is ImageElement) {
     final width = value.naturalWidth;
@@ -156,12 +165,10 @@ _PixelData _resolvePixelData(value) {
 
     context.drawImage(value, 0, 0);
 
-    final imageData = context.getImageData(0, 0, width, height);
-    final data = new Uint8List.fromList(imageData.data);
-
-    return new _PixelData(width, height, data);
+    return canvas;
   } else {
     throw new ArgumentError('Cannot resolve image data for the given value. '
-        'Value must be a CanvasElement or an ImageElement or ImageData');
+        'Value must be a CanvasElement, an ImageElement, ImageData or a valid '
+        'image data url.');
   }
 }
