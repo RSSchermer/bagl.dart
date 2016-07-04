@@ -1,7 +1,6 @@
 /// WebGL rendering driver.
 library web_gl;
 
-import 'dart:async';
 import 'dart:collection';
 import 'dart:html';
 import 'dart:typed_data';
@@ -14,6 +13,7 @@ import 'package:quiver/collection.dart';
 import 'index_geometry.dart';
 import 'math.dart';
 import 'matrix_list.dart';
+import 'texture.dart';
 import 'vertex_data.dart';
 
 part 'src/web_gl/blending.dart';
@@ -29,7 +29,6 @@ part 'src/web_gl/sampler.dart';
 part 'src/web_gl/shader.dart';
 part 'src/web_gl/stencil_test.dart';
 part 'src/web_gl/test_function.dart';
-part 'src/web_gl/texture.dart';
 part 'src/web_gl/winding_order.dart';
 
 part 'src/web_gl/_context_geometry_resource_manager.dart';
