@@ -1,12 +1,26 @@
 part of web_gl;
 
-/// BaGL rendering context for an HTML canvas element.
+/// BaGL WebGL rendering context for an HTML canvas element.
+///
+/// A [RenderingContext] manages the state of the rendering backend for the
+/// [canvas] with which it is associated. It has a [defaultFrame] whose color
+/// buffer is displayed on the [canvas]. See [RenderingContext.forCanvas] for
+/// details on how to retrieve a [RenderingContext] for a canvas element.
+///
+/// Rendering resources are allocated as necessary for draw calls on [Frame]s
+/// associated with the [RenderingContext]. Consider freeing the resources
+/// associated with geometry, a sampler, or a programs if you no longer intend
+/// to use one in future draw calls, by calling [deprovisionGeometry],
+/// [deprovisionSampler] or [deprovisionProgram] respectively.
 class RenderingContext {
   static Map<CanvasElement, RenderingContext> _canvasContextMap = new Map();
 
   /// The canvas element this rendering context is associated with.
   final CanvasElement canvas;
 
+  /// The default [Frame] for this [RenderingContext].
+  ///
+  /// This [Frame]'s color buffer is displayed on the [canvas].
   Frame _defaultFrame;
 
   /// The WebGL rendering context associated with the [canvas].
@@ -57,12 +71,23 @@ class RenderingContext {
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
 
+  /// The maximum number of texture units available in this context.
+  ///
+  /// At most this number of [Sampler] uniforms can be used in a single draw
+  /// call.
   final int maxTextureUnits = 32;
 
+  /// The index of the currently active texture unit.
   int _activeTextureUnit = 0;
 
+  /// Tracks which texture units have been used more recently.
+  ///
+  /// The first value in this [Queue] is the most recently used texture unit,
+  /// the last value is the least recently used texture unit.
   Queue<int> _recentlyUsedTextureUnits;
 
+  /// A map from texture unit indices to the [Sampler]s currently bound to these
+  /// units.
   BiMap<int, Sampler> _textureUnitsSamplers = new BiMap();
 
   /// The value that is currently set as the clearColor on the WebGL context.
@@ -179,6 +204,44 @@ class RenderingContext {
   }
 
   /// Retrieves a [RenderingContext] for the [canvas].
+  ///
+  /// The following optional arguments may be specified:
+  ///
+  /// - [alpha]: If `true`, then the [defaultFrame]'s drawing buffer has an
+  ///   alpha channel for the purposes of performing OpenGL destination alpha
+  ///   operations and compositing with the page. If the value is false, no
+  ///   alpha buffer is available. Defaults to `true`.
+  /// - [depth]: If `true`, then the [defaultFrame] has a depth buffer of at
+  ///   least 16 bits. If `false`, then no depth buffer is available. Defaults
+  ///   to `true`.
+  /// - [stencil]: If `true`, then the [defaultFrame] has a stencil buffer of at
+  ///   least 8 bits. If `false`, then no depth buffer is available. Defaults to
+  ///   `false`.
+  /// - [antialias]: If `true` and the rendering backend supports antialiasing,
+  ///   then it will perform antialiasing using its choice of technique
+  ///   (multisample/supersample) and quality. If `false` or the rendering
+  ///   backend does not support antialiasing, no antialiasing is performed.
+  ///   Defaults to `true`.
+  /// - [premultipliedAlpha]: If `true`, then the page compositor will assume
+  ///   the [defaultFrame]'s color buffer contains colors with premultiplied
+  ///   alpha. If `false`, then the page compositor will assume that colors in
+  ///   the drawing buffer are not premultiplied. This option is ignored if
+  ///   [alpha] is `false`. Defaults to `true`.
+  /// - [preserveDrawingBuffer]: If `false`, then once the [defaultFrame]'s
+  ///   color buffer is presented to the page compositor, all of the
+  ///   [defaultFrame]'s output buffers will be cleared. If `true`, then the
+  ///   buffers will not be cleared and will preserve their values until cleared
+  ///   explicitly by one of the clear methods. Defaults to `false`.
+  /// - [preferLowPowerToHighPerformance]: Provides a hint to the rendering
+  ///   backend on whether or not to optimize for power consumption or
+  ///   performance. Defaults to `false`.
+  /// - [failIfMajorPerformanceCaveat]: If `true`, then context creation will
+  ///   fail if the implementation determines that the performance of the
+  ///   created WebGL context would be dramatically lower than that of a native
+  ///   application making equivalent OpenGL calls. Defaults to `false`.
+  ///
+  /// Options are only applied the first time a context is retrieved for the
+  /// [canvas]. On subsequent retrievals the options are ignored.
   static RenderingContext forCanvas(CanvasElement canvas,
       {bool alpha: true,
       bool depth: true,

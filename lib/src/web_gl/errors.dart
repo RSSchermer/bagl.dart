@@ -1,12 +1,19 @@
 part of web_gl;
 
+/// Error thrown when a shader fails to compile.
 class ShaderCompilationError extends Error {
+  /// Integer indicating the shader's type.
+  ///
+  /// Either [WebGL.VERTEX_SHADER] or [WebGL.FRAGMENT_SHADER].
   final int shaderType;
 
+  /// The source code for the shader.
   final String shaderSource;
 
+  /// The shader info log.
   final String shaderLogInfo;
 
+  /// Instantiates a new [ShaderCompilationError].
   ShaderCompilationError(
       this.shaderType, this.shaderSource, this.shaderLogInfo);
 
@@ -21,9 +28,12 @@ class ShaderCompilationError extends Error {
   }
 }
 
+/// Error thrown when a shader program fails to link.
 class ProgramLinkingError extends Error {
+  /// The program info log.
   final String programInfoLog;
 
+  /// Instantiates a new [ProgramLinkingError].
   ProgramLinkingError(this.programInfoLog);
 
   String toString() => 'Failed to link program:\n$programInfoLog';

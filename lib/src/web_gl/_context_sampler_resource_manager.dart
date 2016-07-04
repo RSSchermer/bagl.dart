@@ -107,7 +107,7 @@ class _ContextSamplerResourceManager {
             image.videoElement);
       } else {
         _context.texImage2D(WebGL.TEXTURE_2D, 0, internalFormat, image.width,
-            image.height, 0, format, type, image.getPixelData());
+            image.height, 0, format, type, image.data);
       }
 
       final minFilter = sampler.minificationFilter;

@@ -1,7 +1,16 @@
 part of web_gl;
 
+/// Rectangular pixel surface onto which geometry primitives can be drawn.
+///
+/// Pixels can be drawn on the [Frame] by passing geometry primitives to the
+/// rendering pipeline using the [draw] method. The rendering pipeline will
+/// process these primitives and update the [Frame]'s color, depth and stencil
+/// output attachments. The methods [clearColor], [clearDepth], [clearStencil],
+/// [clearColorAndDepth], [clearColorAndStencil], [clearDepthAndStencil] and
+/// [clearAll] may be used to reset (regions of) the [Frame]'s output
+/// attachments.
 class Frame {
-  /// The [RenderingContext] to which this [Frame] belongs.
+  /// The [RenderingContext] with which this [Frame] is associated.
   final RenderingContext context;
 
   WebGL.RenderingContext _context;

@@ -1,6 +1,6 @@
 part of web_gl;
 
-/// Describes a rectangular region of the canvas.
+/// Describes a rectangular region of a canvas.
 ///
 /// Describes a region offset [x] pixels from the left of the canvas and [y]
 /// pixels from the top of the canvas, [width] pixels wide and [height] pixels
