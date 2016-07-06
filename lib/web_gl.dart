@@ -25,7 +25,6 @@ part 'src/web_gl/frame.dart';
 part 'src/web_gl/program.dart';
 part 'src/web_gl/region.dart';
 part 'src/web_gl/rendering_context.dart';
-part 'src/web_gl/sampler.dart';
 part 'src/web_gl/shader.dart';
 part 'src/web_gl/stencil_test.dart';
 part 'src/web_gl/test_function.dart';
