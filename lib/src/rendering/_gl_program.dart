@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Describes a rendering program for a certain [RenderingContext].
 class _GLProgram {

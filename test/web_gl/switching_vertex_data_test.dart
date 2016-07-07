@@ -3,7 +3,6 @@ import 'dart:html';
 
 import 'package:test/test.dart';
 import 'package:bagl/bagl.dart';
-import 'package:bagl/web_gl.dart';
 
 import 'helpers.dart';
 

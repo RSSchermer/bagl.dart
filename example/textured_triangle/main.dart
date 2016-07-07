@@ -1,7 +1,6 @@
 import 'dart:html';
 
 import 'package:bagl/bagl.dart';
-import 'package:bagl/web_gl.dart';
 
 main() {
   var canvas = document.querySelector('#main_canvas');

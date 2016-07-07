@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 class _ContextSamplerResourceManager {
   final RenderingContext context;

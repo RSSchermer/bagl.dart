@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Provides instructions on how blending should be performed.
 ///

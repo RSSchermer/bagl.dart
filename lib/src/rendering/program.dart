@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Links the programmable shader stages of the rendering pipeline.
 class Program {

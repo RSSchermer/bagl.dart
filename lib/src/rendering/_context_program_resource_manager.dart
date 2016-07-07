@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Manages the provisioning and deprovisioning of program related resources for
 /// a [RendingContext].

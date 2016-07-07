@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Describes a rectangular region of a canvas.
 ///

@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Programmable stage of the rendering pipeline.
 ///

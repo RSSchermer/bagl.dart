@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Enumerates the possible face-culling modes available.
 ///

@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Rectangular pixel surface onto which geometry primitives can be drawn.
 ///

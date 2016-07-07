@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Specifies for each color components whether or not it can be written to the
 /// color buffer.

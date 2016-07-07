@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 const Map<Topology, int> _topologyMap = const {
   Topology.points: WebGL.POINTS,

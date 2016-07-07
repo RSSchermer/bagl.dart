@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Enumerates the functions [DepthTest] or a [StencilTest] can use to decide if
 /// the test passes.

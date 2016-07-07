@@ -1,4 +1,4 @@
-part of web_gl;
+part of rendering;
 
 /// Error thrown when a shader fails to compile.
 class ShaderCompilationError extends Error {
