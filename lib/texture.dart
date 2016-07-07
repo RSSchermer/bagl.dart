@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 
-part 'src/texture/filter.dart';
+part 'src/texture/filtering.dart';
 part 'src/texture/pixel_format.dart';
 part 'src/texture/pixel_type.dart';
 part 'src/texture/sampler.dart';
