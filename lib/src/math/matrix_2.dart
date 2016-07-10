@@ -106,9 +106,45 @@ class Matrix2 extends GenericMatrix<Matrix2, Matrix2> {
     final values = new Float32List(4);
 
     values[0] = 1.0;
-    values[1] = 0.0;
-    values[2] = 0.0;
     values[3] = 1.0;
+
+    return new Matrix2.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix2] that when multiplied with a [Vector2] translates
+  /// it along the X axis by [translation].
+  factory Matrix2.translation(double translation) {
+    final values = new Float32List(4);
+
+    values[0] = 1.0;
+    values[1] = translation;
+    values[3] = 1.0;
+
+    return new Matrix2.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix2] that when multiplied with a [Vector2] scales it
+  /// by [scaleX] in the X direction, and by [scaleY] in the Y direction.
+  factory Matrix2.scale(double scaleX, double scaleY) {
+    final values = new Float32List(4);
+
+    values[0] = scaleX;
+    values[3] = scaleY;
+
+    return new Matrix2.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix2] that when multiplied with a [Vector2] rotates it
+  /// around the origin by [radians].
+  factory Matrix2.rotation(double radians) {
+    final values = new Float32List(4);
+    final sine = sin(radians);
+    final cosine = cos(radians);
+
+    values[0] = cosine;
+    values[1] = -sine;
+    values[2] = sine;
+    values[3] = cosine;
 
     return new Matrix2.fromFloat32List(values);
   }

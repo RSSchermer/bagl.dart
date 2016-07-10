@@ -1,6 +1,7 @@
 /// Math helpers and data structures for 2D and 3D graphics.
 library math;
 
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:rl_matrix/rl_matrix.dart';

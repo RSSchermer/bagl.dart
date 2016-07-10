@@ -152,20 +152,116 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     final values = new Float32List(16);
 
     values[0] = 1.0;
-    values[1] = 0.0;
-    values[2] = 0.0;
-    values[3] = 0.0;
-    values[4] = 0.0;
     values[5] = 1.0;
-    values[6] = 0.0;
-    values[7] = 0.0;
-    values[8] = 0.0;
-    values[9] = 0.0;
     values[10] = 1.0;
-    values[11] = 0.0;
-    values[12] = 0.0;
-    values[13] = 0.0;
-    values[14] = 0.0;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] translates
+  /// it by [translation].
+  factory Matrix4.translation(Vector3 translation) {
+    final values = new Float32List(16);
+
+    values[0] = 1.0;
+    values[3] = translation.x;
+    values[5] = 1.0;
+    values[7] = translation.y;
+    values[10] = 1.0;
+    values[11] = translation.z;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] scales it
+  /// by [scaleX] in the X direction, by [scaleY] in the Y direction, and by
+  /// [scaleZ] in the Z direction.
+  factory Matrix4.scale(double scaleX, double scaleY, double scaleZ) {
+    final values = new Float32List(16);
+
+    values[0] = scaleX;
+    values[5] = scaleY;
+    values[10] = scaleZ;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the [axis] by [radians].
+  factory Matrix4.rotation(Vector3 axis, double radians) {
+    final values = new Float32List(16);
+    final x = axis.x;
+    final y = axis.y;
+    final z = axis.z;
+    final c = cos(radians);
+    final s = sin(radians);
+    final t = 1 - c;
+    final tx = t * x;
+    final ty = t * y;
+
+    values[0] = tx * x + c;
+    values[1] = tx * y - s * z;
+    values[2] = tx * z + s * y;
+    values[4] = tx * y + s * z;
+    values[5] = ty * y + c;
+    values[6] = ty * z - s * x;
+    values[8] = tx * z - s * y;
+    values[9] = ty * z + s * x;
+    values[10] = t * z * z + c;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the X axis by [radians].
+  factory Matrix4.rotationX(double radians) {
+    final values = new Float32List(16);
+    final c = cos(radians);
+    final s = sin(radians);
+
+    values[0] = 1.0;
+    values[5] = c;
+    values[6] = -s;
+    values[9] = s;
+    values[10] = c;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the Y axis by [radians].
+  factory Matrix4.rotationY(double radians) {
+    final values = new Float32List(16);
+    final c = cos(radians);
+    final s = sin(radians);
+
+    values[0] = c;
+    values[2] = s;
+    values[5] = 1.0;
+    values[8] = -s;
+    values[10] = c;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the Z axis by [radians].
+  factory Matrix4.rotationZ(double radians) {
+    final values = new Float32List(16);
+    final c = cos(radians);
+    final s = sin(radians);
+
+    values[0] = c;
+    values[1] = -s;
+    values[4] = s;
+    values[5] = c;
+    values[10] = 1.0;
     values[15] = 1.0;
 
     return new Matrix4.fromFloat32List(values);

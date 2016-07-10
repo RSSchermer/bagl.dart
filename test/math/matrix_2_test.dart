@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
+import 'dart:math';
 import 'dart:typed_data';
 import '../helpers.dart';
 
@@ -71,6 +72,33 @@ void main() {
       expect(m.values, orderedCloseTo([
         1.0, 0.0,
         0.0, 1.0
+      ], 0.00001));
+    });
+
+    test('translation constructor', () {
+      final m = new Matrix2.translation(5.0);
+
+      expect(m.values, orderedCloseTo([
+        1.0, 5.0,
+        0.0, 1.0
+      ], 0.00001));
+    });
+
+    test('scale constructor', () {
+      final m = new Matrix2.scale(2.0, 3.0);
+
+      expect(m.values, orderedCloseTo([
+        2.0, 0.0,
+        0.0, 3.0
+      ], 0.00001));
+    });
+
+    test('rotation constructor', () {
+      final m = new Matrix2.rotation(0.5 * PI);
+
+      expect(m.values, orderedCloseTo([
+        0.0, -1.0,
+        1.0,  0.0
       ], 0.00001));
     });
     

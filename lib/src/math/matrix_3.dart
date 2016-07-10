@@ -121,13 +121,108 @@ class Matrix3 extends GenericMatrix<Matrix3, Matrix3> {
     final values = new Float32List(9);
 
     values[0] = 1.0;
-    values[1] = 0.0;
-    values[2] = 0.0;
-    values[3] = 0.0;
     values[4] = 1.0;
-    values[5] = 0.0;
-    values[6] = 0.0;
-    values[7] = 0.0;
+    values[8] = 1.0;
+
+    return new Matrix3.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix3] that when multiplied with a [Vector3] translates
+  /// it along the X-Y plane by [translation].
+  factory Matrix3.translation(Vector2 translation) {
+    final values = new Float32List(9);
+
+    values[0] = 1.0;
+    values[2] = translation.x;
+    values[4] = 1.0;
+    values[5] = translation.y;
+    values[8] = 1.0;
+
+    return new Matrix3.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix3] that when multiplied with a [Vector3] scales it
+  /// by [scaleX] in the X direction, by [scaleY] in the Y direction, and by
+  /// [scaleZ] in the Z direction.
+  factory Matrix3.scale(double scaleX, double scaleY, double scaleZ) {
+    final values = new Float32List(9);
+
+    values[0] = scaleX;
+    values[4] = scaleY;
+    values[8] = scaleZ;
+
+    return new Matrix3.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix3] that when multiplied with a [Vector3] will rotate
+  /// it around the [axis] by [radians].
+  factory Matrix3.rotation(Vector3 axis, double radians) {
+    final values = new Float32List(9);
+    final x = axis.x;
+    final y = axis.y;
+    final z = axis.z;
+    final c = cos(radians);
+    final s = sin(radians);
+    final t = 1 - c;
+    final tx = t * x;
+    final ty = t * y;
+
+    values[0] = tx * x + c;
+    values[1] = tx * y - s * z;
+    values[2] = tx * z + s * y;
+    values[3] = tx * y + s * z;
+    values[4] = ty * y + c;
+    values[5] = ty * z - s * x;
+    values[6] = tx * z - s * y;
+    values[7] = ty * z + s * x;
+    values[8] = t * z * z + c;
+
+    return new Matrix3.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix3] that when multiplied with a [Vector3] will rotate
+  /// it around the X axis by [radians].
+  factory Matrix3.rotationX(double radians) {
+    final values = new Float32List(9);
+    final c = cos(radians);
+    final s = sin(radians);
+
+    values[0] = 1.0;
+    values[4] = c;
+    values[5] = -s;
+    values[7] = s;
+    values[8] = c;
+
+    return new Matrix3.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix3] that when multiplied with a [Vector3] will rotate
+  /// it around the Y axis by [radians].
+  factory Matrix3.rotationY(double radians) {
+    final values = new Float32List(9);
+    final c = cos(radians);
+    final s = sin(radians);
+
+    values[0] = c;
+    values[2] = s;
+    values[4] = 1.0;
+    values[6] = -s;
+    values[8] = c;
+
+    return new Matrix3.fromFloat32List(values);
+  }
+
+  /// Instantiates a [Matrix3] that when multiplied with a [Vector3] will rotate
+  /// it around the Z axis by [radians].
+  factory Matrix3.rotationZ(double radians) {
+    final values = new Float32List(9);
+    final c = cos(radians);
+    final s = sin(radians);
+
+    values[0] = c;
+    values[1] = -s;
+    values[3] = s;
+    values[4] = c;
     values[8] = 1.0;
 
     return new Matrix3.fromFloat32List(values);

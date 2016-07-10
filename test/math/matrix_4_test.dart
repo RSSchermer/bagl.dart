@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
+import 'dart:math';
 import 'dart:typed_data';
 import '../helpers.dart';
 
@@ -81,6 +82,96 @@ void main() {
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
+      ], 0.00001));
+    });
+
+    test('translation constructor', () {
+      final m = new Matrix4.translation(new Vector3(2.0, 3.0, 4.0));
+
+      expect(m.values, orderedCloseTo([
+        1.0, 0.0, 0.0, 2.0,
+        0.0, 1.0, 0.0, 3.0,
+        0.0, 0.0, 1.0, 4.0,
+        0.0, 0.0, 0.0, 1.0
+      ], 0.00001));
+    });
+
+    test('scale constructor', () {
+      final m = new Matrix4.scale(2.0, 3.0, 4.0);
+
+      expect(m.values, orderedCloseTo([
+        2.0, 0.0, 0.0, 0.0,
+        0.0, 3.0, 0.0, 0.0,
+        0.0, 0.0, 4.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+      ], 0.00001));
+    });
+
+    group('rotation constructor', () {
+      test('with an axis in the X direction', () {
+        final m = new Matrix4.rotation(new Vector3(1.0, 0.0, 0.0), 0.5 * PI);
+
+        expect(m.values, orderedCloseTo([
+          1.0, 0.0,  0.0, 0.0,
+          0.0, 0.0, -1.0, 0.0,
+          0.0, 1.0,  0.0, 0.0,
+          0.0, 0.0,  0.0, 1.0
+        ], 0.00001));
+      });
+
+      test('with an axis in the Y direction', () {
+        final m = new Matrix4.rotation(new Vector3(0.0, 1.0, 0.0), 0.5 * PI);
+
+        expect(m.values, orderedCloseTo([
+           0.0, 0.0, 1.0, 0.0,
+           0.0, 1.0, 0.0, 0.0,
+          -1.0, 0.0, 0.0, 0.0,
+           0.0, 0.0, 0.0, 1.0
+        ], 0.00001));
+      });
+
+      test('with an axis in the Z direction', () {
+        final m = new Matrix4.rotation(new Vector3(0.0, 0.0, 1.0), 0.5 * PI);
+
+        expect(m.values, orderedCloseTo([
+          0.0, -1.0, 0.0, 0.0,
+          1.0,  0.0, 0.0, 0.0,
+          0.0,  0.0, 1.0, 0.0,
+          0.0,  0.0, 0.0, 1.0
+        ], 0.00001));
+      });
+    });
+
+    test('rotationX constructor', () {
+      final m = new Matrix4.rotationX(0.5 * PI);
+
+      expect(m.values, orderedCloseTo([
+        1.0, 0.0,  0.0, 0.0,
+        0.0, 0.0, -1.0, 0.0,
+        0.0, 1.0,  0.0, 0.0,
+        0.0, 0.0,  0.0, 1.0
+      ], 0.00001));
+    });
+
+    test('rotationY constructor', () {
+      final m = new Matrix4.rotationY(0.5 * PI);
+
+      expect(m.values, orderedCloseTo([
+         0.0, 0.0, 1.0, 0.0,
+         0.0, 1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0, 0.0,
+         0.0, 0.0, 0.0, 1.0
+      ], 0.00001));
+    });
+
+    test('rotationZ constructor', () {
+      final m = new Matrix4.rotationZ(0.5 * PI);
+
+      expect(m.values, orderedCloseTo([
+        0.0, -1.0, 0.0, 0.0,
+        1.0,  0.0, 0.0, 0.0,
+        0.0,  0.0, 1.0, 0.0,
+        0.0,  0.0, 0.0, 1.0
       ], 0.00001));
     });
 
