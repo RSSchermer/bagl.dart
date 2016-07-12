@@ -267,6 +267,78 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     return new Matrix4.fromFloat32List(values);
   }
 
+  /// Instantiates a new [Matrix4] as a frustum projection matrix for a frustum
+  /// for which the near plane is the rectangle defined by [left], [right],
+  /// [bottom] and [top] at [near] distance and the far plane at [far] distance.
+  ///
+  /// A frustum projection matrix projects coordinates inside a frustum onto
+  /// clip coordinates.
+  factory Matrix4.frustum(double left, double right, double bottom, double top,
+      double near, double far) {
+    final values = new Float32List(16);
+    final x = 2.0 * near / (right - left);
+    final y = 2.0 * near / (top - bottom);
+    final a = (right + left) / (right - left);
+    final b = (top + bottom) / (top - bottom);
+    final c = -(far + near) / (far - near);
+    final d = -2.0 * far * near / (far - near);
+
+    values[0] = x;
+    values[2] = a;
+    values[5] = y;
+    values[6] = b;
+    values[10] = c;
+    values[11] = d;
+    values[14] = -1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
+  /// Instantiates a new [Matrix4] as a perspective projection matrix for a
+  /// view frustum with a field-of-view of [fovRadians], a `width / height`
+  /// aspect ratio of [aspectRatio], the near frustum plane at a distance of
+  /// [near] and the far frustum plane at a distance of [far].
+  ///
+  /// A perspective projection matrix projects coordinates inside its view
+  /// frustum onto clip coordinates.
+  factory Matrix4.perspective(
+      double fovRadians, double aspectRatio, double near, double far) {
+    final yMax = near * tan(fovRadians / 2.0);
+    final yMin = -yMax;
+    final xMin = yMin * aspectRatio;
+    final xMax = yMax * aspectRatio;
+
+    return new Matrix4.frustum(xMin, xMax, yMin, yMax, near, far);
+  }
+
+  /// Instantiates a new [Matrix4] as an orthographic projection matrix for a
+  /// view cuboid for which the near plane is the rectangle defined by [left],
+  /// [right], [bottom] and [top] at [near] distance and the far plane at [far]
+  /// distance.
+  ///
+  /// An orthographic projection matrix project coordinates inside its view
+  /// cuboid onto clip coordinates.
+  factory Matrix4.orthographic(double left, double right, double top,
+      double bottom, double near, double far) {
+    final values = new Float32List(16);
+    final w = 1.0 / (right - left);
+    final h = 1.0 / (top - bottom);
+    final p = 1.0 / (far - near);
+    final x = (right + left) * w;
+    final y = (top + bottom) * h;
+    final z = (far + near) * p;
+
+    values[0] = 2.0 * w;
+    values[3] = -x;
+    values[5] = 2.0 * h;
+    values[7] = -y;
+    values[10] = -2.0 * p;
+    values[11] = -z;
+    values[15] = 1.0;
+
+    return new Matrix4.fromFloat32List(values);
+  }
+
   Matrix4 withValues(Float32List newValues) =>
       new Matrix4.fromFloat32List(newValues);
 
