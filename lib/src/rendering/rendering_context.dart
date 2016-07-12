@@ -287,6 +287,11 @@ class RenderingContext {
   Iterable<Program> get provisionedPrograms =>
       _programResources.provisionedPrograms;
 
+  /// The samplers for which resources are currently provisioned for this
+  /// [RenderingContext].
+  Iterable<Sampler> get provisionedSamplers =>
+      _samplerResources.provisionedSamplers;
+
   /// Deprovisions the resources associated with the [geometry].
   ///
   /// Frees each resource associated with the [geometry], unless the [geometry]
@@ -302,6 +307,13 @@ class RenderingContext {
   /// resources were provisioned for the [program], `false` otherwise.
   bool deprovisionProgram(Program program) =>
       _programResources.deprovision(program);
+
+  /// Deprovisions the resources associated with the [sampler].
+  ///
+  /// Frees all resources associated with the [sampler]. Returns `true` if
+  /// resources were provisioned for the [sampler], `false` otherwise.
+  bool deprovisionSampler(Sampler sampler) =>
+      _samplerResources.deprovision(sampler);
 
   void _bindAttributeDataTable(AttributeDataTable attributeDataTable) {
     if (attributeDataTable != _boundAttributeDataTable) {

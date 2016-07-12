@@ -13,6 +13,9 @@ class _ContextSamplerResourceManager {
       : context = context,
         _context = context._context;
 
+  Iterable<Sampler> get provisionedSamplers =>
+      new UnmodifiableSetView(_provisionedSamplers);
+
   void provision(Sampler sampler) {
     if (!_provisionedSamplers.contains(sampler)) {
       final textureObject = _context.createTexture();
