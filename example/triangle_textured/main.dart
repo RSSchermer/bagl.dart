@@ -50,8 +50,8 @@ main() {
   var triangles = new Triangles(vertices, new IndexList.incrementing(3));
   var texture = new Texture2D.fromImageURL('checkerboard_color_gradient.png');
   var sampler = new Sampler2D(texture,
-      minificationFilter: MinificationFilter.nearestMipmapNearest,
-      magnificationFilter: MagnificationFilter.nearest);
+      minificationFilter: MinificationFilter.linearMipmapLinear,
+      magnificationFilter: MagnificationFilter.linear);
 
   texture.asFuture().whenComplete(() {
     context.defaultFrame.draw(triangles, program, {'samplerA': sampler});
