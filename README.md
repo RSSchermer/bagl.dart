@@ -16,9 +16,9 @@ Some basic examples are available in the [example](example) folder:
 
 - [Triangle](example/triangle): the "hello world" of the graphics world, drawing
   a single triangle.
-- [Animated triangle](example/animated_triangle): demonstrates an animation loop
+- [Animated triangle](example/triangle_animated): demonstrates an animation loop
   with a triangle whose size oscillates.
-- [Textured triangle](example/textured_triangle): demonstrates "UV" texturing 
+- [Textured triangle](example/triangle_textured): demonstrates "UV" texturing 
   with a 2D texture from a separate `png` file.
 
 ## Documentation
