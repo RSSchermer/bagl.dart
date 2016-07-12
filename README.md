@@ -1,8 +1,8 @@
 # BaGL.dart: Basic Graphics Library for Dart.
 
-*WIP*: expect changes to public interfaces, missing features and bugs. Please
+*WIP: expect changes to public interfaces, missing features and bugs. Please
 feel free to open issues on missing functionality and changes to public 
-interfaces.
+interfaces.*
 
 BaGL is a low-level abstraction on top of WebGL. It aims to provide a simpler,
 safer and more declarative drawing alternative to plain WebGL. BaGL was inspired 
@@ -14,17 +14,18 @@ by [Glium](https://github.com/tomaka/glium) and [Elm WebGL](https://github.com/e
 
 Some basic examples are available in the [example](example) folder:
 
-- [Triangle](example/triangle): the "hello world" of the graphics world, drawing
-  a single triangle.
-- [Animated triangle](example/triangle_animated): demonstrates an animation loop
-  with a triangle whose size oscillates.
-- [Textured triangle](example/triangle_textured): demonstrates texturing with a 
-  2D texture from a separate `png` file.
-- [Cube](example/cube): demonstrates drawing a 3D mesh.
-- [Animated Cube](example/cube_animated): demonstrates an animation loop with
-  a 3D mesh.
-- [Textured Cube](example/cube_textured): demonstrates texturing a 3D mesh with
-  a 2D texture from a separate `png` file.
+- [Triangle](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle): 
+  the "hello world" of the graphics world, drawing a single triangle.
+- [Animated triangle](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_animated): 
+  demonstrates an animation loop with a triangle whose size oscillates.
+- [Textured triangle](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_textured): 
+  demonstrates texturing with a 2D texture from a separate `png` file.
+- [Cube](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube): 
+  demonstrates drawing a 3D mesh.
+- [Animated Cube](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_animated): 
+  demonstrates an animation loop with a 3D mesh.
+- [Textured Cube](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_textured): 
+  demonstrates texturing a 3D mesh with a 2D texture from a separate `png` file.
 
 ## Documentation
 
