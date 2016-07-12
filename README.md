@@ -18,8 +18,13 @@ Some basic examples are available in the [example](example) folder:
   a single triangle.
 - [Animated triangle](example/triangle_animated): demonstrates an animation loop
   with a triangle whose size oscillates.
-- [Textured triangle](example/triangle_textured): demonstrates "UV" texturing 
-  with a 2D texture from a separate `png` file.
+- [Textured triangle](example/triangle_textured): demonstrates texturing with a 
+  2D texture from a separate `png` file.
+- [Cube](example/cube): demonstrates drawing a 3D mesh.
+- [Animated Cube](example/cube_animated): demonstrates an animation loop with
+  a 3D mesh.
+- [Textured Cube](example/cube_textured): demonstrates texturing a 3D mesh with
+  a 2D texture from a separate `png` file.
 
 ## Documentation
 
