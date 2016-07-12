@@ -200,7 +200,8 @@ class RenderingContext {
     _samplerResources = new _ContextSamplerResourceManager(this);
     _defaultFrame = new Frame._default(this);
     _boundFrame = _defaultFrame;
-    _recentlyUsedTextureUnits = new Queue.from(new List.generate(maxTextureUnits, (i) => i));
+    _recentlyUsedTextureUnits =
+        new Queue.from(new List.generate(maxTextureUnits, (i) => i));
   }
 
   /// Retrieves a [RenderingContext] for the [canvas].
@@ -329,7 +330,8 @@ class RenderingContext {
   }
 
   void _bindSampler2D(Sampler2D sampler) {
-    if (sampler != _boundSampler2D || sampler != _textureUnitsSamplers[_activeTextureUnit]) {
+    if (sampler != _boundSampler2D ||
+        sampler != _textureUnitsSamplers[_activeTextureUnit]) {
       if (sampler == null) {
         _context.bindTexture(WebGL.TEXTURE_2D, null);
       } else {
@@ -391,26 +393,28 @@ class RenderingContext {
   }
 
   void _updateDepthTest(DepthTest depthTest) {
-    if (depthTest != null && !identical(depthTest, _depthTest)) {
+    if (depthTest != null) {
       if (!_depthTestEnabled) {
         _context.enable(WebGL.DEPTH_TEST);
         _depthTestEnabled = true;
       }
 
-      if (depthTest.testFunction != _depthTest.testFunction) {
-        _context.depthFunc(_testFunctionMap[depthTest.testFunction]);
-      }
+      if (!identical(depthTest, _depthTest)) {
+        if (depthTest.testFunction != _depthTest.testFunction) {
+          _context.depthFunc(_testFunctionMap[depthTest.testFunction]);
+        }
 
-      if (depthTest.rangeNear != _depthTest.rangeNear ||
-          depthTest.rangeFar != _depthTest.rangeFar) {
-        _context.depthRange(depthTest.rangeNear, depthTest.rangeFar);
-      }
+        if (depthTest.rangeNear != _depthTest.rangeNear ||
+            depthTest.rangeFar != _depthTest.rangeFar) {
+          _context.depthRange(depthTest.rangeNear, depthTest.rangeFar);
+        }
 
-      if (depthTest.write != _depthTest.write) {
-        _context.depthMask(depthTest.write);
-      }
+        if (depthTest.write != _depthTest.write) {
+          _context.depthMask(depthTest.write);
+        }
 
-      _depthTest = depthTest;
+        _depthTest = depthTest;
+      }
     } else if (depthTest == null && _depthTestEnabled) {
       _context.disable(WebGL.DEPTH_TEST);
       _depthTestEnabled = false;
@@ -418,59 +422,61 @@ class RenderingContext {
   }
 
   void _updateStencilTest(StencilTest stencilTest) {
-    if (stencilTest != null && !identical(stencilTest, _stencilTest)) {
+    if (stencilTest != null) {
       if (!_stencilTestEnabled) {
         _context.enable(WebGL.STENCIL_TEST);
         _stencilTestEnabled = true;
       }
 
-      if (stencilTest.testFunctionFront != _stencilTest.testFunctionFront ||
-          stencilTest.referenceValue != _stencilTest.referenceValue ||
-          stencilTest.testMask != _stencilTest.testMask) {
-        _context.stencilFuncSeparate(
-            WebGL.FRONT,
-            _testFunctionMap[stencilTest.testFunctionFront],
-            stencilTest.referenceValue,
-            stencilTest.testMask);
-      }
+      if (!identical(stencilTest, _stencilTest)) {
+        if (stencilTest.testFunctionFront != _stencilTest.testFunctionFront ||
+            stencilTest.referenceValue != _stencilTest.referenceValue ||
+            stencilTest.testMask != _stencilTest.testMask) {
+          _context.stencilFuncSeparate(
+              WebGL.FRONT,
+              _testFunctionMap[stencilTest.testFunctionFront],
+              stencilTest.referenceValue,
+              stencilTest.testMask);
+        }
 
-      if (stencilTest.testFunctionBack != _stencilTest.testFunctionBack ||
-          stencilTest.referenceValue != _stencilTest.referenceValue ||
-          stencilTest.testMask != _stencilTest.testMask) {
-        _context.stencilFuncSeparate(
-            WebGL.BACK,
-            _testFunctionMap[stencilTest.testFunctionBack],
-            stencilTest.referenceValue,
-            stencilTest.testMask);
-      }
+        if (stencilTest.testFunctionBack != _stencilTest.testFunctionBack ||
+            stencilTest.referenceValue != _stencilTest.referenceValue ||
+            stencilTest.testMask != _stencilTest.testMask) {
+          _context.stencilFuncSeparate(
+              WebGL.BACK,
+              _testFunctionMap[stencilTest.testFunctionBack],
+              stencilTest.referenceValue,
+              stencilTest.testMask);
+        }
 
-      if (stencilTest.failOperationFront != _stencilTest.failOperationFront ||
-          stencilTest.passDepthFailOperationFront !=
-              _stencilTest.passDepthFailOperationFront ||
-          stencilTest.passOperationFront != _stencilTest.passOperationFront) {
-        _context.stencilOpSeparate(
-            WebGL.FRONT,
-            _stencilOperationMap[stencilTest.failOperationFront],
-            _stencilOperationMap[stencilTest.passDepthFailOperationFront],
-            _stencilOperationMap[stencilTest.passOperationFront]);
-      }
+        if (stencilTest.failOperationFront != _stencilTest.failOperationFront ||
+            stencilTest.passDepthFailOperationFront !=
+                _stencilTest.passDepthFailOperationFront ||
+            stencilTest.passOperationFront != _stencilTest.passOperationFront) {
+          _context.stencilOpSeparate(
+              WebGL.FRONT,
+              _stencilOperationMap[stencilTest.failOperationFront],
+              _stencilOperationMap[stencilTest.passDepthFailOperationFront],
+              _stencilOperationMap[stencilTest.passOperationFront]);
+        }
 
-      if (stencilTest.failOperationBack != _stencilTest.failOperationBack ||
-          stencilTest.passDepthFailOperationBack !=
-              _stencilTest.passDepthFailOperationBack ||
-          stencilTest.passOperationBack != _stencilTest.passOperationBack) {
-        _context.stencilOpSeparate(
-            WebGL.BACK,
-            _stencilOperationMap[stencilTest.failOperationBack],
-            _stencilOperationMap[stencilTest.passDepthFailOperationBack],
-            _stencilOperationMap[stencilTest.passOperationBack]);
-      }
+        if (stencilTest.failOperationBack != _stencilTest.failOperationBack ||
+            stencilTest.passDepthFailOperationBack !=
+                _stencilTest.passDepthFailOperationBack ||
+            stencilTest.passOperationBack != _stencilTest.passOperationBack) {
+          _context.stencilOpSeparate(
+              WebGL.BACK,
+              _stencilOperationMap[stencilTest.failOperationBack],
+              _stencilOperationMap[stencilTest.passDepthFailOperationBack],
+              _stencilOperationMap[stencilTest.passOperationBack]);
+        }
 
-      if (stencilTest.writeMask != _stencilTest.writeMask) {
-        _context.stencilMask(stencilTest.writeMask);
-      }
+        if (stencilTest.writeMask != _stencilTest.writeMask) {
+          _context.stencilMask(stencilTest.writeMask);
+        }
 
-      _stencilTest = stencilTest;
+        _stencilTest = stencilTest;
+      }
     } else if (stencilTest == null && _stencilTestEnabled) {
       _context.disable(WebGL.STENCIL_TEST);
       _stencilTestEnabled = false;
@@ -478,31 +484,35 @@ class RenderingContext {
   }
 
   void _updateBlending(Blending blending) {
-    if (blending != null && !identical(blending, _blending)) {
+    if (blending != null) {
       if (!_blendingEnabled) {
         _context.enable(WebGL.BLEND);
         _blendingEnabled = true;
       }
 
-      if (blending.colorFunction != _blending.colorFunction ||
-          blending.alphaFunction != _blending.alphaFunction) {
-        _context.blendEquationSeparate(
-            _blendingFunctionMap[blending.colorFunction],
-            _blendingFunctionMap[blending.alphaFunction]);
-      }
+      if (!identical(blending, _blending)) {
+        if (blending.colorFunction != _blending.colorFunction ||
+            blending.alphaFunction != _blending.alphaFunction) {
+          _context.blendEquationSeparate(
+              _blendingFunctionMap[blending.colorFunction],
+              _blendingFunctionMap[blending.alphaFunction]);
+        }
 
-      if (blending.sourceColorFactor != _blending.sourceColorFactor ||
-          blending.sourceAlphaFactor != _blending.sourceAlphaFactor ||
-          blending.destinationColorFactor != _blending.destinationColorFactor ||
-          blending.destinationAlphaFactor != _blending.destinationAlphaFactor) {
-        _context.blendFuncSeparate(
-            _blendingFactorMap[blending.sourceColorFactor],
-            _blendingFactorMap[blending.destinationColorFactor],
-            _blendingFactorMap[blending.sourceAlphaFactor],
-            _blendingFactorMap[blending.destinationAlphaFactor]);
-      }
+        if (blending.sourceColorFactor != _blending.sourceColorFactor ||
+            blending.sourceAlphaFactor != _blending.sourceAlphaFactor ||
+            blending.destinationColorFactor !=
+                _blending.destinationColorFactor ||
+            blending.destinationAlphaFactor !=
+                _blending.destinationAlphaFactor) {
+          _context.blendFuncSeparate(
+              _blendingFactorMap[blending.sourceColorFactor],
+              _blendingFactorMap[blending.destinationColorFactor],
+              _blendingFactorMap[blending.sourceAlphaFactor],
+              _blendingFactorMap[blending.destinationAlphaFactor]);
+        }
 
-      _blending = blending;
+        _blending = blending;
+      }
     } else if (blending == null && _blendingEnabled) {
       _context.disable(WebGL.BLEND);
       _blendingEnabled = false;
@@ -510,14 +520,16 @@ class RenderingContext {
   }
 
   void _updateFaceCulling(CullingMode faceCulling) {
-    if (faceCulling != null && faceCulling != _faceCulling) {
+    if (faceCulling != null) {
       if (!_faceCullingEnabled) {
         _context.enable(WebGL.CULL_FACE);
         _faceCullingEnabled = true;
       }
 
-      _context.cullFace(_cullingModeMap[faceCulling]);
-      _faceCulling = faceCulling;
+      if (faceCulling != _faceCulling) {
+        _context.cullFace(_cullingModeMap[faceCulling]);
+        _faceCulling = faceCulling;
+      }
     } else if (faceCulling == null && _faceCullingEnabled) {
       _context.disable(WebGL.CULL_FACE);
       _faceCullingEnabled = false;
@@ -548,16 +560,18 @@ class RenderingContext {
   }
 
   void _updateScissorBox(Region scissorBox) {
-    if (scissorBox != null && scissorBox != _scissorBox) {
+    if (scissorBox != null) {
       if (!_scissorTestEnabled) {
         _context.enable(WebGL.SCISSOR_TEST);
         _scissorTestEnabled = true;
       }
 
-      _context.scissor(
-          scissorBox.x, scissorBox.y, scissorBox.width, scissorBox.height);
+      if (scissorBox != _scissorBox) {
+        _context.scissor(
+            scissorBox.x, scissorBox.y, scissorBox.width, scissorBox.height);
 
-      _scissorBox = scissorBox;
+        _scissorBox = scissorBox;
+      }
     } else if (scissorBox == null && _scissorTestEnabled) {
       _context.disable(WebGL.SCISSOR_TEST);
       _scissorTestEnabled = false;
