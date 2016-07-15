@@ -37,4 +37,7 @@ class ColorMask {
 
   int get hashCode => hash4(writeRed.hashCode, writeGreen.hashCode,
       writeBlue.hashCode, writeAlpha.hashCode);
+
+  String toString() =>
+      'ColorMask($writeRed, $writeGreen, $writeBlue, $writeAlpha)';
 }

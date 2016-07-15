@@ -113,4 +113,7 @@ class DepthTest {
 
   int get hashCode => hash4(testFunction.hashCode, write.hashCode,
       rangeNear.hashCode, rangeFar.hashCode);
+
+  String toString() => 'DepthTest(testFunction: $testFunction, write: $write, '
+      'rangeNear: $rangeNear, rangeFar: $rangeFar)';
 }

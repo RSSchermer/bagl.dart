@@ -125,6 +125,12 @@ class Blending {
           destinationColorFactor.hashCode),
       hash3(destinationAlphaFactor.hashCode, colorFunction.hashCode,
           alphaFunction.hashCode));
+
+  String toString() => 'Blending(sourceColorFactor: $sourceColorFactor, '
+      'sourceAlphaFactor: $sourceAlphaFactor, destinationColorFactor: '
+      '$destinationColorFactor, destinationAlphaFactor: '
+      '$destinationAlphaFactor, colorFunction: $colorFunction, alphaFunction: '
+      '$alphaFunction)';
 }
 
 /// Enumerates the possible blending factors that can be applied to color

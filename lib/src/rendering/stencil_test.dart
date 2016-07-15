@@ -281,6 +281,15 @@ class StencilTest {
       hash4(testFunctionBack.hashCode, failOperationBack.hashCode,
           passDepthFailOperationBack.hashCode, passOperationBack.hashCode),
       hash3(referenceValue.hashCode, testMask.hashCode, writeMask.hashCode));
+
+  String toString() => 'StencilTest(testFunctionFront: $testFunctionFront, '
+      'failOperationFront: $failOperationFront, passDepthFailOperationFront: '
+      '$passDepthFailOperationFront, passOperationFront: $passOperationFront, '
+      'testFunctionBack: $testFunctionBack, failOperationBack: '
+      '$failOperationBack, passDepthFailOperationBack: '
+      '$passDepthFailOperationBack, passOperationBack: $passOperationBack, '
+      'referenceValue: $referenceValue, testMask: $testMask, writeMask: '
+      '$writeMask)';
 }
 
 /// Enumerates the operations that can be performed on a stencil fragment as a

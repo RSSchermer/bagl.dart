@@ -32,4 +32,6 @@ class Region {
 
   int get hashCode =>
       hash4(x.hashCode, y.hashCode, width.hashCode, height.hashCode);
+
+  String toString() => 'Region($x, $y, $width, $height)';
 }
