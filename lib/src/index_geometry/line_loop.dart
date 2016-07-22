@@ -13,7 +13,8 @@ part of index_geometry;
 /// the same vertex as the final line segment's `end` vertex.
 ///
 /// See also [Lines] and [LineStrip].
-class LineLoop extends IterableBase<LineLoopLineView> implements IndexGeometry {
+class LineLoop extends IterableBase<LineLoopLineView>
+    implements IndexGeometry<LineLoopLineView> {
   final topology = Topology.lineLoop;
 
   final VertexArray vertices;
@@ -39,7 +40,7 @@ class LineLoop extends IterableBase<LineLoopLineView> implements IndexGeometry {
   /// Throws a [RangeError] if the [count] is negative or `offset + count` is
   /// greater than the length of the list of [indices].
   factory LineLoop(VertexArray vertices, IndexList indices,
-      [int offset = 0, int count]) =>
+          [int offset = 0, int count]) =>
       new LineLoop._internal(
           vertices, indices, offset, count ?? (indices.length - offset));
 

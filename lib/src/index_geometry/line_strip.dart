@@ -27,7 +27,7 @@ part of index_geometry;
 ///
 /// See also [Lines] and [LineLoop].
 class LineStrip extends IterableBase<LineStripLineView>
-    implements IndexGeometry {
+    implements IndexGeometry<LineStripLineView> {
   final topology = Topology.lineStrip;
 
   final VertexArray vertices;
@@ -53,7 +53,7 @@ class LineStrip extends IterableBase<LineStripLineView>
   /// Throws a [RangeError] if the [count] is negative or `offset + count` is
   /// greater than the length of the list of [indices].
   factory LineStrip(VertexArray vertices, IndexList indices,
-      [int offset = 0, int count]) =>
+          [int offset = 0, int count]) =>
       new LineStrip._internal(
           vertices, indices, offset, count ?? (indices.length - offset));
 

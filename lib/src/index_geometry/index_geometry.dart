@@ -16,7 +16,7 @@ part of index_geometry;
 ///
 /// See [Points] for a concrete implementation of [IndexGeometry] for
 /// describing [Point] geometry.
-abstract class IndexGeometry {
+abstract class IndexGeometry<Primitive> extends Iterable<Primitive> {
   /// The [Topology] for this [IndexGeometry].
   Topology get topology;
 

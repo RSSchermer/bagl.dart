@@ -9,7 +9,7 @@ part of index_geometry;
 ///
 /// See also [TriangleStrip] and [TriangleFan].
 class Triangles extends IterableBase<TrianglesTriangleView>
-    implements IndexGeometry {
+    implements IndexGeometry<TrianglesTriangleView> {
   final topology = Topology.triangles;
 
   final VertexArray vertices;

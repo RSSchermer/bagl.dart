@@ -34,7 +34,7 @@ part of index_geometry;
 ///
 /// See also [Triangles] and [TriangleFan].
 class TriangleFan extends IterableBase<TriangleFanTriangleView>
-    implements IndexGeometry {
+    implements IndexGeometry<TriangleFanTriangleView> {
   final topology = Topology.triangleFan;
 
   final VertexArray vertices;
@@ -61,7 +61,7 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
   /// Throws a [RangeError] if the [count] is negative or `offset + count` is
   /// greater than the length of the list of [indices].
   factory TriangleFan(VertexArray vertices, IndexList indices,
-      [int offset = 0, int count]) =>
+          [int offset = 0, int count]) =>
       new TriangleFan._internal(
           vertices, indices, offset, count ?? (indices.length - offset));
 

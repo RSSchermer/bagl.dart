@@ -30,7 +30,7 @@ part of index_geometry;
 ///
 /// See also [Triangles] and [TriangleFan].
 class TriangleStrip extends IterableBase<TriangleStripTriangleView>
-    implements IndexGeometry {
+    implements IndexGeometry<TriangleStripTriangleView> {
   final topology = Topology.triangleStrip;
 
   final VertexArray vertices;
@@ -57,7 +57,7 @@ class TriangleStrip extends IterableBase<TriangleStripTriangleView>
   /// Throws a [RangeError] if the [count] is negative or `offset + count` is
   /// greater than the length of the list of [indices].
   factory TriangleStrip(VertexArray vertices, IndexList indices,
-      [int offset = 0, int count]) =>
+          [int offset = 0, int count]) =>
       new TriangleStrip._internal(
           vertices, indices, offset, count ?? (indices.length - offset));
 
@@ -98,7 +98,8 @@ class TriangleStripIterator extends Iterator<TriangleStripTriangleView> {
   TriangleStripTriangleView get current {
     if (_currentTriangleIndex >= 0 &&
         _currentTriangleIndex < _trianglesLength) {
-      return new TriangleStripTriangleView(triangleStrip, _currentTriangleIndex);
+      return new TriangleStripTriangleView(
+          triangleStrip, _currentTriangleIndex);
     } else {
       return null;
     }

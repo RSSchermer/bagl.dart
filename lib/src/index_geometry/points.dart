@@ -6,7 +6,8 @@ part of index_geometry;
 /// The indices in the [IndexList] must be valid indices for vertices in the
 /// [VertexArray]. Each index uniquely identifies a vertex in the [VertexArray].
 /// Each index defines 1 point.
-class Points extends IterableBase<PointsPointView> implements IndexGeometry {
+class Points extends IterableBase<PointsPointView>
+    implements IndexGeometry<PointsPointView> {
   final topology = Topology.points;
 
   final VertexArray vertices;
@@ -32,7 +33,7 @@ class Points extends IterableBase<PointsPointView> implements IndexGeometry {
   /// Throws a [RangeError] if the [count] is negative or `offset + count` is
   /// greater than the length of the list of [indices].
   factory Points(VertexArray vertices, IndexList indices,
-      [int offset = 0, int count]) =>
+          [int offset = 0, int count]) =>
       new Points._internal(
           vertices, indices, offset, count ?? (indices.length - offset));
 

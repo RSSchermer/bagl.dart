@@ -8,7 +8,8 @@ part of index_geometry;
 /// Each pair of indices defines 1 line.
 ///
 /// See also [LineStrip] and [LineLoop].
-class Lines extends IterableBase<LinesLineView> implements IndexGeometry {
+class Lines extends IterableBase<LinesLineView>
+    implements IndexGeometry<LinesLineView> {
   final topology = Topology.lines;
 
   final VertexArray vertices;
@@ -34,7 +35,7 @@ class Lines extends IterableBase<LinesLineView> implements IndexGeometry {
   /// Throws a [RangeError] if the [count] is negative or `offset + count` is
   /// greater than the length of the list of [indices].
   factory Lines(VertexArray vertices, IndexList indices,
-      [int offset = 0, int count]) =>
+          [int offset = 0, int count]) =>
       new Lines._internal(
           vertices, indices, offset, count ?? (indices.length - offset));
 
