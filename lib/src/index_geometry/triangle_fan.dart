@@ -32,7 +32,7 @@ part of index_geometry;
 ///     //     \ /       \ /
 ///     //      v6        v1
 ///
-/// See also [Triangles] and [TriangleFan].
+/// See also [Triangles] and [TriangleStrip].
 class TriangleFan extends IterableBase<TriangleFanTriangleView>
     implements IndexGeometry<TriangleFanTriangleView> {
   final topology = Topology.triangleFan;
