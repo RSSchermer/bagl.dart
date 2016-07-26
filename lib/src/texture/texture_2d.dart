@@ -17,7 +17,7 @@ class Texture2D implements Texture {
   /// Optionally an [internalFormat] may be specified for the rendering backend.
   /// The [internalFormat] defaults to [PixelFormat.RGBA].
   factory Texture2D.fromImageURL(String url,
-      {internalFormat: PixelFormat.RGBA}) =>
+          {internalFormat: PixelFormat.RGBA}) =>
       new Texture2D.fromImageElement(new ImageElement(src: url),
           internalFormat: internalFormat);
 
@@ -26,7 +26,7 @@ class Texture2D implements Texture {
   /// Optionally an [internalFormat] may be specified for the rendering backend.
   /// The [internalFormat] defaults to [PixelFormat.RGBA].
   factory Texture2D.fromVideoURL(String url,
-      {internalFormat: PixelFormat.RGBA}) =>
+          {internalFormat: PixelFormat.RGBA}) =>
       new Texture2D.fromVideoElement(new VideoElement()..src = url,
           internalFormat: internalFormat);
 
