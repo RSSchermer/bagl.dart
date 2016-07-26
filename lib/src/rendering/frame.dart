@@ -69,9 +69,9 @@ class Frame {
   ///   exactly.
   /// - [dithering]: whether or not dithering will be performed before writing
   ///   color components or indices to the color buffer. Defaults to `true`.
-  /// - [attributeNameMap]: may be used to map the [geometry]'s attributes to
-  ///   different attribute names in case the [geometry]'s attribute names do
-  ///   not match the attribute names used by the rendering program.
+  /// - [attributeNameMap]: may be used to map the [program]'s attributes to
+  ///   different attribute names in case the [program]'s attribute names do
+  ///   not match the attribute names used by the [geometry].
   ///
   /// Finally, the thus configured rendering pipeline is used to process the
   /// [geometry], updating this [Frame]'s relevant output buffers accordingly.
@@ -117,24 +117,25 @@ class Frame {
     context._useProgram(program);
 
     final glProgram = context._programResources.getGLProgram(program);
-
     final unusedAttribLocations = context._enabledAttributeLocations.toSet();
 
     // Enable vertex attributes and adjust vertex attribute pointers if
     // necessary
-    geometry.vertices.attributes.forEach((name, attribute) {
-      name = attributeNameMap[name] ?? name;
+    glProgram.attributeInfoByName.forEach((name, attributeInfo) {
+      final mappedName = attributeNameMap[name] ?? name;
+      final attribute = geometry.vertices.attributes[mappedName];
+
+      if (attribute == null) {
+        throw new ArgumentError('The geometry does not define an attribute '
+            'matching the "$name" attribute on the shader program.');
+      }
+
+      // TODO: add check to see if attributeInfo.type matches attribute?
+
       final columnCount = attribute.columnCount;
       final columnSize = attribute.columnSize;
       final table = attribute.attributeDataTable;
       final stride = table.elementSizeInBytes;
-      final attributeInfo = glProgram.attributeInfoByName[name];
-
-      if (attributeInfo == null) {
-        throw new ArgumentError('No active attribute named "$name" was found '
-            'in shader program.');
-      }
-
       final startLocation = attributeInfo.location;
 
       for (var i = 0; i < columnCount; i++) {

@@ -67,7 +67,7 @@ void main() {
       final triangles = new Triangles(vertices, new IndexList.incrementing(6));
 
       context.defaultFrame.draw(triangles, program, {},
-          attributeNameMap: {'position': 'aPos', 'color': 'aColor'});
+          attributeNameMap: {'aPos': 'position', 'aColor': 'color'});
 
       test('draws the correct frame', () {
         expect(canvas,
