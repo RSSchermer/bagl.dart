@@ -1,8 +1,12 @@
 part of math;
 
 /// A column vector of length 3 (a 3 by 1 matrix).
-class Vector3 extends GenericMatrix<Vector3, Matrix> {
+class Vector3 extends _VertexBase implements Matrix {
   final Float32List _storage;
+
+  final int columnDimension = 1;
+
+  final int rowDimension = 3;
 
   /// Instantiates a new [Vector3] with the specified values.
   factory Vector3(double x, double y, double z) {
@@ -12,40 +16,30 @@ class Vector3 extends GenericMatrix<Vector3, Matrix> {
     values[1] = y;
     values[2] = z;
 
-    return new Vector3.fromFloat32List(values);
+    return new Vector3._internal(values);
   }
 
   /// Instantiates a new [Vector3] from the given list.
   ///
   /// Throws an [ArgumentError] if the length does the list does not equal 3.
-  factory Vector3.fromList(List<double> values) =>
-      new Vector3.fromFloat32List(new Float32List.fromList(values));
-
-  /// Instantiates a new [Vector3] from the given [Float32List].
-  ///
-  /// Throws an [ArgumentError] if the length does the list does not equal 3.
-  Vector3.fromFloat32List(Float32List values)
-      : _storage = values,
-        super.fromFloat32List(values, 1) {
+  factory Vector3.fromList(List<double> values) {
     if (values.length != 3) {
       throw new ArgumentError(
           'A list of length 3 required to instantiate a Vector3.');
     }
+
+    return new Vector3._internal(new Float32List.fromList(values));
   }
 
   /// Instantiates a new [Vector3] where every position is set to the specified
   /// value.
   factory Vector3.constant(double value) =>
-      new Vector3.fromFloat32List(new Float32List(3)..fillRange(0, 3, value));
+      new Vector3._internal(new Float32List(3)..fillRange(0, 3, value));
 
   /// Instantiates a new [Vector3] where every position is set to zero.
-  factory Vector3.zero() => new Vector3.fromFloat32List(new Float32List(3));
+  factory Vector3.zero() => new Vector3._internal(new Float32List(3));
 
-  Vector3 withValues(Float32List newValues) =>
-      new Vector3.fromFloat32List(newValues);
-
-  Matrix transposeWithValues(Float32List newValues) =>
-      new Matrix.fromFloat32List(newValues, 3);
+  Vector3._internal(this._storage);
 
   double get x => _storage[0];
   double get y => _storage[1];
@@ -59,9 +53,87 @@ class Vector3 extends GenericMatrix<Vector3, Matrix> {
   double get t => _storage[1];
   double get p => _storage[2];
 
-  /// Returns the value at the specified index.
+  Vector3 scalarProduct(num s) {
+    final values = new Float32List(3);
+
+    values[0] = x * s;
+    values[1] = y * s;
+    values[2] = z * s;
+
+    return new Vector3._internal(values);
+  }
+
+  Vector3 scalarDivision(num s) {
+    final values = new Float32List(3);
+
+    values[0] = x / s;
+    values[1] = y / s;
+    values[2] = z / s;
+
+    return new Vector3._internal(values);
+  }
+
+  Vector3 entrywiseSum(Matrix B) {
+    final values = new Float32List(3);
+
+    if (B is Vector3) {
+      values[0] = x + B.x;
+      values[1] = y + B.y;
+      values[2] = z + B.z;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = x + B.valueAt(0, 0);
+      values[1] = y + B.valueAt(1, 0);
+      values[2] = z + B.valueAt(2, 0);
+    }
+
+    return new Vector3._internal(values);
+  }
+
+  Vector3 entrywiseDifference(Matrix B) {
+    final values = new Float32List(3);
+
+    if (B is Vector3) {
+      values[0] = x - B.x;
+      values[1] = y - B.y;
+      values[2] = z - B.z;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = x - B.valueAt(0, 0);
+      values[1] = y - B.valueAt(1, 0);
+      values[2] = z - B.valueAt(2, 0);
+    }
+
+    return new Vector3._internal(values);
+  }
+
+  Vector3 entrywiseProduct(Matrix B) {
+    final values = new Float32List(3);
+
+    if (B is Vector3) {
+      values[0] = x * B.x;
+      values[1] = y * B.y;
+      values[2] = z * B.z;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = x * B.valueAt(0, 0);
+      values[1] = y * B.valueAt(1, 0);
+      values[2] = z * B.valueAt(2, 0);
+    }
+
+    return new Vector3._internal(values);
+  }
+
+  Vector3 operator +(Matrix B) => entrywiseSum(B);
+
+  Vector3 operator -(Matrix B) => entrywiseDifference(B);
+
+  /// Returns the value at the [index].
   ///
-  /// Throws a [RangeError] if the specified index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 3);
 

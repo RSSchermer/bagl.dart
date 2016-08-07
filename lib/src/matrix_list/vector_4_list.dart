@@ -63,9 +63,10 @@ class Vector4List extends ListBase<Vector4>
   Vector4 operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
-    return new Vector4.fromFloat32List(new Float32List(_elementSizeInFloats)
-      ..setRange(
-          0, _elementSizeInFloats, _storage, index * _elementSizeInFloats));
+    final s = index * _elementSizeInFloats;
+
+    return new Vector4(
+        _storage[s], _storage[s + 1], _storage[s + 2], _storage[s + 3]);
   }
 
   void operator []=(int index, Vector4 value) {

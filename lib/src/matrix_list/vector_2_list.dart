@@ -61,9 +61,9 @@ class Vector2List extends ListBase<Vector2>
   Vector2 operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
-    return new Vector2.fromFloat32List(new Float32List(_elementSizeInFloats)
-      ..setRange(
-          0, _elementSizeInFloats, _storage, index * _elementSizeInFloats));
+    final s = index * _elementSizeInFloats;
+
+    return new Vector2(_storage[s], _storage[s + 1]);
   }
 
   void operator []=(int index, Vector2 value) {

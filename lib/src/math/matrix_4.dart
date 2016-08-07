@@ -16,8 +16,22 @@ part of math;
 ///       13.0, 14.0, 15.0, 16.0
 ///     );
 ///
-class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
+class Matrix4 extends _MatrixBase implements Matrix {
   final Float32List _storage;
+
+  final int columnDimension = 4;
+
+  final int rowDimension = 4;
+
+  final bool isSquare = true;
+
+  Matrix4 _transpose;
+
+  Matrix4 _inverse;
+
+  double _determinant;
+
+  Iterable<double> _valuesColumnPacked;
 
   /// Instantiates a new [Matrix4] from the given values, partitioned into rows
   /// of length 4.
@@ -72,7 +86,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[14] = val14;
     values[15] = val15;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a new [Matrix4] from the given list, partitioned into rows
@@ -93,20 +107,13 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
   ///     ]);
   ///
   /// Throws an [ArgumentError] if the list does not have a length of 16.
-  factory Matrix4.fromList(List<double> values) =>
-      new Matrix4.fromFloat32List(new Float32List.fromList(values));
-
-  /// Instantiates a new [Matrix4] from the given [Float32List], partitioned
-  /// into rows of length 4.
-  ///
-  /// Throws an [ArgumentError] if the list does not have a length of 16.
-  Matrix4.fromFloat32List(Float32List values)
-      : _storage = values,
-        super.fromFloat32List(values, 4) {
+  factory Matrix4.fromList(List<double> values) {
     if (values.length != 16) {
       throw new ArgumentError(
           'A list of length 16 required to instantiate a Matrix4.');
     }
+
+    return new Matrix4._internal(new Float32List.fromList(values));
   }
 
   /// Instantiates a new [Matrix4] where every position is set to the given
@@ -122,7 +129,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
   ///     var matrix = new Matrix4.constant(2);
   ///
   factory Matrix4.constant(double value) =>
-      new Matrix4.fromFloat32List(new Float32List(16)..fillRange(0, 16, value));
+      new Matrix4._internal(new Float32List(16)..fillRange(0, 16, value));
 
   /// Instantiates a new [Matrix4] where every position is set to zero.
   ///
@@ -135,7 +142,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
   ///     //
   ///     var matrix = new Matrix4.zero();
   ///
-  factory Matrix4.zero() => new Matrix4.fromFloat32List(new Float32List(16));
+  factory Matrix4.zero() => new Matrix4._internal(new Float32List(16));
 
   /// Instantiates a new [Matrix4] as an identity matrix.
   ///
@@ -156,7 +163,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[10] = 1.0;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] translates
@@ -172,7 +179,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[11] = translation.z;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] scales it
@@ -186,7 +193,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[10] = scaleZ;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
@@ -213,7 +220,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[10] = t * z * z + c;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
@@ -230,7 +237,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[10] = c;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
@@ -247,7 +254,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[10] = c;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
@@ -264,7 +271,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[10] = 1.0;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a new [Matrix4] as a frustum projection matrix for a frustum
@@ -291,7 +298,7 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[11] = d;
     values[14] = -1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
   /// Instantiates a new [Matrix4] as a perspective projection matrix for a
@@ -336,94 +343,10 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
     values[11] = -z;
     values[15] = 1.0;
 
-    return new Matrix4.fromFloat32List(values);
+    return new Matrix4._internal(values);
   }
 
-  Matrix4 withValues(Float32List newValues) =>
-      new Matrix4.fromFloat32List(newValues);
-
-  Matrix4 transposeWithValues(Float32List newValues) =>
-      new Matrix4.fromFloat32List(newValues);
-
-  matrixProduct(GenericMatrix B) {
-    if (B is Matrix4) {
-      final m00 = _storage[0];
-      final m01 = _storage[1];
-      final m02 = _storage[2];
-      final m03 = _storage[3];
-      final m10 = _storage[4];
-      final m11 = _storage[5];
-      final m12 = _storage[6];
-      final m13 = _storage[7];
-      final m20 = _storage[8];
-      final m21 = _storage[9];
-      final m22 = _storage[10];
-      final m23 = _storage[11];
-      final m30 = _storage[12];
-      final m31 = _storage[13];
-      final m32 = _storage[14];
-      final m33 = _storage[15];
-
-      final bStorage = B._storage;
-
-      final n00 = bStorage[0];
-      final n01 = bStorage[1];
-      final n02 = bStorage[2];
-      final n03 = bStorage[3];
-      final n10 = bStorage[4];
-      final n11 = bStorage[5];
-      final n12 = bStorage[6];
-      final n13 = bStorage[7];
-      final n20 = bStorage[8];
-      final n21 = bStorage[9];
-      final n22 = bStorage[10];
-      final n23 = bStorage[11];
-      final n30 = bStorage[12];
-      final n31 = bStorage[13];
-      final n32 = bStorage[14];
-      final n33 = bStorage[15];
-
-      final values = new Float32List(16);
-
-      values[0] = (m00 * n00) + (m01 * n10) + (m02 * n20) + (m03 * n30);
-      values[1] = (m00 * n01) + (m01 * n11) + (m02 * n21) + (m03 * n31);
-      values[2] = (m00 * n02) + (m01 * n12) + (m02 * n22) + (m03 * n32);
-      values[3] = (m00 * n03) + (m01 * n13) + (m02 * n23) + (m03 * n33);
-      values[4] = (m10 * n00) + (m11 * n10) + (m12 * n20) + (m13 * n30);
-      values[5] = (m10 * n01) + (m11 * n11) + (m12 * n21) + (m13 * n31);
-      values[6] = (m10 * n02) + (m11 * n12) + (m12 * n22) + (m13 * n32);
-      values[7] = (m10 * n03) + (m11 * n13) + (m12 * n23) + (m13 * n33);
-      values[8] = (m20 * n00) + (m21 * n10) + (m22 * n20) + (m23 * n30);
-      values[9] = (m20 * n01) + (m21 * n11) + (m22 * n21) + (m23 * n31);
-      values[10] = (m20 * n02) + (m21 * n12) + (m22 * n22) + (m23 * n32);
-      values[11] = (m20 * n03) + (m21 * n13) + (m22 * n23) + (m23 * n33);
-      values[12] = (m30 * n00) + (m31 * n10) + (m32 * n20) + (m33 * n30);
-      values[13] = (m30 * n01) + (m31 * n11) + (m32 * n21) + (m33 * n31);
-      values[14] = (m30 * n02) + (m31 * n12) + (m32 * n22) + (m33 * n32);
-      values[15] = (m30 * n03) + (m31 * n13) + (m32 * n23) + (m33 * n33);
-
-      return new Matrix4.fromFloat32List(values);
-    } else if (B is Vector4) {
-      final bStorage = B._storage;
-
-      final n0 = bStorage[0];
-      final n1 = bStorage[1];
-      final n2 = bStorage[2];
-      final n3 = bStorage[3];
-
-      final s = _storage;
-      final values = new Float32List(4);
-
-      values[0] = (s[0] * n0) + (s[1] * n1) + (s[2] * n2) + (s[3] * n3);
-      values[1] = (s[4] * n0) + (s[5] * n1) + (s[6] * n2) + (s[7] * n3);
-      values[2] = (s[8] * n0) + (s[9] * n1) + (s[10] * n2) + (s[11] * n3);
-      values[3] = (s[12] * n0) + (s[13] * n1) + (s[14] * n2) + (s[15] * n3);
-
-      return new Vector4.fromFloat32List(values);
-    } else {
-      return super.matrixProduct(B);
-    }
-  }
+  Matrix4._internal(this._storage);
 
   /// Returns the value in the first column of the first row.
   ///
@@ -537,12 +460,401 @@ class Matrix4 extends GenericMatrix<Matrix4, Matrix4> {
   /// be performed on value indices.
   double get r3c3 => _storage[15];
 
+  bool get isNonSingular => determinant != 0;
+
+  Iterable<double> get valuesColumnPacked {
+    if (_valuesColumnPacked == null) {
+      final values = new Float32List(16);
+
+      values[0] = r0c0;
+      values[1] = r1c0;
+      values[2] = r2c0;
+      values[3] = r3c0;
+      values[4] = r0c1;
+      values[5] = r1c1;
+      values[6] = r2c1;
+      values[7] = r3c1;
+      values[8] = r0c2;
+      values[9] = r1c2;
+      values[10] = r2c2;
+      values[11] = r3c2;
+      values[12] = r0c3;
+      values[13] = r1c3;
+      values[14] = r2c3;
+      values[15] = r3c3;
+
+      _valuesColumnPacked = new UnmodifiableListView(values);
+    }
+
+    return _valuesColumnPacked;
+  }
+
+  Matrix4 get transpose {
+    if (_transpose == null) {
+      final values = new Float32List(16);
+
+      values[0] = r0c0;
+      values[1] = r1c0;
+      values[2] = r2c0;
+      values[3] = r3c0;
+      values[4] = r0c1;
+      values[5] = r1c1;
+      values[6] = r2c1;
+      values[7] = r3c1;
+      values[8] = r0c2;
+      values[9] = r1c2;
+      values[10] = r2c2;
+      values[11] = r3c2;
+      values[12] = r0c3;
+      values[13] = r1c3;
+      values[14] = r2c3;
+      values[15] = r3c3;
+
+      _transpose = new Matrix4._internal(values);
+    }
+
+    return _transpose;
+  }
+
+  double get determinant {
+    if (_determinant == null) {
+      final det2_01_01 = r0c0 * r1c1 - r1c0 * r0c1;
+      final det2_01_02 = r0c0 * r2c1 - r2c0 * r0c1;
+      final det2_01_03 = r0c0 * r3c1 - r3c0 * r0c1;
+      final det2_01_12 = r1c0 * r2c1 - r2c0 * r1c1;
+      final det2_01_13 = r1c0 * r3c1 - r3c0 * r1c1;
+      final det2_01_23 = r2c0 * r3c1 - r3c0 * r2c1;
+
+      final det3_201_012 =
+          r0c2 * det2_01_12 - r1c2 * det2_01_02 + r2c2 * det2_01_01;
+      final det3_201_013 =
+          r0c2 * det2_01_13 - r1c2 * det2_01_03 + r3c2 * det2_01_01;
+      final det3_201_023 =
+          r0c2 * det2_01_23 - r2c2 * det2_01_03 + r3c2 * det2_01_02;
+      final det3_201_123 =
+          r1c2 * det2_01_23 - r2c2 * det2_01_13 + r3c2 * det2_01_12;
+
+      _determinant = -det3_201_123 * r0c3 +
+          det3_201_023 * r1c3 -
+          det3_201_013 * r2c3 +
+          det3_201_012 * r3c3;
+    }
+
+    return _determinant;
+  }
+
+  Matrix4 get inverse {
+    if (_inverse == null) {
+      final b00 = r0c0 * r1c1 - r1c0 * r0c1;
+      final b01 = r0c0 * r2c1 - r2c0 * r0c1;
+      final b02 = r0c0 * r3c1 - r3c0 * r0c1;
+      final b03 = r1c0 * r2c1 - r2c0 * r1c1;
+      final b04 = r1c0 * r3c1 - r3c0 * r1c1;
+      final b05 = r2c0 * r3c1 - r3c0 * r2c1;
+      final b06 = r0c2 * r1c3 - r1c2 * r0c3;
+      final b07 = r0c2 * r2c3 - r2c2 * r0c3;
+      final b08 = r0c2 * r3c3 - r3c2 * r0c3;
+      final b09 = r1c2 * r2c3 - r2c2 * r1c3;
+      final b10 = r1c2 * r3c3 - r3c2 * r1c3;
+      final b11 = r2c2 * r3c3 - r3c2 * r2c3;
+
+      final det = _determinant ??
+          b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+      if (det == 0) {
+        throw new UnsupportedError('This matrix is singular (has no inverse).');
+      }
+
+      final detInv = 1.0 / det;
+      final values = new Float32List(16);
+
+      values[0] = detInv * (r1c1 * b11 - r2c1 * b10 + r3c1 * b09);
+      values[1] = detInv * (-r0c1 * b11 + r2c1 * b08 - r3c1 * b07);
+      values[2] = detInv * (r0c1 * b10 - r1c1 * b08 + r3c1 * b06);
+      values[3] = detInv * (-r0c1 * b09 + r1c1 * b07 - r2c1 * b06);
+      values[4] = detInv * (-r1c0 * b11 + r2c0 * b10 - r3c0 * b09);
+      values[5] = detInv * (r0c0 * b11 - r2c0 * b08 + r3c0 * b07);
+      values[6] = detInv * (-r0c0 * b10 + r1c0 * b08 - r3c0 * b06);
+      values[7] = detInv * (r0c0 * b09 - r1c0 * b07 + r2c0 * b06);
+      values[8] = detInv * (r1c3 * b05 - r2c3 * b04 + r3c3 * b03);
+      values[9] = detInv * (-r0c3 * b05 + r2c3 * b02 - r3c3 * b01);
+      values[10] = detInv * (r0c3 * b04 - r1c3 * b02 + r3c3 * b00);
+      values[11] = detInv * (-r0c3 * b03 + r1c3 * b01 - r2c3 * b00);
+      values[12] = detInv * (-r1c2 * b05 + r2c2 * b04 - r3c2 * b03);
+      values[13] = detInv * (r0c2 * b05 - r2c2 * b02 + r3c2 * b01);
+      values[14] = detInv * (-r0c2 * b04 + r1c2 * b02 - r3c2 * b00);
+      values[15] = detInv * (r0c2 * b03 - r1c2 * b01 + r2c2 * b00);
+
+      _inverse = new Matrix4._internal(values);
+    }
+
+    return _inverse;
+  }
+
+  Matrix4 scalarProduct(num s) {
+    final values = new Float32List(16);
+
+    values[0] = r0c0 * s;
+    values[1] = r0c1 * s;
+    values[2] = r0c2 * s;
+    values[3] = r0c3 * s;
+    values[4] = r1c0 * s;
+    values[5] = r1c1 * s;
+    values[6] = r1c2 * s;
+    values[7] = r1c3 * s;
+    values[8] = r2c0 * s;
+    values[9] = r2c1 * s;
+    values[10] = r2c2 * s;
+    values[11] = r2c3 * s;
+    values[12] = r3c0 * s;
+    values[13] = r3c1 * s;
+    values[14] = r3c2 * s;
+    values[15] = r3c3 * s;
+
+    return new Matrix4._internal(values);
+  }
+
+  Matrix4 scalarDivision(num s) {
+    final values = new Float32List(16);
+
+    values[0] = r0c0 / s;
+    values[1] = r0c1 / s;
+    values[2] = r0c2 / s;
+    values[3] = r0c3 / s;
+    values[4] = r1c0 / s;
+    values[5] = r1c1 / s;
+    values[6] = r1c2 / s;
+    values[7] = r1c3 / s;
+    values[8] = r2c0 / s;
+    values[9] = r2c1 / s;
+    values[10] = r2c2 / s;
+    values[11] = r2c3 / s;
+    values[12] = r3c0 / s;
+    values[13] = r3c1 / s;
+    values[14] = r3c2 / s;
+    values[15] = r3c3 / s;
+
+    return new Matrix4._internal(values);
+  }
+
+  Matrix4 entrywiseSum(Matrix B) {
+    final values = new Float32List(16);
+
+    if (B is Matrix4) {
+      values[0] = r0c0 + B.r0c0;
+      values[1] = r0c1 + B.r0c1;
+      values[2] = r0c2 + B.r0c2;
+      values[3] = r0c3 + B.r0c3;
+      values[4] = r1c0 + B.r1c0;
+      values[5] = r1c1 + B.r1c1;
+      values[6] = r1c2 + B.r1c2;
+      values[7] = r1c3 + B.r1c3;
+      values[8] = r2c0 + B.r2c0;
+      values[9] = r2c1 + B.r2c1;
+      values[10] = r2c2 + B.r2c2;
+      values[11] = r2c3 + B.r2c3;
+      values[12] = r3c0 + B.r3c0;
+      values[13] = r3c1 + B.r3c1;
+      values[14] = r3c2 + B.r3c2;
+      values[15] = r3c3 + B.r3c3;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = r0c0 + B.valueAt(0, 0);
+      values[1] = r0c1 + B.valueAt(0, 1);
+      values[2] = r0c2 + B.valueAt(0, 2);
+      values[3] = r0c3 + B.valueAt(0, 3);
+      values[4] = r1c0 + B.valueAt(1, 0);
+      values[5] = r1c1 + B.valueAt(1, 1);
+      values[6] = r1c2 + B.valueAt(1, 2);
+      values[7] = r1c3 + B.valueAt(1, 3);
+      values[8] = r2c0 + B.valueAt(2, 0);
+      values[9] = r2c1 + B.valueAt(2, 1);
+      values[10] = r2c2 + B.valueAt(2, 2);
+      values[11] = r2c3 + B.valueAt(2, 3);
+      values[12] = r3c0 + B.valueAt(3, 0);
+      values[13] = r3c1 + B.valueAt(3, 1);
+      values[14] = r3c2 + B.valueAt(3, 2);
+      values[15] = r3c3 + B.valueAt(3, 3);
+    }
+
+    return new Matrix4._internal(values);
+  }
+
+  Matrix4 entrywiseDifference(Matrix B) {
+    final values = new Float32List(16);
+
+    if (B is Matrix4) {
+      values[0] = r0c0 - B.r0c0;
+      values[1] = r0c1 - B.r0c1;
+      values[2] = r0c2 - B.r0c2;
+      values[3] = r0c3 - B.r0c3;
+      values[4] = r1c0 - B.r1c0;
+      values[5] = r1c1 - B.r1c1;
+      values[6] = r1c2 - B.r1c2;
+      values[7] = r1c3 - B.r1c3;
+      values[8] = r2c0 - B.r2c0;
+      values[9] = r2c1 - B.r2c1;
+      values[10] = r2c2 - B.r2c2;
+      values[11] = r2c3 - B.r2c3;
+      values[12] = r3c0 - B.r3c0;
+      values[13] = r3c1 - B.r3c1;
+      values[14] = r3c2 - B.r3c2;
+      values[15] = r3c3 - B.r3c3;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = r0c0 - B.valueAt(0, 0);
+      values[1] = r0c1 - B.valueAt(0, 1);
+      values[2] = r0c2 - B.valueAt(0, 2);
+      values[3] = r0c3 - B.valueAt(0, 3);
+      values[4] = r1c0 - B.valueAt(1, 0);
+      values[5] = r1c1 - B.valueAt(1, 1);
+      values[6] = r1c2 - B.valueAt(1, 2);
+      values[7] = r1c3 - B.valueAt(1, 3);
+      values[8] = r2c0 - B.valueAt(2, 0);
+      values[9] = r2c1 - B.valueAt(2, 1);
+      values[10] = r2c2 - B.valueAt(2, 2);
+      values[11] = r2c3 - B.valueAt(2, 3);
+      values[12] = r3c0 - B.valueAt(3, 0);
+      values[13] = r3c1 - B.valueAt(3, 1);
+      values[14] = r3c2 - B.valueAt(3, 2);
+      values[15] = r3c3 - B.valueAt(3, 3);
+    }
+
+    return new Matrix4._internal(values);
+  }
+
+  Matrix4 entrywiseProduct(Matrix B) {
+    final values = new Float32List(16);
+
+    if (B is Matrix4) {
+      values[0] = r0c0 * B.r0c0;
+      values[1] = r0c1 * B.r0c1;
+      values[2] = r0c2 * B.r0c2;
+      values[3] = r0c3 * B.r0c3;
+      values[4] = r1c0 * B.r1c0;
+      values[5] = r1c1 * B.r1c1;
+      values[6] = r1c2 * B.r1c2;
+      values[7] = r1c3 * B.r1c3;
+      values[8] = r2c0 * B.r2c0;
+      values[9] = r2c1 * B.r2c1;
+      values[10] = r2c2 * B.r2c2;
+      values[11] = r2c3 * B.r2c3;
+      values[12] = r3c0 * B.r3c0;
+      values[13] = r3c1 * B.r3c1;
+      values[14] = r3c2 * B.r3c2;
+      values[15] = r3c3 * B.r3c3;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = r0c0 * B.valueAt(0, 0);
+      values[1] = r0c1 * B.valueAt(0, 1);
+      values[2] = r0c2 * B.valueAt(0, 2);
+      values[3] = r0c3 * B.valueAt(0, 3);
+      values[4] = r1c0 * B.valueAt(1, 0);
+      values[5] = r1c1 * B.valueAt(1, 1);
+      values[6] = r1c2 * B.valueAt(1, 2);
+      values[7] = r1c3 * B.valueAt(1, 3);
+      values[8] = r2c0 * B.valueAt(2, 0);
+      values[9] = r2c1 * B.valueAt(2, 1);
+      values[10] = r2c2 * B.valueAt(2, 2);
+      values[11] = r2c3 * B.valueAt(2, 3);
+      values[12] = r3c0 * B.valueAt(3, 0);
+      values[13] = r3c1 * B.valueAt(3, 1);
+      values[14] = r3c2 * B.valueAt(3, 2);
+      values[15] = r3c3 * B.valueAt(3, 3);
+    }
+
+    return new Matrix4._internal(values);
+  }
+
+  matrixProduct(Matrix B) {
+    if (B is Matrix4) {
+      final m00 = r0c0;
+      final m01 = r0c1;
+      final m02 = r0c2;
+      final m03 = r0c3;
+      final m10 = r1c0;
+      final m11 = r1c1;
+      final m12 = r1c2;
+      final m13 = r1c3;
+      final m20 = r2c0;
+      final m21 = r2c1;
+      final m22 = r2c2;
+      final m23 = r2c3;
+      final m30 = r3c0;
+      final m31 = r3c1;
+      final m32 = r3c2;
+      final m33 = r3c3;
+
+      final n00 = B.r0c0;
+      final n01 = B.r0c1;
+      final n02 = B.r0c2;
+      final n03 = B.r0c3;
+      final n10 = B.r1c0;
+      final n11 = B.r1c1;
+      final n12 = B.r1c2;
+      final n13 = B.r1c3;
+      final n20 = B.r2c0;
+      final n21 = B.r2c1;
+      final n22 = B.r2c2;
+      final n23 = B.r2c3;
+      final n30 = B.r3c0;
+      final n31 = B.r3c1;
+      final n32 = B.r3c2;
+      final n33 = B.r3c3;
+
+      final values = new Float32List(16);
+
+      values[0] = (m00 * n00) + (m01 * n10) + (m02 * n20) + (m03 * n30);
+      values[1] = (m00 * n01) + (m01 * n11) + (m02 * n21) + (m03 * n31);
+      values[2] = (m00 * n02) + (m01 * n12) + (m02 * n22) + (m03 * n32);
+      values[3] = (m00 * n03) + (m01 * n13) + (m02 * n23) + (m03 * n33);
+      values[4] = (m10 * n00) + (m11 * n10) + (m12 * n20) + (m13 * n30);
+      values[5] = (m10 * n01) + (m11 * n11) + (m12 * n21) + (m13 * n31);
+      values[6] = (m10 * n02) + (m11 * n12) + (m12 * n22) + (m13 * n32);
+      values[7] = (m10 * n03) + (m11 * n13) + (m12 * n23) + (m13 * n33);
+      values[8] = (m20 * n00) + (m21 * n10) + (m22 * n20) + (m23 * n30);
+      values[9] = (m20 * n01) + (m21 * n11) + (m22 * n21) + (m23 * n31);
+      values[10] = (m20 * n02) + (m21 * n12) + (m22 * n22) + (m23 * n32);
+      values[11] = (m20 * n03) + (m21 * n13) + (m22 * n23) + (m23 * n33);
+      values[12] = (m30 * n00) + (m31 * n10) + (m32 * n20) + (m33 * n30);
+      values[13] = (m30 * n01) + (m31 * n11) + (m32 * n21) + (m33 * n31);
+      values[14] = (m30 * n02) + (m31 * n12) + (m32 * n22) + (m33 * n32);
+      values[15] = (m30 * n03) + (m31 * n13) + (m32 * n23) + (m33 * n33);
+
+      return new Matrix4._internal(values);
+    } else if (B is Vector4) {
+      final n0 = B.x;
+      final n1 = B.y;
+      final n2 = B.z;
+      final n3 = B.w;
+
+      final values = new Float32List(4);
+
+      values[0] = (r0c0 * n0) + (r0c1 * n1) + (r0c2 * n2) + (r0c3 * n3);
+      values[1] = (r1c0 * n0) + (r1c1 * n1) + (r1c2 * n2) + (r1c3 * n3);
+      values[2] = (r2c0 * n0) + (r2c1 * n1) + (r2c2 * n2) + (r2c3 * n3);
+      values[3] = (r3c0 * n0) + (r3c1 * n1) + (r3c2 * n2) + (r3c3 * n3);
+
+      return new Vector4._internal(values);
+    } else {
+      return super.matrixProduct(B);
+    }
+  }
+
+  Matrix4 operator +(Matrix B) => entrywiseSum(B);
+
+  Matrix4 operator -(Matrix B) => entrywiseDifference(B);
+
   /// Returns the row at the specified index.
   ///
   /// Throws a [RangeError] if the specified index is out of bounds.
   List<double> operator [](int index) => rowAt(index);
 
   String toString() {
-    return 'Matrix4(${values.toString()})';
+    return 'Matrix4($r0c0, $r0c1, $r0c2, $r0c3, $r1c0, $r1c1, $r1c2, $r1c3, '
+        '$r2c0, $r2c1, $r2c2, $r2c3, $r3c0, $r3c1, $r3c2, $r3c3)';
   }
 }

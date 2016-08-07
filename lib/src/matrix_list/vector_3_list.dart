@@ -62,9 +62,9 @@ class Vector3List extends ListBase<Vector3>
   Vector3 operator [](int index) {
     RangeError.checkValidIndex(index, this);
 
-    return new Vector3.fromFloat32List(new Float32List(_elementSizeInFloats)
-      ..setRange(
-          0, _elementSizeInFloats, _storage, index * _elementSizeInFloats));
+    final s = index * _elementSizeInFloats;
+
+    return new Vector3(_storage[s], _storage[s + 1], _storage[s + 2]);
   }
 
   void operator []=(int index, Vector3 value) {

@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
 import 'dart:math';
-import 'dart:typed_data';
 import '../helpers.dart';
 
 void main() {
@@ -31,20 +30,6 @@ void main() {
 
       test('throws an error when the list has less than 9 items', () {
         final list = new List.filled(8, 1.0);
-
-        expect(() => new Matrix3.fromList(list), throwsArgumentError);
-      });
-    });
-
-    group('fromFloat32List constructor', () {
-      test('throws an error when the list has more than 9 items', () {
-        final list = new Float32List(10);
-
-        expect(() => new Matrix3.fromList(list), throwsArgumentError);
-      });
-
-      test('throws an error when the list has less than 9 items', () {
-        final list = new Float32List(8);
 
         expect(() => new Matrix3.fromList(list), throwsArgumentError);
       });
@@ -164,10 +149,169 @@ void main() {
     
     group('instance', () {
       final matrix = new Matrix3(
-          1.0, 2.0, 3.0,
-          4.0, 5.0, 6.0,
-          7.0, 8.0, 9.0
+          4.0, 2.0, 7.0,
+          3.0, 9.0, 5.0,
+          1.0, 6.0, 8.0
       );
+
+      group('valueAt', () {
+        test('(1, 0)', () {
+          expect(matrix.valueAt(1, 0), closeTo(3.0, 0.00001));
+        });
+      });
+
+      group('rowAt', () {
+        test('throws an error when trying to access an out of bounds row', () {
+          expect(() => matrix.rowAt(3), throwsRangeError);
+        });
+
+        test('returns the correct row', () {
+          expect(matrix.rowAt(1), orderedCloseTo([3.0, 9.0, 5.0], 0.00001));
+        });
+      });
+
+      group('valuesColumnPacked', () {
+        test('returns the correct value', () {
+          expect(matrix.valuesColumnPacked, orderedCloseTo([
+            4.0, 3.0, 1.0,
+            2.0, 9.0, 6.0,
+            7.0, 5.0, 8.0
+          ], 0.00001));
+        });
+      });
+
+      group('transpose', () {
+        final transpose = matrix.transpose;
+
+        test('returns a Matrix3', () {
+          expect(transpose, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(transpose.values, orderedCloseTo([
+            4.0, 3.0, 1.0,
+            2.0, 9.0, 6.0,
+            7.0, 5.0, 8.0
+          ], 0.00001));
+        });
+      });
+
+      group('determinant', () {
+        test('returns the correct value', () {
+          expect(matrix.determinant, equals(193.0));
+        });
+      });
+
+      group('inverse', () {
+        final inverse = matrix.inverse;
+
+        test('returns a Matrix3', () {
+          expect(inverse, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(inverse.values, orderedCloseTo([
+             0.21762,  0.13472, -0.27461,
+            -0.09845,  0.12953,  0.00518,
+             0.04663, -0.11399,  0.15544
+          ], 0.00001));
+        });
+      });
+
+      group('scalarProduct', () {
+        final product = matrix.scalarProduct(2);
+
+        test('returns a Matrix3', () {
+          expect(product, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(product.values, orderedCloseTo([
+            8.0,  4.0, 14.0,
+            6.0, 18.0, 10.0,
+            2.0, 12.0, 16.0
+          ], 0.00001));
+        });
+      });
+
+      group('scalarDivision', () {
+        final product = matrix.scalarDivision(2);
+
+        test('returns a Matrix3', () {
+          expect(product, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(product.values, orderedCloseTo([
+            2.0, 1.0, 3.5,
+            1.5, 4.5, 2.5,
+            0.5, 3.0, 4.0
+          ], 0.00001));
+        });
+      });
+
+      group('entrywiseSum', () {
+        final other = new Matrix3(
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0
+        );
+        final sum = matrix.entrywiseSum(other);
+
+        test('returns a Matrix3', () {
+          expect(sum, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(sum.values, orderedCloseTo([
+            5.0,  4.0, 10.0,
+            7.0, 14.0, 11.0,
+            8.0, 14.0, 17.0
+          ], 0.00001));
+        });
+      });
+
+      group('entrywiseDifference', () {
+        final other = new Matrix3(
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0
+        );
+        final difference = matrix.entrywiseDifference(other);
+
+        test('returns a Matrix3', () {
+          expect(difference, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(difference.values, orderedCloseTo([
+             3.0,  0.0,  4.0,
+            -1.0,  4.0, -1.0,
+            -6.0, -2.0, -1.0
+          ], 0.00001));
+        });
+      });
+
+      group('entrywiseProduct', () {
+        final other = new Matrix3(
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0
+        );
+        final product = matrix.entrywiseProduct(other);
+
+        test('returns a Matrix3', () {
+          expect(product, new isInstanceOf<Matrix3>());
+        });
+
+        test('returns a matrix with the correct values', () {
+          expect(product.values, orderedCloseTo([
+             4.0,  4.0, 21.0,
+            12.0, 45.0, 30.0,
+             7.0, 48.0, 72.0
+          ], 0.00001));
+        });
+      });
 
       group('matrixProduct', () {
         group('with a Matrix3', () {
@@ -179,14 +323,14 @@ void main() {
           final product = matrix * m2;
 
           test('results in a new Matrix3', () {
-            expect(product is Matrix3, isTrue);
+            expect(product, new isInstanceOf<Matrix3>());
           });
 
           test('results in a new matrix with the correct values', () {
             expect(product.values, orderedCloseTo([
-              30.0,  36.0,  42.0,
-              66.0,  81.0,  96.0,
-              102.0, 126.0, 150.0
+              61.0, 74.0,  87.0,
+              74.0, 91.0, 108.0,
+              81.0, 96.0, 111.0
             ], 0.00001));
           });
         });
@@ -196,18 +340,18 @@ void main() {
           final product = matrix * v;
 
           test('results in a new Vector3', () {
-            expect(product is Vector3, isTrue);
+            expect(product, new isInstanceOf<Vector3>());
           });
 
           test('results in a new matrix with the correct values', () {
-            expect(product.values, orderedCloseTo([14.0, 32.0, 50.0], 0.00001));
+            expect(product.values, orderedCloseTo([29.0, 36.0, 37.0], 0.00001));
           });
         });
       });
 
       group('value accessor', () {
         test('r0c0 returns the correct value', () {
-          expect(matrix.r0c0, closeTo(1.0, 0.00001));
+          expect(matrix.r0c0, closeTo(4.0, 0.00001));
         });
 
         test('r0c1 returns the correct value', () {
@@ -215,31 +359,31 @@ void main() {
         });
 
         test('r0c2 returns the correct value', () {
-          expect(matrix.r0c2, closeTo(3.0, 0.00001));
+          expect(matrix.r0c2, closeTo(7.0, 0.00001));
         });
 
         test('r1c0 returns the correct value', () {
-          expect(matrix.r1c0, closeTo(4.0, 0.00001));
+          expect(matrix.r1c0, closeTo(3.0, 0.00001));
         });
 
         test('r1c1 returns the correct value', () {
-          expect(matrix.r1c1, closeTo(5.0, 0.00001));
+          expect(matrix.r1c1, closeTo(9.0, 0.00001));
         });
 
         test('r1c2 returns the correct value', () {
-          expect(matrix.r1c2, closeTo(6.0, 0.00001));
+          expect(matrix.r1c2, closeTo(5.0, 0.00001));
         });
 
         test('r2c0 returns the correct value', () {
-          expect(matrix.r2c0, closeTo(7.0, 0.00001));
+          expect(matrix.r2c0, closeTo(1.0, 0.00001));
         });
 
         test('r2c1 returns the correct value', () {
-          expect(matrix.r2c1, closeTo(8.0, 0.00001));
+          expect(matrix.r2c1, closeTo(6.0, 0.00001));
         });
 
         test('r2c2 returns the correct value', () {
-          expect(matrix.r2c2, closeTo(9.0, 0.00001));
+          expect(matrix.r2c2, closeTo(8.0, 0.00001));
         });
       });
 
@@ -250,9 +394,9 @@ void main() {
         });
 
         test('returns the correct row', () {
-          expect(matrix[0], orderedCloseTo([1.0, 2.0, 3.0], 0.00001));
-          expect(matrix[1], orderedCloseTo([4.0, 5.0, 6.0], 0.00001));
-          expect(matrix[2], orderedCloseTo([7.0, 8.0, 9.0], 0.00001));
+          expect(matrix[0], orderedCloseTo([4.0, 2.0, 7.0], 0.00001));
+          expect(matrix[1], orderedCloseTo([3.0, 9.0, 5.0], 0.00001));
+          expect(matrix[2], orderedCloseTo([1.0, 6.0, 8.0], 0.00001));
         });
       });
     });

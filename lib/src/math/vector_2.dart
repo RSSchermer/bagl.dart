@@ -1,8 +1,12 @@
 part of math;
 
 /// A column vector of length 2 (a 2 by 1 matrix).
-class Vector2 extends GenericMatrix<Vector2, Matrix> {
+class Vector2 extends _VertexBase implements Matrix {
   final Float32List _storage;
+
+  final int columnDimension = 1;
+
+  final int rowDimension = 2;
 
   /// Instantiates a new [Vector2] with the specified values.
   factory Vector2(double x, double y) {
@@ -11,40 +15,30 @@ class Vector2 extends GenericMatrix<Vector2, Matrix> {
     values[0] = x;
     values[1] = y;
 
-    return new Vector2.fromFloat32List(values);
+    return new Vector2._internal(values);
   }
 
   /// Instantiates a new [Vector2] from the given list.
   ///
   /// Throws an [ArgumentError] if the length does the list does not equal 2.
-  factory Vector2.fromList(List<double> values) =>
-      new Vector2.fromFloat32List(new Float32List.fromList(values));
-
-  /// Instantiates a new [Vector2] from the given [Float32List].
-  ///
-  /// Throws an [ArgumentError] if the length does the list does not equal 2.
-  Vector2.fromFloat32List(Float32List values)
-      : _storage = values,
-        super.fromFloat32List(values, 1) {
+  factory Vector2.fromList(List<double> values) {
     if (values.length != 2) {
       throw new ArgumentError(
           'A list of length 2 required to instantiate a Vector2.');
     }
+
+    return new Vector2._internal(new Float32List.fromList(values));
   }
 
   /// Instantiates a new [Vector2] where every position is set to the specified
   /// value.
   factory Vector2.constant(double value) =>
-      new Vector2.fromFloat32List(new Float32List(2)..fillRange(0, 2, value));
+      new Vector2._internal(new Float32List(2)..fillRange(0, 2, value));
 
   /// Instantiates a new [Vector2] where every position is set to zero.
-  factory Vector2.zero() => new Vector2.fromFloat32List(new Float32List(2));
+  factory Vector2.zero() => new Vector2._internal(new Float32List(2));
 
-  Vector2 withValues(Float32List newValues) =>
-      new Vector2.fromFloat32List(newValues);
-
-  Matrix transposeWithValues(Float32List newValues) =>
-      new Matrix.fromFloat32List(newValues, 2);
+  Vector2._internal(this._storage);
 
   double get x => _storage[0];
   double get y => _storage[1];
@@ -55,9 +49,79 @@ class Vector2 extends GenericMatrix<Vector2, Matrix> {
   double get s => _storage[0];
   double get t => _storage[1];
 
-  /// Returns the value at the specified index.
+  Vector2 scalarProduct(num s) {
+    final values = new Float32List(2);
+
+    values[0] = x * s;
+    values[1] = y * s;
+
+    return new Vector2._internal(values);
+  }
+
+  Vector2 scalarDivision(num s) {
+    final values = new Float32List(2);
+
+    values[0] = x / s;
+    values[1] = y / s;
+
+    return new Vector2._internal(values);
+  }
+
+  Vector2 entrywiseSum(Matrix B) {
+    final values = new Float32List(2);
+
+    if (B is Vector2) {
+      values[0] = x + B.x;
+      values[1] = y + B.y;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = x + B.valueAt(0, 0);
+      values[1] = y + B.valueAt(1, 0);
+    }
+
+    return new Vector2._internal(values);
+  }
+
+  Vector2 entrywiseDifference(Matrix B) {
+    final values = new Float32List(2);
+
+    if (B is Vector2) {
+      values[0] = x - B.x;
+      values[1] = y - B.y;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = x - B.valueAt(0, 0);
+      values[1] = y - B.valueAt(1, 0);
+    }
+
+    return new Vector2._internal(values);
+  }
+
+  Vector2 entrywiseProduct(Matrix B) {
+    final values = new Float32List(2);
+
+    if (B is Vector2) {
+      values[0] = x * B.x;
+      values[1] = y * B.y;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = x * B.valueAt(0, 0);
+      values[1] = y * B.valueAt(1, 0);
+    }
+
+    return new Vector2._internal(values);
+  }
+
+  Vector2 operator +(Matrix B) => entrywiseSum(B);
+
+  Vector2 operator -(Matrix B) => entrywiseDifference(B);
+
+  //// Returns the value at the [index].
   ///
-  /// Throws a [RangeError] if the specified index is out of bounds.
+  /// Throws a [RangeError] if the [index] is out of bounds.
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 2);
 
@@ -65,6 +129,6 @@ class Vector2 extends GenericMatrix<Vector2, Matrix> {
   }
 
   String toString() {
-    return 'Vector2(${values.toString()})';
+    return 'Vector2($x, $y)';
   }
 }
