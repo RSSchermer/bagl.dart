@@ -225,7 +225,7 @@ class _GLProgram {
       } else if (value is Int32List) {
         glContext.uniform1iv(location, value);
       } else if (value is Float32List) {
-        glContext.uniform2fv(location, value);
+        glContext.uniform1fv(location, value);
       } else if (value is Vector2List) {
         final view = new Float32List.view(
             value.buffer, value.offsetInBytes, value.length * 2);
