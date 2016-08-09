@@ -66,10 +66,22 @@ class _ImageMatcher extends Matcher {
           var mismatch = false;
 
           for (var k = 0; k < 4; k++) {
+            // Compare actual value to expected value and also to the values
+            // surrounding the expected value as different browsers may shift
+            // the image by 1 pixel (presumably due to rounding).
+
             final actual = data[(i * width + j) * 4 + k];
             final expected = expectedData[(i * width + j) * 4 + k];
+            final expectedLeft = expectedData[(i * width + j - 1) * 4 + k];
+            final expectedRight = expectedData[(i * width + j + 1) * 4 + k];
+            final expectedUp = expectedData[((i - 1) * width + j) * 4 + k];
+            final expectedDown = expectedData[((i + 1) * width + j) * 4 + k];
 
-            if ((actual - expected).abs() > _rgbaThreshold) {
+            if ((actual - expected).abs() > _rgbaThreshold &&
+                (actual - expectedLeft).abs() > _rgbaThreshold &&
+                (actual - expectedRight).abs() > _rgbaThreshold &&
+                (actual - expectedUp).abs() > _rgbaThreshold &&
+                (actual - expectedDown).abs() > _rgbaThreshold) {
               mismatch = true;
             }
           }
