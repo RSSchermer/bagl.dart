@@ -72,10 +72,10 @@ class _ImageMatcher extends Matcher {
 
             final actual = data[(i * width + j) * 4 + k];
             final expected = expectedData[(i * width + j) * 4 + k];
-            final expectedLeft = expectedData[(i * width + j - 1) * 4 + k];
-            final expectedRight = expectedData[(i * width + j + 1) * 4 + k];
-            final expectedUp = expectedData[((i - 1) * width + j) * 4 + k];
-            final expectedDown = expectedData[((i + 1) * width + j) * 4 + k];
+            final expectedLeft = j == 0 ? expected : expectedData[(i * width + j - 1) * 4 + k];
+            final expectedRight = j == width - 1 ? expected : expectedData[(i * width + j + 1) * 4 + k];
+            final expectedUp = i == 0 ? expected : expectedData[((i - 1) * width + j) * 4 + k];
+            final expectedDown = i == height - 1 ? expected : expectedData[((i + 1) * width + j) * 4 + k];
 
             if ((actual - expected).abs() > _rgbaThreshold &&
                 (actual - expectedLeft).abs() > _rgbaThreshold &&
@@ -137,7 +137,7 @@ class _ImageMatcher extends Matcher {
             .add('differs at ${mismatchRatio * 100}% of pixels.\n')
             .add('Expected image: ${_expectedCanvas.toDataUrl()}\n')
             .add('  Actual image: ${canvas.toDataUrl()}\n')
-            .add('    Diff image: ${matchState['diff'].toDataUrl()}\n');
+            .add('    Diff image: ${matchState['diff']?.toDataUrl()}\n');
       }
     } else {
       return mismatchDescription
