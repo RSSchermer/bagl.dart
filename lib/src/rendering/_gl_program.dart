@@ -94,179 +94,192 @@ class _GLProgram {
   /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
   /// [Matrix3List], [Matrix4List], [List<Sampler2D>].
   void bindUniformValue(String uniformName, dynamic value) {
-    final glContext = context._context;
-    final uniformInfo = uniformInfoByName[uniformName];
-
-    if (uniformInfo == null) {
-      throw new ArgumentError('Tried to bind a value to a uniform variable '
-          'named "$uniformName", but no active uniform with that name was '
-          'found for the shader program.');
-    }
-
-    final location = uniformInfoByName[uniformName].location;
-
-    if (value is Sampler2D) {
-      if (context._textureUnitsSamplers.containsValue(value)) {
-        final unit = context._textureUnitsSamplers.inverse[value];
-
-        if (_uniformValues[uniformName] != unit) {
-          glContext.uniform1i(location, unit);
-          _uniformValues[uniformName] = unit;
-        }
-
-        context._recentlyUsedTextureUnits
-          ..remove(unit)
-          ..addFirst(unit);
-      } else {
-        final unit = context._recentlyUsedTextureUnits.last;
-
-        context._updateActiveTextureUnit(unit);
-        context._samplerResources.provision(value);
-        context._bindSampler2D(value);
-
-        if (_uniformValues[uniformName] != unit) {
-          glContext.uniform1i(location, unit);
-          _uniformValues[uniformName] = unit;
-        }
-
-        context._recentlyUsedTextureUnits
-          ..removeLast()
-          ..addFirst(unit);
+    if (value is Struct) {
+      value.forEach((member, value) {
+        bindUniformValue("$uniformName.$member", value);
+      });
+    } else if (value is List<Struct>) {
+      for (var i = 0; i < value.length; i++) {
+        value[i].forEach((member, value) {
+          bindUniformValue("$uniformName[$i].$member", value);
+        });
       }
-    } else if (value is List<Sampler2D>) {
-      final length = value.length;
-      final units = new Int32List(length);
+    } else {
+      final glContext = context._context;
+      final uniformInfo = uniformInfoByName[uniformName];
 
-      for (var i = 0; i < length; i++) {
-        final sampler = value[i];
+      if (uniformInfo == null) {
+        throw new ArgumentError('Tried to bind a value to a uniform variable '
+            'named "$uniformName", but no active uniform with that name was '
+            'found for the shader program.');
+      }
 
-        if (context._textureUnitsSamplers.containsValue(sampler)) {
-          final unit = context._textureUnitsSamplers.inverse[sampler];
+      final location = uniformInfoByName[uniformName].location;
+
+      if (value is Sampler2D) {
+        if (context._textureUnitsSamplers.containsValue(value)) {
+          final unit = context._textureUnitsSamplers.inverse[value];
+
+          if (_uniformValues[uniformName] != unit) {
+            glContext.uniform1i(location, unit);
+            _uniformValues[uniformName] = unit;
+          }
 
           context._recentlyUsedTextureUnits
             ..remove(unit)
             ..addFirst(unit);
-
-          units[i] = unit;
         } else {
           final unit = context._recentlyUsedTextureUnits.last;
 
           context._updateActiveTextureUnit(unit);
-          context._samplerResources.provision(sampler);
-          context._bindSampler2D(sampler);
+          context._samplerResources.provision(value);
+          context._bindSampler2D(value);
+
+          if (_uniformValues[uniformName] != unit) {
+            glContext.uniform1i(location, unit);
+            _uniformValues[uniformName] = unit;
+          }
 
           context._recentlyUsedTextureUnits
             ..removeLast()
             ..addFirst(unit);
-
-          units[i] = unit;
         }
+      } else if (value is List<Sampler2D>) {
+        final length = value.length;
+        final units = new Int32List(length);
+
+        for (var i = 0; i < length; i++) {
+          final sampler = value[i];
+
+          if (context._textureUnitsSamplers.containsValue(sampler)) {
+            final unit = context._textureUnitsSamplers.inverse[sampler];
+
+            context._recentlyUsedTextureUnits
+              ..remove(unit)
+              ..addFirst(unit);
+
+            units[i] = unit;
+          } else {
+            final unit = context._recentlyUsedTextureUnits.last;
+
+            context._updateActiveTextureUnit(unit);
+            context._samplerResources.provision(sampler);
+            context._bindSampler2D(sampler);
+
+            context._recentlyUsedTextureUnits
+              ..removeLast()
+              ..addFirst(unit);
+
+            units[i] = unit;
+          }
+        }
+
+        glContext.uniform1iv(location, units);
+        _uniformValues[uniformName] = units;
+      } else if (_uniformValues[uniformName] != value) {
+        if (value is bool) {
+          glContext.uniform1i(location, value ? 1 : 0);
+        } else if (value is int) {
+          glContext.uniform1i(location, value);
+        } else if (value is double) {
+          glContext.uniform1f(location, value);
+        } else if (value is Vector2) {
+          glContext.uniform2f(location, value.x, value.y);
+        } else if (value is Vector3) {
+          glContext.uniform3f(location, value.x, value.y, value.z);
+        } else if (value is Vector4) {
+          glContext.uniform4f(location, value.x, value.y, value.z, value.w);
+        } else if (value is Matrix2) {
+          var columnPacked = new Float32List(4);
+
+          columnPacked[0] = value.r0c0;
+          columnPacked[1] = value.r1c0;
+          columnPacked[2] = value.r0c1;
+          columnPacked[3] = value.r1c1;
+
+          glContext.uniformMatrix2fv(location, false, columnPacked);
+        } else if (value is Matrix3) {
+          var columnPacked = new Float32List(9);
+
+          columnPacked[0] = value.r0c0;
+          columnPacked[1] = value.r1c0;
+          columnPacked[2] = value.r2c0;
+          columnPacked[3] = value.r0c1;
+          columnPacked[4] = value.r1c1;
+          columnPacked[5] = value.r2c1;
+          columnPacked[6] = value.r0c2;
+          columnPacked[7] = value.r1c2;
+          columnPacked[8] = value.r2c2;
+
+          glContext.uniformMatrix3fv(location, false, columnPacked);
+        } else if (value is Matrix4) {
+          var columnPacked = new Float32List(16);
+
+          columnPacked[0] = value.r0c0;
+          columnPacked[1] = value.r1c0;
+          columnPacked[2] = value.r2c0;
+          columnPacked[3] = value.r3c0;
+          columnPacked[4] = value.r0c1;
+          columnPacked[5] = value.r1c1;
+          columnPacked[6] = value.r2c1;
+          columnPacked[7] = value.r3c1;
+          columnPacked[8] = value.r0c2;
+          columnPacked[9] = value.r1c2;
+          columnPacked[10] = value.r2c2;
+          columnPacked[11] = value.r3c2;
+          columnPacked[12] = value.r0c3;
+          columnPacked[13] = value.r1c3;
+          columnPacked[14] = value.r2c3;
+          columnPacked[15] = value.r3c3;
+
+          glContext.uniformMatrix4fv(location, false, columnPacked);
+        } else if (value is Int32List) {
+          glContext.uniform1iv(location, value);
+        } else if (value is Float32List) {
+          glContext.uniform1fv(location, value);
+        } else if (value is Vector2List) {
+          final view = new Float32List.view(
+              value.buffer, value.offsetInBytes, value.length * 2);
+
+          glContext.uniform2fv(location, view);
+        } else if (value is Vector3List) {
+          final view = new Float32List.view(
+              value.buffer, value.offsetInBytes, value.length * 3);
+
+          glContext.uniform3fv(location, view);
+        } else if (value is Vector4List) {
+          final view = new Float32List.view(
+              value.buffer, value.offsetInBytes, value.length * 4);
+
+          glContext.uniform4fv(location, view);
+        } else if (value is Matrix2List) {
+          final view = new Float32List.view(
+              value.buffer, value.offsetInBytes, value.length * 4);
+
+          glContext.uniformMatrix2fv(location, false, view);
+        } else if (value is Matrix3List) {
+          final view = new Float32List.view(
+              value.buffer, value.offsetInBytes, value.length * 9);
+
+          glContext.uniformMatrix3fv(location, false, view);
+        } else if (value is Matrix4List) {
+          final view = new Float32List.view(
+              value.buffer, value.offsetInBytes, value.length * 16);
+
+          glContext.uniformMatrix4fv(location, false, view);
+        } else {
+          new ArgumentError('Tried to bind a value of type '
+              '"${value.runtimeType}" to the uniform variable named '
+              '"$uniformName", but this is not a valid uniform type. Supported '
+              'types are: bool, int, double, Vector2, Vector3, Vector4, '
+              'Matrix2, Matrix3, Matrix4, Sampler2D, Struct, Int32List, '
+              'Float32List, Vector2List, Vector3List, Vector4List, '
+              'Matrix2List, Matrix3List, Matrix4List, List<Sampler2D>, '
+              'List<Struct>.');
+        }
+
+        _uniformValues[uniformName] = value;
       }
-
-      glContext.uniform1iv(location, units);
-      _uniformValues[uniformName] = units;
-    } else if (_uniformValues[uniformName] != value) {
-      if (value is bool) {
-        glContext.uniform1i(location, value ? 1 : 0);
-      } else if (value is int) {
-        glContext.uniform1i(location, value);
-      } else if (value is double) {
-        glContext.uniform1f(location, value);
-      } else if (value is Vector2) {
-        glContext.uniform2f(location, value.x, value.y);
-      } else if (value is Vector3) {
-        glContext.uniform3f(location, value.x, value.y, value.z);
-      } else if (value is Vector4) {
-        glContext.uniform4f(location, value.x, value.y, value.z, value.w);
-      } else if (value is Matrix2) {
-        var columnPacked = new Float32List(4);
-
-        columnPacked[0] = value.r0c0;
-        columnPacked[1] = value.r1c0;
-        columnPacked[2] = value.r0c1;
-        columnPacked[3] = value.r1c1;
-
-        glContext.uniformMatrix2fv(location, false, columnPacked);
-      } else if (value is Matrix3) {
-        var columnPacked = new Float32List(9);
-
-        columnPacked[0] = value.r0c0;
-        columnPacked[1] = value.r1c0;
-        columnPacked[2] = value.r2c0;
-        columnPacked[3] = value.r0c1;
-        columnPacked[4] = value.r1c1;
-        columnPacked[5] = value.r2c1;
-        columnPacked[6] = value.r0c2;
-        columnPacked[7] = value.r1c2;
-        columnPacked[8] = value.r2c2;
-
-        glContext.uniformMatrix3fv(location, false, columnPacked);
-      } else if (value is Matrix4) {
-        var columnPacked = new Float32List(16);
-
-        columnPacked[0] = value.r0c0;
-        columnPacked[1] = value.r1c0;
-        columnPacked[2] = value.r2c0;
-        columnPacked[3] = value.r3c0;
-        columnPacked[4] = value.r0c1;
-        columnPacked[5] = value.r1c1;
-        columnPacked[6] = value.r2c1;
-        columnPacked[7] = value.r3c1;
-        columnPacked[8] = value.r0c2;
-        columnPacked[9] = value.r1c2;
-        columnPacked[10] = value.r2c2;
-        columnPacked[11] = value.r3c2;
-        columnPacked[12] = value.r0c3;
-        columnPacked[13] = value.r1c3;
-        columnPacked[14] = value.r2c3;
-        columnPacked[15] = value.r3c3;
-
-        glContext.uniformMatrix4fv(location, false, columnPacked);
-      } else if (value is Int32List) {
-        glContext.uniform1iv(location, value);
-      } else if (value is Float32List) {
-        glContext.uniform1fv(location, value);
-      } else if (value is Vector2List) {
-        final view = new Float32List.view(
-            value.buffer, value.offsetInBytes, value.length * 2);
-
-        glContext.uniform2fv(location, view);
-      } else if (value is Vector3List) {
-        final view = new Float32List.view(
-            value.buffer, value.offsetInBytes, value.length * 3);
-
-        glContext.uniform3fv(location, view);
-      } else if (value is Vector4List) {
-        final view = new Float32List.view(
-            value.buffer, value.offsetInBytes, value.length * 4);
-
-        glContext.uniform4fv(location, view);
-      } else if (value is Matrix2List) {
-        final view = new Float32List.view(
-            value.buffer, value.offsetInBytes, value.length * 4);
-
-        glContext.uniformMatrix2fv(location, false, view);
-      } else if (value is Matrix3List) {
-        final view = new Float32List.view(
-            value.buffer, value.offsetInBytes, value.length * 9);
-
-        glContext.uniformMatrix3fv(location, false, view);
-      } else if (value is Matrix4List) {
-        final view = new Float32List.view(
-            value.buffer, value.offsetInBytes, value.length * 16);
-
-        glContext.uniformMatrix4fv(location, false, view);
-      } else {
-        new ArgumentError('Tried to bind a value of type '
-            '"${value.runtimeType}" to the uniform variable named '
-            '"$uniformName", but this is not a valid uniform type. Supported '
-            'types are: bool, int, double, Vector2, Vector3, Vector4, Matrix2, '
-            'Matrix3, Matrix4, Sampler2D, Int32List, Float32List, Vector2List, '
-            'Vector3List, Vector4List, Matrix2List, Matrix3List, Matrix4List, '
-            'List<Sampler2D>.');
-      }
-
-      _uniformValues[uniformName] = value;
     }
   }
 }

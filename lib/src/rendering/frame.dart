@@ -33,9 +33,10 @@ class Frame {
   /// [program]'s active uniform variables is looked up by name in the
   /// [uniforms] map and set to the specified value. Valid value types for
   /// uniform values are: [bool], [int], [double], [Vector2], [Vector3],
-  /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D], [Int32List],
-  /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
-  /// [Matrix3List], [Matrix4List], [List<Sampler2D>].
+  /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D], [Struct],
+  /// [Int32List], [Float32List], [Vector2List], [Vector3List], [Vector4List],
+  /// [Matrix2List], [Matrix3List], [Matrix4List], [List]<[Sampler2D]>,
+  /// [List]<[Struct]>.
   ///
   /// The rendering process may be further configured with the following
   /// optional parameters:
@@ -94,8 +95,9 @@ class Frame {
   /// Throws an [ArgumentError] if one of the uniform values provided in the
   /// [uniforms] map is not of a valid type ([bool], [int], [double], [Vector2],
   /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D],
-  /// [Int32List], [Float32List], [Vector2List], [Vector3List], [Vector4List],
-  /// [Matrix2List], [Matrix3List], [Matrix4List], [List<Sampler2D>]).
+  /// [Struct], [Int32List], [Float32List], [Vector2List], [Vector3List],
+  /// [Vector4List], [Matrix2List], [Matrix3List], [Matrix4List],
+  /// [List]<[Sampler2D]>, [List]<[Struct]>).
   ///
   /// Throws an [ArgumentError] if more [Sampler] type uniforms are provided
   /// than [context.maxTextureUnits].
@@ -174,7 +176,20 @@ class Frame {
 
     uniforms.forEach((name, value) {
       glProgram.bindUniformValue(name, value);
-      missingUniforms.remove(name);
+
+      if (value is Struct) {
+        for (var member in value.members) {
+          missingUniforms.remove("$name.$member");
+        }
+      } else if (value is List<Struct>) {
+        for (var i = 0; i < value.length; i++) {
+          for (var member in value[i].members) {
+            missingUniforms.remove("$name[$i].$member");
+          }
+        }
+      } else {
+        missingUniforms.remove(name);
+      }
 
       if (value is Sampler) {
         samplerCount++;
