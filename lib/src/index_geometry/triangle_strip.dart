@@ -19,6 +19,7 @@ part of index_geometry;
 /// - Triangle `5`: (`a`:`v6`, `b`:`v5`, `c`:`v7`)
 /// - Triangle `6`: ...
 ///
+///
 ///     // The connectedness of the vertices in a triangle strip:
 ///     //
 ///     // v1---v3---v5---v7
