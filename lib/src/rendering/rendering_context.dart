@@ -9,8 +9,8 @@ part of rendering;
 ///
 /// Rendering resources are allocated as necessary for draw calls on [Frame]s
 /// associated with the [RenderingContext]. Consider freeing the resources
-/// associated with geometry, a sampler, or a programs if you no longer intend
-/// to use one in future draw calls, by calling [deprovisionGeometry],
+/// associated with geometry, samplers, or programs if you no longer intend to
+/// use one in future draw calls, by calling [deprovisionGeometry],
 /// [deprovisionSampler] or [deprovisionProgram] respectively.
 class RenderingContext {
   static Map<CanvasElement, RenderingContext> _canvasContextMap = new Map();
