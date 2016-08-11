@@ -71,7 +71,7 @@ void main() {
     });
 
     test('translation constructor', () {
-      final m = new Matrix4.translation(new Vector3(2.0, 3.0, 4.0));
+      final m = new Matrix4.translation(2.0, 3.0, 4.0);
 
       expect(m.values, orderedCloseTo([
         1.0, 0.0, 0.0, 2.0,

@@ -135,14 +135,15 @@ class Matrix3 extends _MatrixBase implements Matrix {
   }
 
   /// Instantiates a [Matrix3] that when multiplied with a [Vector3] translates
-  /// it along the X-Y plane by [translation].
-  factory Matrix3.translation(Vector2 translation) {
+  /// it by [translateX] in the X direction and by [translateY] in the Y
+  /// direction.
+  factory Matrix3.translation(double translateX, double translateY) {
     final values = new Float32List(9);
 
     values[0] = 1.0;
-    values[2] = translation.x;
+    values[2] = translateX;
     values[4] = 1.0;
-    values[5] = translation.y;
+    values[5] = translateY;
     values[8] = 1.0;
 
     return new Matrix3._internal(values);

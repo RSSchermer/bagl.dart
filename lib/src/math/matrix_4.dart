@@ -167,16 +167,18 @@ class Matrix4 extends _MatrixBase implements Matrix {
   }
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] translates
-  /// it by [translation].
-  factory Matrix4.translation(Vector3 translation) {
+  /// it by [translateX] in the X direction, by [translateY] in the Y direction,
+  /// and by [translateZ] in the Z direction.
+  factory Matrix4.translation(
+      double translateX, double translateY, double translateZ) {
     final values = new Float32List(16);
 
     values[0] = 1.0;
-    values[3] = translation.x;
+    values[3] = translateX;
     values[5] = 1.0;
-    values[7] = translation.y;
+    values[7] = translateY;
     values[10] = 1.0;
-    values[11] = translation.z;
+    values[11] = translateZ;
     values[15] = 1.0;
 
     return new Matrix4._internal(values);
