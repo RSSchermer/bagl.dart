@@ -1,6 +1,6 @@
 name: bagl
 description: Basic Graphics Library for Dart.
-version: 0.2.0
+version: 0.3.0
 author: R.S. Schermer <roland0507@gmail.com>
 homepage: https://github.com/RSSchermer/bagl.dart
 documentation:

@@ -1,5 +1,17 @@
 # BaGL Change Log
 
+## 0.3.0
+
+- Breaking: the `translation` constructors on `Matrix3` and `Matrix4` now take
+  separate `double` values for each translation direction rather than a single 
+  vector. This aligns the signature with the `scale` constructor signature.
+- Breaking: removes `withValues` and `withValuesTranspose` from `Vector2`, 
+  `Vector3`, `Vector4`, `Matrix2`, `Matrix3` and `Matrix4`. These methods are no
+  longer necessary with rl_matrix 0.6.0 and had no real function in BaGL. Use
+  the `fromList` constructors instead.
+- Adds a `Struct` type. `Frame.draw` now accepts uniform values of type `Struct`
+  and `List<Struct>`. These map to user defined struct types in GLSL shaders.
+
 ## 0.2.0
 
 - BREAKING: `IndexGeometry` now takes a type parameter `Primitive` (should be of 
