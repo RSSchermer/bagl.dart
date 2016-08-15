@@ -18,9 +18,8 @@ part of index_geometry;
 /// - Triangle `4`: (`a`:`v0`, `b`:`v5`, `c`:`v6`)
 /// - Triangle `5`: ...
 ///
+/// The connectedness of the vertices a triangle fan:
 ///
-///     // The connectedness of the vertices a triangle fan:
-///     //
 ///     //      v4--------v3
 ///     //     / \       / \
 ///     //    /   \     /   \
