@@ -199,7 +199,7 @@ main() {
 
   var model = new Matrix4.rotationY(0.25 * PI) * new Matrix4.rotationX(0.25 * PI);
   var projection = new Matrix4.perspective(0.3 * PI, 1.0, 1.0, 100.0);
-  var view = new Matrix4.translation(new Vector3(0.0, 0.0, 20.0)).inverse;
+  var view = new Matrix4.translation(0.0, 0.0, 20.0).inverse;
 
   var texture = new Texture2D.fromImageURL('checkerboard_color_gradient.png');
   var sampler = new Sampler2D(texture,

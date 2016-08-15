@@ -86,7 +86,7 @@ main() {
   ]));
 
   var projection = new Matrix4.perspective(0.3 * PI, 1.0, 1.0, 100.0);
-  var view = new Matrix4.translation(new Vector3(0.0, 0.0, 30.0)).inverse;
+  var view = new Matrix4.translation(0.0, 0.0, 30.0).inverse;
 
   update(num time) {
     var model = new Matrix4.rotationY(time / 1000) * new Matrix4.rotationX(time / 1000);
