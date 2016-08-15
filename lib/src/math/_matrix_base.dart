@@ -137,10 +137,10 @@ abstract class _MatrixBase implements Matrix {
     }
   }
 
-  bool operator ==(Matrix matrix) =>
-      identical(this, matrix) ||
-      columnDimension == matrix.columnDimension &&
-          _iterableEquals(_storage, matrix.values);
+  bool operator ==(dynamic other) =>
+      identical(this, other) || other is Matrix &&
+      columnDimension == other.columnDimension &&
+          _iterableEquals(_storage, other.values);
 
   int get hashCode =>
       hash3(columnDimension, rowDimension, hashObjects(_storage));

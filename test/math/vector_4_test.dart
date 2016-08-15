@@ -14,13 +14,13 @@ void main() {
 
     group('fromList constructor', () {
       test('throws an error when the list has more than 4 items', () {
-        final list = new List.filled(5, 1.0);
+        final list = new List<double>.filled(5, 1.0);
 
         expect(() => new Vector4.fromList(list), throwsArgumentError);
       });
 
       test('throws an error when the list has less than 4 items', () {
-        final list = new List.filled(3, 1.0);
+        final list = new List<double>.filled(3, 1.0);
 
         expect(() => new Vector4.fromList(list), throwsArgumentError);
       });

@@ -25,7 +25,7 @@ abstract class IndexGeometry<Primitive> extends Iterable<Primitive> {
 
   /// The indices describing how the [vertices] are combined into geometry
   /// primitives.
-  Uint16List get indices;
+  IndexList get indices;
 
   /// The number of indices to skip at the start of the [indices] list before
   /// the values for this [IndexGeometry] begin.

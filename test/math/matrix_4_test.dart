@@ -25,13 +25,13 @@ void main() {
 
     group('fromList constructor', () {
       test('throws an error when the list has more than 16 items', () {
-        final list = new List.filled(17, 1.0);
+        final list = new List<double>.filled(17, 1.0);
 
         expect(() => new Matrix4.fromList(list), throwsArgumentError);
       });
 
       test('throws an error when the list has less than 16 items', () {
-        final list = new List.filled(15, 1.0);
+        final list = new List<double>.filled(15, 1.0);
 
         expect(() => new Matrix4.fromList(list), throwsArgumentError);
       });

@@ -14,7 +14,7 @@ class Lines extends IterableBase<LinesLineView>
 
   final VertexArray vertices;
 
-  final Uint16List indices;
+  final IndexList indices;
 
   final int length;
 

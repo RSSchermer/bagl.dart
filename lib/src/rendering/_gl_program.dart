@@ -35,7 +35,7 @@ class _GLProgram {
     final glContext = context._context;
 
     // Create attribute name -> attribute location map
-    final attributeInfoByName = {};
+    final attributeInfoByName = <String, _GLAttributeInfo>{};
     final activeAttributes =
         glContext.getProgramParameter(glProgramObject, WebGL.ACTIVE_ATTRIBUTES);
 
@@ -52,7 +52,7 @@ class _GLProgram {
     _attributeInfoByName = new UnmodifiableMapView(attributeInfoByName);
 
     // Create uniform name -> uniform location map
-    final uniformInfoByName = {};
+    final uniformInfoByName = <String, _GLUniformInfo>{};
     final activeUniforms =
         glContext.getProgramParameter(glProgramObject, WebGL.ACTIVE_UNIFORMS);
 

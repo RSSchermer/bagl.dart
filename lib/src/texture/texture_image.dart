@@ -112,7 +112,7 @@ class ImageElementImage implements TextureImage {
     return _data;
   }
 
-  Future<ImageDataImage> asFuture() =>
+  Future<ImageElementImage> asFuture() =>
       imageElement.onLoad.first.then((i) => this);
 }
 

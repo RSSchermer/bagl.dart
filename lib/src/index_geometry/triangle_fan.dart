@@ -40,7 +40,7 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
 
   final VertexArray vertices;
 
-  final Uint16List indices;
+  final IndexList indices;
 
   final int length;
 

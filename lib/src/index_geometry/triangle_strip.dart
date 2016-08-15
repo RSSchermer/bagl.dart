@@ -36,7 +36,7 @@ class TriangleStrip extends IterableBase<TriangleStripTriangleView>
 
   final VertexArray vertices;
 
-  final Uint16List indices;
+  final IndexList indices;
 
   final int length;
 

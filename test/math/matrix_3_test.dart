@@ -23,13 +23,13 @@ void main() {
 
     group('fromList constructor', () {
       test('throws an error when the list has more than 9 items', () {
-        final list = new List.filled(10, 1.0);
+        final list = new List<double>.filled(10, 1.0);
 
         expect(() => new Matrix3.fromList(list), throwsArgumentError);
       });
 
       test('throws an error when the list has less than 9 items', () {
-        final list = new List.filled(8, 1.0);
+        final list = new List<double>.filled(8, 1.0);
 
         expect(() => new Matrix3.fromList(list), throwsArgumentError);
       });

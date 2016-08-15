@@ -12,7 +12,7 @@ class Points extends IterableBase<PointsPointView>
 
   final VertexArray vertices;
 
-  final Uint16List indices;
+  final IndexList indices;
 
   final int length;
 
