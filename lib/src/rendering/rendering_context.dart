@@ -13,7 +13,7 @@ part of rendering;
 /// use one in future draw calls, by calling [deprovisionGeometry],
 /// [deprovisionSampler] or [deprovisionProgram] respectively.
 class RenderingContext {
-  static Map<CanvasElement, RenderingContext> _canvasContextMap = new Map();
+  static Expando<RenderingContext> _canvasContext = new Expando();
 
   /// The canvas element this rendering context is associated with.
   final CanvasElement canvas;
@@ -245,8 +245,10 @@ class RenderingContext {
       bool preserveDrawingBuffer: false,
       bool preferLowPowerToHighPerformance: false,
       bool failIfMajorPerformanceCaveat: false}) {
-    if (RenderingContext._canvasContextMap.containsKey(canvas)) {
-      return RenderingContext._canvasContextMap[canvas];
+    final canvasContext = RenderingContext._canvasContext[canvas];
+
+    if (canvasContext != null) {
+      return canvasContext;
     } else {
       final context = new RenderingContext._internal(canvas,
           alpha: alpha,
@@ -258,7 +260,7 @@ class RenderingContext {
           preferLowPowerToHighPerformance: preferLowPowerToHighPerformance,
           failIfMajorPerformanceCaveat: failIfMajorPerformanceCaveat);
 
-      RenderingContext._canvasContextMap[canvas] = context;
+      RenderingContext._canvasContext[canvas] = context;
 
       return context;
     }
