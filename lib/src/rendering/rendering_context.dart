@@ -6,12 +6,6 @@ part of rendering;
 /// [canvas] with which it is associated. It has a [defaultFrame] whose color
 /// buffer is displayed on the [canvas]. See [RenderingContext.forCanvas] for
 /// details on how to retrieve a [RenderingContext] for a canvas element.
-///
-/// Rendering resources are allocated as necessary for draw calls on [Frame]s
-/// associated with the [RenderingContext]. Consider freeing the resources
-/// associated with geometry, samplers, or programs if you no longer intend to
-/// use one in future draw calls, by calling [deprovisionGeometry],
-/// [deprovisionSampler] or [deprovisionProgram] respectively.
 class RenderingContext {
   static Expando<RenderingContext> _canvasContext = new Expando();
 
