@@ -1,29 +1,27 @@
 part of rendering;
 
-/// Manages the provisioning and deprovisioning of program related resources for
-/// a [RendingContext].
-class _ContextProgramResourceManager {
-  /// The [RenderingContext] managed by this [_ContextProgramResourceManager].
+/// Manages the provisioning and deprovisioning of program related GPU resources
+/// for a [RendingContext].
+class ContextProgramResources {
+  /// The [RenderingContext] with which these [ContextProgramResources] are
+  /// associated.
   final RenderingContext context;
 
   final WebGL.RenderingContext _context;
 
-  /// The programs for which resources are currently provisioned.
-  Set<Program> _provisionedPrograms = new Set();
-
-  /// Map from [Program]s to their associated [_GLProgram] for all currently
+  /// Expands [Program]s with their associated [_GLProgram] for all currently
   /// provisioned programs.
-  Map<Program, _GLProgram> _glProgramByProgram = new Map();
+  Expando<_GLProgram> _programGLProgram = new Expando();
 
-  /// Instantiates a new [_ContextProgramResourceManager] for the [context].
-  _ContextProgramResourceManager(RenderingContext context)
+  ContextProgramResources._internal(RenderingContext context)
       : context = context,
         _context = context._context;
 
-  Iterable<Program> get provisionedPrograms =>
-      new UnmodifiableSetView(_provisionedPrograms);
+  /// Returns whether or not GPU resources are currently being provisioned for
+  /// the [program].
+  bool areProvisionedFor(Program program) => _programGLProgram[program] != null;
 
-  /// Provisions resources for the [program].
+  /// Provisions GPU resources for the [program].
   ///
   /// Compiles and links the [program]'s shaders. If resources were already
   /// provisioned previously for the [program], then these resources will be
@@ -33,8 +31,8 @@ class _ContextProgramResourceManager {
   /// fragment shader fails to compile.
   ///
   /// Throws a [ProgramLinkingError] if the [program] fails to link.
-  void provision(Program program) {
-    if (!_provisionedPrograms.contains(program)) {
+  void provisionFor(Program program) {
+    if (!areProvisionedFor(program)) {
       final glProgramHandle = _context.createProgram();
       final vertexShader =
           _compileShader(WebGL.VERTEX_SHADER, program.vertexShaderSource);
@@ -53,26 +51,24 @@ class _ContextProgramResourceManager {
             _context.getProgramInfoLog(glProgramHandle));
       }
 
-      _glProgramByProgram[program] = new _GLProgram(
+      _programGLProgram[program] = new _GLProgram(
           context, program, glProgramHandle, vertexShader, fragmentShader);
-      _provisionedPrograms.add(program);
     }
   }
 
-  /// Deprovisions the resources associated with the [program].
+  /// Deprovisions the GPU resources associated with the [program].
   ///
   /// Frees all resources associated with the [program]. Returns `true` if
   /// resources were provisioned for the [program], `false` otherwise.
-  bool deprovision(Program program) {
-    if (_provisionedPrograms.contains(program)) {
-      final glProgramInfo = _glProgramByProgram[program];
+  bool deprovisionFor(Program program) {
+    if (areProvisionedFor(program)) {
+      final glProgramInfo = _programGLProgram[program];
 
       _context.deleteProgram(glProgramInfo.glProgramObject);
       _context.deleteShader(glProgramInfo.glVertexShaderObject);
       _context.deleteShader(glProgramInfo.glFragmentShaderObject);
 
-      _provisionedPrograms.remove(program);
-      _glProgramByProgram.remove(program);
+      _programGLProgram[program] = null;
 
       return true;
     } else {
@@ -86,7 +82,7 @@ class _ContextProgramResourceManager {
   /// Returns the [_GLProgram] handle for the resources associated with the
   /// program if resources have been provisioned for the, or `null` if no
   /// resources have been provisioned yet.
-  _GLProgram getGLProgram(Program program) => _glProgramByProgram[program];
+  _GLProgram _getGLProgram(Program program) => _programGLProgram[program];
 
   WebGL.Shader _compileShader(int type, String source) {
     final shader = _context.createShader(type);

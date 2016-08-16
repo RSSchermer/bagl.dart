@@ -132,7 +132,7 @@ class _GLProgram {
           final unit = context._recentlyUsedTextureUnits.last;
 
           context._updateActiveTextureUnit(unit);
-          context._samplerResources.provision(value);
+          context.samplerResources.provisionFor(value);
           context._bindSampler2D(value);
 
           if (_uniformValues[uniformName] != unit) {
@@ -163,7 +163,7 @@ class _GLProgram {
             final unit = context._recentlyUsedTextureUnits.last;
 
             context._updateActiveTextureUnit(unit);
-            context._samplerResources.provision(sampler);
+            context.samplerResources.provisionFor(sampler);
             context._bindSampler2D(sampler);
 
             context._recentlyUsedTextureUnits

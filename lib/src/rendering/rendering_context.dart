@@ -18,6 +18,18 @@ class RenderingContext {
   /// The canvas element this rendering context is associated with.
   final CanvasElement canvas;
 
+  /// Manages the provisioning and deprovisioning of geometry related GPU
+  /// resources for this [RenderingContext].
+  ContextGeometryResources geometryResources;
+
+  /// Manages the provisioning and deprovisioning of program related GPU
+  /// resources for this [RenderingContext].
+  ContextProgramResources programResources;
+
+  /// Manages the provisioning and deprovisioning of sampler related GPU
+  /// resources for this [RenderingContext].
+  ContextSamplerResources samplerResources;
+
   /// The default [Frame] for this [RenderingContext].
   ///
   /// This [Frame]'s color buffer is displayed on the [canvas].
@@ -25,18 +37,6 @@ class RenderingContext {
 
   /// The WebGL rendering context associated with the [canvas].
   WebGL.RenderingContext _context;
-
-  /// The geometry related resource provisioning manager for this
-  /// [RenderingContext].
-  _ContextGeometryResourceManager _geometryResources;
-
-  /// The program related resource provisioning manager for this
-  /// [RenderingContext].
-  _ContextProgramResourceManager _programResources;
-
-  /// The sampler related resource provisioning manager for this
-  /// [RenderingContext].
-  _ContextSamplerResourceManager _samplerResources;
 
   /// The shader program that is currently used by the WebGL context.
   Program _activeProgram;
@@ -188,9 +188,9 @@ class RenderingContext {
           'failIfMajorPerformanceCaveat': failIfMajorPerformanceCaveat
         });
 
-    _geometryResources = new _ContextGeometryResourceManager(this);
-    _programResources = new _ContextProgramResourceManager(this);
-    _samplerResources = new _ContextSamplerResourceManager(this);
+    geometryResources = new ContextGeometryResources._internal(this);
+    programResources = new ContextProgramResources._internal(this);
+    samplerResources = new ContextSamplerResources._internal(this);
     _defaultFrame = new Frame._default(this);
     _boundFrame = _defaultFrame;
     _recentlyUsedTextureUnits =
@@ -272,51 +272,13 @@ class RenderingContext {
   /// [canvas] associated with this [RenderingContext].
   Frame get defaultFrame => _defaultFrame;
 
-  /// The geometries for which resources are currently provisioned for this
-  /// [RenderingContext].
-  Iterable<IndexGeometry> get provisionedGeometries =>
-      _geometryResources.provisionedGeometries;
-
-  /// The programs for which resources are currently provisioned for this
-  /// [RenderingContext].
-  Iterable<Program> get provisionedPrograms =>
-      _programResources.provisionedPrograms;
-
-  /// The samplers for which resources are currently provisioned for this
-  /// [RenderingContext].
-  Iterable<Sampler> get provisionedSamplers =>
-      _samplerResources.provisionedSamplers;
-
-  /// Deprovisions the resources associated with the [geometry].
-  ///
-  /// Frees each resource associated with the [geometry], unless the [geometry]
-  /// shares the resource with another currently provisioned geometry. Returns
-  /// `true` if resources were provisioned for the [geometry], `false`
-  /// otherwise.
-  bool deprovisionGeometry(IndexGeometry geometry) =>
-      _geometryResources.deprovision(geometry);
-
-  /// Deprovisions the resources associated with the [program].
-  ///
-  /// Frees all resources associated with the [program]. Returns `true` if
-  /// resources were provisioned for the [program], `false` otherwise.
-  bool deprovisionProgram(Program program) =>
-      _programResources.deprovision(program);
-
-  /// Deprovisions the resources associated with the [sampler].
-  ///
-  /// Frees all resources associated with the [sampler]. Returns `true` if
-  /// resources were provisioned for the [sampler], `false` otherwise.
-  bool deprovisionSampler(Sampler sampler) =>
-      _samplerResources.deprovision(sampler);
-
   void _bindAttributeDataTable(AttributeDataTable attributeDataTable) {
     if (attributeDataTable != _boundAttributeDataTable) {
       if (attributeDataTable == null) {
         _context.bindBuffer(WebGL.ARRAY_BUFFER, null);
       } else {
         _context.bindBuffer(
-            WebGL.ARRAY_BUFFER, _geometryResources.getVBO(attributeDataTable));
+            WebGL.ARRAY_BUFFER, geometryResources._getVBO(attributeDataTable));
       }
 
       _boundAttributeDataTable = attributeDataTable;
@@ -329,7 +291,7 @@ class RenderingContext {
         _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, null);
       } else {
         _context.bindBuffer(
-            WebGL.ELEMENT_ARRAY_BUFFER, _geometryResources.getIBO(indexList));
+            WebGL.ELEMENT_ARRAY_BUFFER, geometryResources._getIBO(indexList));
       }
 
       _boundIndexList = indexList;
@@ -343,7 +305,7 @@ class RenderingContext {
         _context.bindTexture(WebGL.TEXTURE_2D, null);
       } else {
         _context.bindTexture(
-            WebGL.TEXTURE_2D, _samplerResources.getTO(sampler));
+            WebGL.TEXTURE_2D, samplerResources._getTO(sampler));
       }
 
       _boundSampler2D = sampler;
@@ -366,7 +328,7 @@ class RenderingContext {
   void _useProgram(Program program) {
     if (program != _activeProgram) {
       _context
-          .useProgram(_programResources.getGLProgram(program).glProgramObject);
+          .useProgram(programResources._getGLProgram(program).glProgramObject);
       _activeProgram = program;
     }
   }

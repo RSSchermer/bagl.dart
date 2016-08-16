@@ -1,25 +1,36 @@
 part of rendering;
 
-class _ContextSamplerResourceManager {
+/// Manages the provisioning and deprovisioning of sampler related GPU resources
+/// for a [RendingContext].
+class ContextSamplerResources {
+  /// The [RenderingContext] with which these [ContextSamplerResources] are
+  /// associated.
   final RenderingContext context;
 
   final WebGL.RenderingContext _context;
 
-  Set<Sampler> _provisionedSamplers = new Set();
+  /// Expands [Sampler]s with their associated texture objects for all currently
+  /// provisioned samplers.
+  Expando<WebGL.Texture> _samplerTO = new Expando();
 
-  Map<Sampler, WebGL.Texture> _samplerTOs = new Map();
-
-  _ContextSamplerResourceManager(RenderingContext context)
+  ContextSamplerResources._internal(RenderingContext context)
       : context = context,
         _context = context._context;
 
-  Iterable<Sampler> get provisionedSamplers =>
-      new UnmodifiableSetView(_provisionedSamplers);
+  /// Returns whether or not GPU resources are currently being provisioned for
+  /// the [sampler].
+  bool areProvisionedFor(Sampler sampler) => _samplerTO[sampler] != null;
 
-  void provision(Sampler sampler) {
-    if (!_provisionedSamplers.contains(sampler)) {
+  /// Provisions GPU resources for the [sampler].
+  ///
+  /// Sets up a texture object for the [sampler]. If resources had been
+  /// provisioned previously for the [sampler] then these resources will be
+  /// reused. For samplers with dynamic textures this method will update the
+  /// texture data.
+  void provisionFor(Sampler sampler) {
+    if (!areProvisionedFor(sampler)) {
       final textureObject = _context.createTexture();
-      _samplerTOs[sampler] = textureObject;
+      _samplerTO[sampler] = textureObject;
 
       context._bindSampler2D(sampler);
 
@@ -58,8 +69,6 @@ class _ContextSamplerResourceManager {
             'supported in the current context. Supported sampler types are: '
             'Sampler2D.');
       }
-
-      _provisionedSamplers.add(sampler);
     } else if (sampler.texture.isReady && sampler.texture.isDynamic) {
       if (sampler is Sampler2D) {
         _updateTexture2DData(sampler);
@@ -67,11 +76,14 @@ class _ContextSamplerResourceManager {
     }
   }
 
-  bool deprovision(Sampler sampler) {
-    if (_provisionedSamplers.contains(sampler)) {
-      _context.deleteTexture(_samplerTOs[sampler]);
-      _provisionedSamplers.remove(sampler);
-      _samplerTOs.remove(sampler);
+  /// Deprovisions the GPU resources associated with the [sampler].
+  ///
+  /// Returns `true` if resources were provisioned for the [sampler], `false`
+  /// otherwise.
+  bool deprovisionFor(Sampler sampler) {
+    if (areProvisionedFor(sampler)) {
+      _context.deleteTexture(_samplerTO[sampler]);
+      _samplerTO[sampler] == null;
 
       if (sampler == context._boundSampler2D) {
         context._bindSampler2D(null);
@@ -83,7 +95,7 @@ class _ContextSamplerResourceManager {
     }
   }
 
-  WebGL.Texture getTO(Sampler sampler) => _samplerTOs[sampler];
+  WebGL.Texture _getTO(Sampler sampler) => _samplerTO[sampler];
 
   void _updateTexture2DData(Sampler2D sampler) {
     final texture = sampler.texture;

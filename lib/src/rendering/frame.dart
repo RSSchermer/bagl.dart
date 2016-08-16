@@ -114,11 +114,11 @@ class Frame {
       Region viewport: null,
       bool dithering: true,
       Map<String, String> attributeNameMap: const {}}) {
-    context._geometryResources.provision(geometry);
-    context._programResources.provision(program);
+    context.geometryResources.provisionFor(geometry);
+    context.programResources.provisionFor(program);
     context._useProgram(program);
 
-    final glProgram = context._programResources.getGLProgram(program);
+    final glProgram = context.programResources._getGLProgram(program);
     final unusedAttribLocations = context._enabledAttributeLocations.toSet();
 
     // Enable vertex attributes and adjust vertex attribute pointers if
