@@ -61,13 +61,6 @@ class RenderingContext {
   /// vertexAttribPointer is already set up correctly.
   Map<int, VertexAttribute> _locationAttributeMap = new Map();
 
-  /// Map from shader program uniform locations to the values currently bound to
-  /// these locations.
-  ///
-  /// Used to verify if the value bound to a uniform location needs to be
-  /// changed.
-  Map<WebGL.UniformLocation, VertexAttribute> _uniformValues = new Map();
-
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
 
