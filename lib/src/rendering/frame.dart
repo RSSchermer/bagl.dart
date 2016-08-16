@@ -73,6 +73,12 @@ class Frame {
   /// - [attributeNameMap]: may be used to map the [program]'s attributes to
   ///   different attribute names in case the [program]'s attribute names do
   ///   not match the attribute names used by the [geometry].
+  /// - [autoProvisioning]: whether or not the necessary GPU resources should
+  ///   be provisioned automatically for the [geometry], the [program] and any
+  ///   [Sampler] uniforms. If set to `false`, then the necessary resources
+  ///   should be provisioned prior to the draw call, see
+  ///   [context.geometryResources], [context.programResources] and
+  ///   [context.samplerResources]. Defaults to `true`.
   ///
   /// Finally, the thus configured rendering pipeline is used to process the
   /// [geometry], updating this [Frame]'s relevant output buffers accordingly.
@@ -101,6 +107,9 @@ class Frame {
   ///
   /// Throws an [ArgumentError] if more [Sampler] type uniforms are provided
   /// than [context.maxTextureUnits].
+  ///
+  /// Throws a [StateError] if [autoProvisioning] is `false` and not all of the
+  /// required geometry, program or sampler resources have been provisioned.
   void draw(
       IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
       {DepthTest depthTest: null,
@@ -113,9 +122,27 @@ class Frame {
       Region scissorBox: null,
       Region viewport: null,
       bool dithering: true,
-      Map<String, String> attributeNameMap: const {}}) {
-    context.geometryResources.provisionFor(geometry);
-    context.programResources.provisionFor(program);
+      Map<String, String> attributeNameMap: const {},
+      bool autoProvisioning: true}) {
+    if (autoProvisioning) {
+      context.geometryResources.provisionFor(geometry);
+      context.programResources.provisionFor(program);
+    } else {
+      if (!context.geometryResources.areProvisionedFor(geometry)) {
+        throw new StateError('GPU resources have not yet been provisioned for '
+            'the geometry and autoProvisioning was set to false. Provision '
+            'resources with context.geometryResources.provisionFor(geometry) '
+            'or set autoProvisioning to true.');
+      }
+
+      if (!context.programResources.areProvisionedFor(program)) {
+        throw new StateError('GPU resources have not yet been provisioned for '
+            'the program and autoProvisioning was set to false. Provision '
+            'resources with context.programResources.provisionFor(program) or '
+            'set autoProvisioning to true.');
+      }
+    }
+
     context._useProgram(program);
 
     final glProgram = context.programResources._getGLProgram(program);
@@ -175,7 +202,7 @@ class Frame {
     var samplerCount = 0;
 
     uniforms.forEach((name, value) {
-      glProgram.bindUniformValue(name, value);
+      glProgram.bindUniformValue(name, value, autoProvisioning);
 
       if (value is Struct) {
         for (var member in value.members) {

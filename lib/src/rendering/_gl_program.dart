@@ -93,15 +93,20 @@ class _GLProgram {
   /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D], [Int32List],
   /// [Float32List], [Vector2List], [Vector3List], [Vector4List], [Matrix2List],
   /// [Matrix3List], [Matrix4List], [List<Sampler2D>].
-  void bindUniformValue(String uniformName, dynamic value) {
+  ///
+  /// Throws a [StateError] when binding a [Sampler] uniform for which GPU
+  /// resources have not yet been provisioned when [autoProvisioning] is
+  /// `false`.
+  void bindUniformValue(
+      String uniformName, dynamic value, bool autoProvisioning) {
     if (value is Struct) {
       value.forEach((member, value) {
-        bindUniformValue("$uniformName.$member", value);
+        bindUniformValue("$uniformName.$member", value, autoProvisioning);
       });
     } else if (value is List<Struct>) {
       for (var i = 0; i < value.length; i++) {
         value[i].forEach((member, value) {
-          bindUniformValue("$uniformName[$i].$member", value);
+          bindUniformValue("$uniformName[$i].$member", value, autoProvisioning);
         });
       }
     } else {
@@ -132,7 +137,19 @@ class _GLProgram {
           final unit = context._recentlyUsedTextureUnits.last;
 
           context._updateActiveTextureUnit(unit);
-          context.samplerResources.provisionFor(value);
+
+          if (autoProvisioning) {
+            context.samplerResources.provisionFor(value);
+          } else {
+            if (!context.samplerResources.areProvisionedFor(value)) {
+              throw new StateError('GPU resources have not yet been '
+                  'provisioned for sampler "$uniformName" and autoProvisioning '
+                  'was set to false. Provision resources with '
+                  'context.samplerResources.provisionFor(sampler) or set '
+                  'autoProvisioning to true.');
+            }
+          }
+
           context._bindSampler2D(value);
 
           if (_uniformValues[uniformName] != unit) {
@@ -163,7 +180,19 @@ class _GLProgram {
             final unit = context._recentlyUsedTextureUnits.last;
 
             context._updateActiveTextureUnit(unit);
-            context.samplerResources.provisionFor(sampler);
+
+            if (autoProvisioning) {
+              context.samplerResources.provisionFor(sampler);
+            } else {
+              if (!context.samplerResources.areProvisionedFor(sampler)) {
+                throw new StateError('GPU resources have not yet been '
+                    'provisioned for sampler "$uniformName" and '
+                    'autoProvisioning was set to false. Provision resources '
+                    'with context.samplerResources.provisionFor(sampler) or '
+                    'set autoProvisioning to true.');
+              }
+            }
+
             context._bindSampler2D(sampler);
 
             context._recentlyUsedTextureUnits
