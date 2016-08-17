@@ -297,13 +297,14 @@ class RenderingContext {
         sampler != _textureUnitsSamplers[_activeTextureUnit]) {
       if (sampler == null) {
         _context.bindTexture(WebGL.TEXTURE_2D, null);
+        _textureUnitsSamplers.remove(_activeTextureUnit);
       } else {
         _context.bindTexture(
             WebGL.TEXTURE_2D, samplerResources._getTO(sampler));
+        _textureUnitsSamplers[_activeTextureUnit] = sampler;
       }
 
       _boundSampler2D = sampler;
-      _textureUnitsSamplers[_activeTextureUnit] = sampler;
     }
   }
 

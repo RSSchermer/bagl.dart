@@ -83,7 +83,7 @@ class ContextSamplerResources {
   bool deprovisionFor(Sampler sampler) {
     if (areProvisionedFor(sampler)) {
       _context.deleteTexture(_samplerTO[sampler]);
-      _samplerTO[sampler] == null;
+      _samplerTO[sampler] = null;
 
       if (sampler == context._boundSampler2D) {
         context._bindSampler2D(null);
