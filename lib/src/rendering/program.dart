@@ -11,13 +11,4 @@ class Program {
   /// Instantiates a new [Program] from the [vertexShaderSource] string and the
   /// [fragmentShaderSource] string.
   const Program(this.vertexShaderSource, this.fragmentShaderSource);
-
-  bool operator ==(other) =>
-      identical(other, this) ||
-      other is Program &&
-          other.vertexShaderSource == vertexShaderSource &&
-          other.fragmentShaderSource == fragmentShaderSource;
-
-  int get hashCode =>
-      hash2(vertexShaderSource.hashCode, fragmentShaderSource.hashCode);
 }
