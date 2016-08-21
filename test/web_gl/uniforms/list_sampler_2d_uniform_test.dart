@@ -33,8 +33,8 @@ main() {
         uniform sampler2D samplers[2];
 
         void main(void) {
-          vec4 color0 = texture2D(samplers[0], vec2(vTextureCoord.s, vTextureCoord.t));
-          vec4 color1 = texture2D(samplers[1], vec2(vTextureCoord.s, vTextureCoord.t));
+          vec4 color0 = texture2D(samplers[0], vTextureCoord);
+          vec4 color1 = texture2D(samplers[1], vTextureCoord);
           gl_FragColor = 0.5 * (color0 + color1);
         }
       """;

@@ -33,7 +33,7 @@ main() {
         uniform sampler2D samplerA;
 
         void main(void) {
-          gl_FragColor = texture2D(samplerA, vec2(vTextureCoord.s, vTextureCoord.t));
+          gl_FragColor = texture2D(samplerA, vTextureCoord);
         }
       """;
 
