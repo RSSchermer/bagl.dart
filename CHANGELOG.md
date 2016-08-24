@@ -1,11 +1,34 @@
 # BaGL Change Log
 
+## 0.4.0
+
+- BREAKING: `deprovisionGeometry`, `deprovisionProgram` and `deprovisionSampler`
+  have been removed from `RenderingContext`. Use 
+  `context.geometryResource.deprovision`, `context.programResources.deprovision` 
+  and 'context.samplerResources.deprovision` instead.  
+- `RenderingContext` now exposes `geometryResources`, `programResources` and
+  `samplerResources` fields to allow manual management of resource provisioning/
+  deprovisioning.
+- `Frame.draw` now takes `autoProvisioning` as an optional named parameter. When
+  set to `false`, BaGL will not automagically provision GPU resources for you.
+  Instead resources should have been provisioned manually prior to the draw
+  call (see change above).
+  
+This version refactors the rendering internals to make heavy use of `Expando`s
+so as to only hold on to weak references to geometry, programs and samplers.
+This means that once geometry, program and sampler objects become inaccessible
+in your code, these objects may be garbage collected by the Dart/Javascript 
+runtime. Importantly, any GPU resources that BaGL previously provisioned
+for these objects will then also be freed by the runtime. This means that in
+most cases, you do not have to worry about deprovisioning these resources
+manually.
+
 ## 0.3.0
 
-- Breaking: the `translation` constructors on `Matrix3` and `Matrix4` now take
+- BREAKING: the `translation` constructors on `Matrix3` and `Matrix4` now take
   separate `double` values for each translation direction rather than a single 
   vector. This aligns the signature with the `scale` constructor signature.
-- Breaking: removes `withValues` and `withValuesTranspose` from `Vector2`, 
+- BREAKING: removes `withValues` and `withValuesTranspose` from `Vector2`, 
   `Vector3`, `Vector4`, `Matrix2`, `Matrix3` and `Matrix4`. These methods are no
   longer necessary with rl_matrix 0.6.0 and had no real function in BaGL. Use
   the `fromList` constructors instead.
