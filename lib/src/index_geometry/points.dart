@@ -44,7 +44,7 @@ class Points extends IterableBase<PointsPointView>
     RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
-  PointsIterator get iterator => new PointsIterator(this);
+  Iterator<PointsPointView> get iterator => new _PointsIterator(this);
 
   PointsPointView elementAt(int index) => this[index];
 
@@ -59,7 +59,7 @@ class Points extends IterableBase<PointsPointView>
 }
 
 /// Iterator over the points in a [Points] collection.
-class PointsIterator extends Iterator<PointsPointView> {
+class _PointsIterator extends Iterator<PointsPointView> {
   final Points points;
 
   int _pointsLength;
@@ -67,7 +67,7 @@ class PointsIterator extends Iterator<PointsPointView> {
   int _currentPointIndex = -1;
 
   /// Instantiates a new iterator over the given [points].
-  PointsIterator(Points points)
+  _PointsIterator(Points points)
       : points = points,
         _pointsLength = points.length;
 

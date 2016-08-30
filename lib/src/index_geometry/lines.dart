@@ -46,7 +46,7 @@ class Lines extends IterableBase<LinesLineView>
     RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
-  LinesIterator get iterator => new LinesIterator(this);
+  Iterator<LinesLineView> get iterator => new _LinesIterator(this);
 
   LinesLineView elementAt(int index) => this[index];
 
@@ -61,7 +61,7 @@ class Lines extends IterableBase<LinesLineView>
 }
 
 /// Iterator over the lines in a [Lines] collection.
-class LinesIterator extends Iterator<LinesLineView> {
+class _LinesIterator extends Iterator<LinesLineView> {
   final Lines lines;
 
   int _linesLength;
@@ -69,7 +69,7 @@ class LinesIterator extends Iterator<LinesLineView> {
   int _currentLineIndex = -1;
 
   /// Instantiates a new iterator over the given [lines].
-  LinesIterator(Lines lines)
+  _LinesIterator(Lines lines)
       : lines = lines,
         _linesLength = lines.length;
 

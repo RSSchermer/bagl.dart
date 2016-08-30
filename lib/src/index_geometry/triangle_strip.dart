@@ -68,7 +68,8 @@ class TriangleStrip extends IterableBase<TriangleStripTriangleView>
     RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
-  TriangleStripIterator get iterator => new TriangleStripIterator(this);
+  Iterator<TriangleStripTriangleView> get iterator =>
+      new _TriangleStripIterator(this);
 
   TriangleStripTriangleView elementAt(int index) => this[index];
 
@@ -83,7 +84,7 @@ class TriangleStrip extends IterableBase<TriangleStripTriangleView>
 }
 
 /// Iterator over the triangles in a [TriangleStrip].
-class TriangleStripIterator extends Iterator<TriangleStripTriangleView> {
+class _TriangleStripIterator extends Iterator<TriangleStripTriangleView> {
   final TriangleStrip triangleStrip;
 
   int _trianglesLength;
@@ -91,7 +92,7 @@ class TriangleStripIterator extends Iterator<TriangleStripTriangleView> {
   int _currentTriangleIndex = -1;
 
   /// Instantiates a new iterator over the given [triangleStrip].
-  TriangleStripIterator(TriangleStrip triangleStrip)
+  _TriangleStripIterator(TriangleStrip triangleStrip)
       : triangleStrip = triangleStrip,
         _trianglesLength = triangleStrip.length;
 

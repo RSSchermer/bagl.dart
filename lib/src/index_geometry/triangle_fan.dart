@@ -72,7 +72,8 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
     RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
-  TriangleFanIterator get iterator => new TriangleFanIterator(this);
+  Iterator<TriangleFanTriangleView> get iterator =>
+      new _TriangleFanIterator(this);
 
   TriangleFanTriangleView elementAt(int index) => this[index];
 
@@ -87,7 +88,7 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
 }
 
 /// Iterator over the triangles in a [TriangleFan].
-class TriangleFanIterator extends Iterator<TriangleFanTriangleView> {
+class _TriangleFanIterator extends Iterator<TriangleFanTriangleView> {
   final TriangleFan triangleFan;
 
   int _trianglesLength;
@@ -95,7 +96,7 @@ class TriangleFanIterator extends Iterator<TriangleFanTriangleView> {
   int _currentTriangleIndex = -1;
 
   /// Instantiates a new iterator over the given [triangleFan].
-  TriangleFanIterator(TriangleFan triangleFan)
+  _TriangleFanIterator(TriangleFan triangleFan)
       : triangleFan = triangleFan,
         _trianglesLength = triangleFan.length;
 

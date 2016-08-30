@@ -46,51 +46,51 @@ void main() {
       });
     });
 
+    group('iterator', () {
+      final indices = new IndexList.incrementing(4);
+      final points = new Points(vertices, indices);
+
+      group('instance', () {
+        final iterator = points.iterator;
+
+        test('current is null initially', () {
+          expect(iterator.current, isNull);
+        });
+
+        group('when iterated over in a while loop', () {
+          var loopCount = 0;
+          final pointViewIndices = [];
+
+          while (iterator.moveNext()) {
+            loopCount++;
+            pointViewIndices.add(iterator.current.index);
+          }
+
+          test('loops the correct number of times', () {
+            expect(loopCount, equals(4));
+          });
+
+          test('returns the correct point view on each iteration', () {
+            expect(pointViewIndices, equals([0, 1, 2, 3]));
+          });
+
+          test('returns null as the current value after iterating', () {
+            expect(iterator.current, isNull);
+          });
+
+          test('returns false on moveNext after iterating', () {
+            expect(iterator.moveNext(), isFalse);
+          });
+        });
+      });
+    });
+
     group('[] operator', () {
       final indices = new IndexList.incrementing(4);
       final points = new Points(vertices, indices);
 
       test('returns a point view with the correct index', () {
         expect(points[1].index, equals(1));
-      });
-    });
-  });
-
-  group('PointsIterator', () {
-    final indices = new IndexList.incrementing(4);
-    final points = new Points(vertices, indices);
-
-    group('instance', () {
-      final iterator = new PointsIterator(points);
-
-      test('current is null initially', () {
-        expect(iterator.current, isNull);
-      });
-
-      group('when iterated over in a while loop', () {
-        var loopCount = 0;
-        final pointViewIndices = [];
-
-        while (iterator.moveNext()) {
-          loopCount++;
-          pointViewIndices.add(iterator.current.index);
-        }
-
-        test('loops the correct number of times', () {
-          expect(loopCount, equals(4));
-        });
-
-        test('returns the correct point view on each iteration', () {
-          expect(pointViewIndices, equals([0, 1, 2, 3]));
-        });
-
-        test('returns null as the current value after iterating', () {
-          expect(iterator.current, isNull);
-        });
-
-        test('returns false on moveNext after iterating', () {
-          expect(iterator.moveNext(), isFalse);
-        });
       });
     });
   });

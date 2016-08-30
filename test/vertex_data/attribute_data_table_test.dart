@@ -139,6 +139,50 @@ void main() {
     });
 
     group('instance', () {
+      group('iterator', () {
+        final table = new AttributeDataTable.fromList(3, [
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0
+        ]);
+
+        group('instance', () {
+          final iterator = table.iterator;
+
+          test('current is null initially', () {
+            expect(iterator.current, isNull);
+          });
+
+          group('when iterated over in a while loop', () {
+            var loopCount = 0;
+            var rows = [];
+
+            while (iterator.moveNext()) {
+              loopCount++;
+              rows.add(iterator.current);
+            }
+
+            test('loops the correct number of times', () {
+              expect(loopCount, equals(3));
+            });
+
+            test('returns the correct current value on each iteration', () {
+              expect(rows[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
+              expect(rows[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+              expect(rows[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+            });
+
+            test('returns null as the current value after iterating', () {
+              expect(iterator.current, isNull);
+            });
+
+            test('returns false on moveNext after iterating', () {
+              expect(iterator.moveNext(), isFalse);
+            });
+          });
+        });
+      });
+
       group('elementAt', () {
         final table = new AttributeDataTable.fromList(3, [
           0.0, 0.0, 0.0,
@@ -674,50 +718,6 @@ void main() {
     });
   });
 
-  group('AttributeDataTableIterator', () {
-    final table = new AttributeDataTable.fromList(3, [
-      0.0, 0.0, 0.0,
-      1.0, 1.0, 1.0,
-      2.0, 2.0, 2.0
-    ]);
-
-    group('instance', () {
-      final iterator = new AttributeDataTableIterator(table);
-
-      test('current is null initially', () {
-        expect(iterator.current, isNull);
-      });
-
-      group('when iterated over in a while loop', () {
-        var loopCount = 0;
-        var rows = [];
-
-        while (iterator.moveNext()) {
-          loopCount++;
-          rows.add(iterator.current);
-        }
-
-        test('loops the correct number of times', () {
-          expect(loopCount, equals(3));
-        });
-
-        test('returns the correct current value on each iteration', () {
-          expect(rows[0], orderedCloseTo([0.0, 0.0, 0.0], 0.00001));
-          expect(rows[1], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
-          expect(rows[2], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
-        });
-
-        test('returns null as the current value after iterating', () {
-          expect(iterator.current, isNull);
-        });
-
-        test('returns false on moveNext after iterating', () {
-          expect(iterator.moveNext(), isFalse);
-        });
-      });
-    });
-  });
-
   group('AttributeDataRowView', () {
     final table = new AttributeDataTable.fromList(3, [
       0.0, 0.1, 0.2,
@@ -734,6 +734,44 @@ void main() {
 
     group('instance', () {
       final rowView = new AttributeDataRowView(table, 1);
+
+      group('iterator', () {
+        group('instance', () {
+          final iterator = rowView.iterator;
+
+          test('current is null initially', () {
+            expect(iterator.current, isNull);
+          });
+
+          group('when iterated over in a while loop', () {
+            var loopCount = 0;
+            var rows = [];
+
+            while (iterator.moveNext()) {
+              loopCount++;
+              rows.add(iterator.current);
+            }
+
+            test('loops the correct number of times', () {
+              expect(loopCount, equals(3));
+            });
+
+            test('returns the correct current value on each iteration', () {
+              expect(rows[0], closeTo(1.0, 0.00001));
+              expect(rows[1], closeTo(1.1, 0.00001));
+              expect(rows[2], closeTo(1.2, 0.00001));
+            });
+
+            test('returns null as the current value after iterating', () {
+              expect(iterator.current, isNull);
+            });
+
+            test('returns false on moveNext after iterating', () {
+              expect(iterator.moveNext(), isFalse);
+            });
+          });
+        });
+      });
 
       group('elementAt', () {
         test('throws a RangeError when the index is out of bounds', () {
@@ -767,51 +805,6 @@ void main() {
           rowView[1] = 8.0;
 
           expect(table[1][1], closeTo(8.0, 0.00001));
-        });
-      });
-    });
-  });
-
-  group('AttributeDataRowViewIterator', () {
-    final table = new AttributeDataTable.fromList(3, [
-      0.0, 0.1, 0.2,
-      1.0, 1.1, 1.2,
-      2.0, 2.1, 2.2
-    ]);
-    final rowView = new AttributeDataRowView(table, 1);
-
-    group('instance', () {
-      final iterator = new AttributeDataRowViewIterator(rowView);
-
-      test('current is null initially', () {
-        expect(iterator.current, isNull);
-      });
-
-      group('when iterated over in a while loop', () {
-        var loopCount = 0;
-        var rows = [];
-
-        while (iterator.moveNext()) {
-          loopCount++;
-          rows.add(iterator.current);
-        }
-
-        test('loops the correct number of times', () {
-          expect(loopCount, equals(3));
-        });
-
-        test('returns the correct current value on each iteration', () {
-          expect(rows[0], closeTo(1.0, 0.00001));
-          expect(rows[1], closeTo(1.1, 0.00001));
-          expect(rows[2], closeTo(1.2, 0.00001));
-        });
-
-        test('returns null as the current value after iterating', () {
-          expect(iterator.current, isNull);
-        });
-
-        test('returns false on moveNext after iterating', () {
-          expect(iterator.moveNext(), isFalse);
         });
       });
     });

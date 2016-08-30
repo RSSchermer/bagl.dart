@@ -56,51 +56,51 @@ void main() {
       });
     });
 
+    group('iterator', () {
+      final indices = new IndexList.incrementing(3);
+      final lineLoop = new LineLoop(vertices, indices);
+
+      group('instance', () {
+        final iterator = lineLoop.iterator;
+
+        test('current is null initially', () {
+          expect(iterator.current, isNull);
+        });
+
+        group('when iterated over in a while loop', () {
+          var loopCount = 0;
+          final lineViewIndices = [];
+
+          while (iterator.moveNext()) {
+            loopCount++;
+            lineViewIndices.add(iterator.current.index);
+          }
+
+          test('loops the correct number of times', () {
+            expect(loopCount, equals(3));
+          });
+
+          test('returns the correct line view on each iteration', () {
+            expect(lineViewIndices, equals([0, 1, 2]));
+          });
+
+          test('returns null as the current value after iterating', () {
+            expect(iterator.current, isNull);
+          });
+
+          test('returns false on moveNext after iterating', () {
+            expect(iterator.moveNext(), isFalse);
+          });
+        });
+      });
+    });
+
     group('[] operator', () {
       final indices = new IndexList.incrementing(6);
       final lineLoop = new LineLoop(vertices, indices);
 
       test('returns a line view with the correct index', () {
         expect(lineLoop[1].index, equals(1));
-      });
-    });
-  });
-
-  group('LineLoopIterator', () {
-    final indices = new IndexList.incrementing(3);
-    final lineLoop = new LineLoop(vertices, indices);
-
-    group('instance', () {
-      final iterator = new LineLoopIterator(lineLoop);
-
-      test('current is null initially', () {
-        expect(iterator.current, isNull);
-      });
-
-      group('when iterated over in a while loop', () {
-        var loopCount = 0;
-        final lineViewIndices = [];
-
-        while (iterator.moveNext()) {
-          loopCount++;
-          lineViewIndices.add(iterator.current.index);
-        }
-
-        test('loops the correct number of times', () {
-          expect(loopCount, equals(3));
-        });
-
-        test('returns the correct line view on each iteration', () {
-          expect(lineViewIndices, equals([0, 1, 2]));
-        });
-
-        test('returns null as the current value after iterating', () {
-          expect(iterator.current, isNull);
-        });
-
-        test('returns false on moveNext after iterating', () {
-          expect(iterator.moveNext(), isFalse);
-        });
       });
     });
   });

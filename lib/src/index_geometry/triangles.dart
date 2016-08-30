@@ -47,7 +47,7 @@ class Triangles extends IterableBase<TrianglesTriangleView>
     RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
-  TrianglesIterator get iterator => new TrianglesIterator(this);
+  Iterator<TrianglesTriangleView> get iterator => new _TrianglesIterator(this);
 
   TrianglesTriangleView elementAt(int index) => this[index];
 
@@ -62,7 +62,7 @@ class Triangles extends IterableBase<TrianglesTriangleView>
 }
 
 /// Iterator over the triangles in a [Triangles] collection.
-class TrianglesIterator extends Iterator<TrianglesTriangleView> {
+class _TrianglesIterator extends Iterator<TrianglesTriangleView> {
   final Triangles triangles;
 
   int _trianglesLength;
@@ -70,7 +70,7 @@ class TrianglesIterator extends Iterator<TrianglesTriangleView> {
   int _currentTriangleIndex = -1;
 
   /// Instantiates a new iterator over the given [triangles].
-  TrianglesIterator(Triangles triangles)
+  _TrianglesIterator(Triangles triangles)
       : triangles = triangles,
         _trianglesLength = triangles.length;
 

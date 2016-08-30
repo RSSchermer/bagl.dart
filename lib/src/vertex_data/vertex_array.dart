@@ -304,7 +304,8 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
     });
   }
 
-  Iterator<VertexArrayVertexView> get iterator => new VertexArrayIterator(this);
+  Iterator<VertexArrayVertexView> get iterator =>
+      new _VertexArrayIterator(this);
 
   /// The names of the attributes defined for the vertices in this vertex array.
   Iterable<String> get attributeNames => attributes.keys;
@@ -372,7 +373,7 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
 }
 
 /// Iterator over the vertices in a [VertexArray].
-class VertexArrayIterator extends Iterator<VertexArrayVertexView> {
+class _VertexArrayIterator extends Iterator<VertexArrayVertexView> {
   final VertexArray _vertexArray;
 
   final int _vertexArrayLength;
@@ -380,7 +381,7 @@ class VertexArrayIterator extends Iterator<VertexArrayVertexView> {
   int _currentIndex = -1;
 
   /// Instantiates a new [VertexArrayIterator] over the given [VertexArray].
-  VertexArrayIterator(VertexArray vertexArray)
+  _VertexArrayIterator(VertexArray vertexArray)
       : _vertexArray = vertexArray,
         _vertexArrayLength = vertexArray.length;
 

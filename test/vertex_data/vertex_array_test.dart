@@ -212,6 +212,59 @@ void main () {
       });
     });
 
+    group('iterator', () {
+      final vertices = new VertexArray([
+        new Vertex({
+          'position': new Vector2(0.0, 1.0),
+          'color': new Vector3(1.0, 0.0, 0.0)
+        }),
+        new Vertex({
+          'position': new Vector2(-1.0, -1.0),
+          'color': new Vector3(0.0, 1.0, 0.0)
+        }),
+        new Vertex({
+          'position': new Vector2(1.0, -1.0),
+          'color': new Vector3(0.0, 0.0, 1.0)
+        })
+      ]);
+
+      group('instance', () {
+        final iterator = vertices.iterator;
+
+        test('current is null initially', () {
+          expect(iterator.current, isNull);
+        });
+
+        group('when iterator over in a while loop', () {
+          var loopCount = 0;
+          var vertices = [];
+
+          while (iterator.moveNext()) {
+            loopCount++;
+            vertices.add(iterator.current);
+          }
+
+          test('loops the correct number of times', () {
+            expect(loopCount, equals(3));
+          });
+
+          test('returns the correct current value on each iteration', () {
+            expect(vertices[0].index, equals(0));
+            expect(vertices[1].index, equals(1));
+            expect(vertices[2].index, equals(2));
+          });
+
+          test('returns null as the current value after iterating', () {
+            expect(iterator.current, isNull);
+          });
+
+          test('returns false on moveNext after iterating', () {
+            expect(iterator.moveNext(), isFalse);
+          });
+        });
+      });
+    });
+
     group('instance with 1 interleaved attribute data table', () {
       final attributeData = new AttributeDataTable.fromList(5, [
          // Position    // Color
@@ -383,59 +436,6 @@ void main () {
             expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(2));
             expect(subArray.attributes['color'].attributeDataTable.rowLength, equals(3));
           });
-        });
-      });
-    });
-  });
-
-  group('VertexArrayIterator', () {
-    final vertices = new VertexArray([
-      new Vertex({
-        'position': new Vector2(0.0, 1.0),
-        'color': new Vector3(1.0, 0.0, 0.0)
-      }),
-      new Vertex({
-        'position': new Vector2(-1.0, -1.0),
-        'color': new Vector3(0.0, 1.0, 0.0)
-      }),
-      new Vertex({
-        'position': new Vector2(1.0, -1.0),
-        'color': new Vector3(0.0, 0.0, 1.0)
-      })
-    ]);
-
-    group('instance', () {
-      final iterator = new VertexArrayIterator(vertices);
-
-      test('current is null initially', () {
-        expect(iterator.current, isNull);
-      });
-
-      group('when iterator over in a while loop', () {
-        var loopCount = 0;
-        var vertices = [];
-
-        while (iterator.moveNext()) {
-          loopCount++;
-          vertices.add(iterator.current);
-        }
-
-        test('loops the correct number of times', () {
-          expect(loopCount, equals(3));
-        });
-
-        test('returns the correct current value on each iteration', () {
-          expect(vertices[0].index, equals(0));
-          expect(vertices[1].index, equals(1));
-          expect(vertices[2].index, equals(2));
-        });
-
-        test('returns null as the current value after iterating', () {
-          expect(iterator.current, isNull);
-        });
-
-        test('returns false on moveNext after iterating', () {
-          expect(iterator.moveNext(), isFalse);
         });
       });
     });

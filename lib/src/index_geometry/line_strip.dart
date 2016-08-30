@@ -64,7 +64,7 @@ class LineStrip extends IterableBase<LineStripLineView>
     RangeError.checkValueInInterval(count, 0, indices.length - offset, 'count');
   }
 
-  LineStripIterator get iterator => new LineStripIterator(this);
+  Iterator<LineStripLineView> get iterator => new _LineStripIterator(this);
 
   LineStripLineView elementAt(int index) => this[index];
 
@@ -79,7 +79,7 @@ class LineStrip extends IterableBase<LineStripLineView>
 }
 
 /// Iterator over the lines in a [LineStrip].
-class LineStripIterator extends Iterator<LineStripLineView> {
+class _LineStripIterator extends Iterator<LineStripLineView> {
   final LineStrip lineStrip;
 
   int _lineStripLength;
@@ -87,7 +87,7 @@ class LineStripIterator extends Iterator<LineStripLineView> {
   int _currentLineIndex = -1;
 
   /// Instantiates a new iterator over the given [lineStrip].
-  LineStripIterator(LineStrip lineStrip)
+  _LineStripIterator(LineStrip lineStrip)
       : lineStrip = lineStrip,
         _lineStripLength = lineStrip.length;
 

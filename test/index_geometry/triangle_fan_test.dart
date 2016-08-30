@@ -60,51 +60,51 @@ void main() {
       });
     });
 
+    group('iterator', () {
+      final indices = new IndexList.incrementing(5);
+      final triangleFan = new TriangleFan(vertices, indices);
+
+      group('instance', () {
+        final iterator = triangleFan.iterator;
+
+        test('current is null initially', () {
+          expect(iterator.current, isNull);
+        });
+
+        group('when iterated over in a while loop', () {
+          var loopCount = 0;
+          final triangleViewIndices = [];
+
+          while (iterator.moveNext()) {
+            loopCount++;
+            triangleViewIndices.add(iterator.current.index);
+          }
+
+          test('loops the correct number of times', () {
+            expect(loopCount, equals(3));
+          });
+
+          test('returns the correct triangle view on each iteration', () {
+            expect(triangleViewIndices, equals([0, 1, 2]));
+          });
+
+          test('returns null as the current value after iterating', () {
+            expect(iterator.current, isNull);
+          });
+
+          test('returns false on moveNext after iterating', () {
+            expect(iterator.moveNext(), isFalse);
+          });
+        });
+      });
+    });
+
     group('[] operator', () {
       final indices = new IndexList.incrementing(9);
       final triangleFan = new TriangleFan(vertices, indices);
 
       test('returns a triangle view with the correct index', () {
         expect(triangleFan[1].index, equals(1));
-      });
-    });
-  });
-
-  group('TriangleFanIterator', () {
-    final indices = new IndexList.incrementing(5);
-    final triangleFan = new TriangleFan(vertices, indices);
-
-    group('instance', () {
-      final iterator = new TriangleFanIterator(triangleFan);
-
-      test('current is null initially', () {
-        expect(iterator.current, isNull);
-      });
-
-      group('when iterated over in a while loop', () {
-        var loopCount = 0;
-        final triangleViewIndices = [];
-
-        while (iterator.moveNext()) {
-          loopCount++;
-          triangleViewIndices.add(iterator.current.index);
-        }
-
-        test('loops the correct number of times', () {
-          expect(loopCount, equals(3));
-        });
-
-        test('returns the correct triangle view on each iteration', () {
-          expect(triangleViewIndices, equals([0, 1, 2]));
-        });
-
-        test('returns null as the current value after iterating', () {
-          expect(iterator.current, isNull);
-        });
-
-        test('returns false on moveNext after iterating', () {
-          expect(iterator.moveNext(), isFalse);
-        });
       });
     });
   });

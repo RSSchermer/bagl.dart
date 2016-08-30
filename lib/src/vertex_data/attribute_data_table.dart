@@ -198,8 +198,8 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
 
   int get lengthInBytes => _storage.lengthInBytes;
 
-  AttributeDataTableIterator get iterator =>
-      new AttributeDataTableIterator(this);
+  Iterator<AttributeDataRowView> get iterator =>
+      new _AttributeDataTableIterator(this);
 
   AttributeDataRowView elementAt(int index) {
     RangeError.checkValidIndex(index, this);
@@ -519,7 +519,7 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
 }
 
 /// Iterator over the rows in an [AttributeDataTable].
-class AttributeDataTableIterator extends Iterator<AttributeDataRowView> {
+class _AttributeDataTableIterator extends Iterator<AttributeDataRowView> {
   final AttributeDataTable attributeDataTable;
 
   int _tableLength;
@@ -528,7 +528,7 @@ class AttributeDataTableIterator extends Iterator<AttributeDataRowView> {
 
   /// Instantiates a new iterator over the rows in the given
   /// [attributeDataTable].
-  AttributeDataTableIterator(AttributeDataTable attributeDataTable)
+  _AttributeDataTableIterator(AttributeDataTable attributeDataTable)
       : attributeDataTable = attributeDataTable,
         _tableLength = attributeDataTable.length;
 
@@ -572,8 +572,7 @@ class AttributeDataRowView extends IterableBase<double> {
     RangeError.checkValidIndex(index, attributeDataTable);
   }
 
-  AttributeDataRowViewIterator get iterator =>
-      new AttributeDataRowViewIterator(this);
+  Iterator<double> get iterator => new _AttributeDataRowViewIterator(this);
 
   double elementAt(int index) {
     RangeError.checkValidIndex(index, this);
@@ -593,7 +592,7 @@ class AttributeDataRowView extends IterableBase<double> {
 }
 
 /// Iterator over the values in an [AttributeDataRowView].
-class AttributeDataRowViewIterator extends Iterator<double> {
+class _AttributeDataRowViewIterator extends Iterator<double> {
   final AttributeDataRowView row;
 
   final Float32List _storage;
@@ -605,7 +604,7 @@ class AttributeDataRowViewIterator extends Iterator<double> {
   int _currentValueIndex = -1;
 
   /// Creates a new iterator over the values in an [AttributeDataRowView].
-  AttributeDataRowViewIterator(AttributeDataRowView row)
+  _AttributeDataRowViewIterator(AttributeDataRowView row)
       : row = row,
         _storage = row.attributeDataTable._storage,
         _rowLength = row.length,
