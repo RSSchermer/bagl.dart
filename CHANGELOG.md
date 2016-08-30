@@ -1,5 +1,13 @@
 # BaGL Change Log
 
+## 0.5.0
+
+`LineLoopIterator`, `LineStripIterator`, `LinesIterator`, `PointsIterator`,
+`TriangleFanIterator`, `TriangleStripIterator`, `TrianglesIterator`,
+`AttributeDataTableIterator`, `AttributeDataRowViewIterator` and 
+`VertexArrayIterator` were made private. These iterators provide nothing beyond
+the expected `Iterator` API and were cluttering the API documentation.
+
 ## 0.4.0
 
 - BREAKING: `deprovisionGeometry`, `deprovisionProgram` and `deprovisionSampler`
