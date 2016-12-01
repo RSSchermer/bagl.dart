@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>WebGL draw index geometry with an offset and a count</title>
+    <link rel="x-dart-test" href="index_geometry_offset_count_test.dart">
+    <script src="packages/test/dart.js"></script>
+</head>
+
+<body>
+    <p>Rendered: </p>
+
+    <canvas id="main_canvas" width="100" height="100"></canvas>
+
+    <p>Expected:</p>
+
+    <img id="expected" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAEvElEQVR4Xu2cSUhVURjH34mj5MKiXFSUC4tyYTRBE7mwKBcW5cKiAYwmaCKhgXJhUS4sGsBogiYSGigXFuXColwYTdBELizKhUW5sCgXhkbmVa/3Xd995x31ec7/i094oHJ5fO//e7977v/doyLEX1AJCKhpeJgQAwF7EzAQBgKWANg4bAgDAUsAbBw2hIGAJQA2DhvCQMASABuHDWEgYAmAjcOGMBCwBMDGYUMYCFgCYOOwIQwELAGwcdgQBgKWANg4bAgDAUsAbBw2hIGAJQA2DhvCQOKfgGhJbE8ItYVak9rJv8HIvwAHr/yV1AmkZdgf8q+H/gtoGtEBozXkAEnsePxIoW0JeSDyW0qnHe6jaTRtS0gDEQ1je2AkdlvigPmSStcS0kDkp1SfHa4lDePpWkIWiKibGGaHe8rqWkucx4d0mpaQBSLfpQfa4QKpm0zTEpJAxKupAXZEWvJmOj1LSAKRz2Z0A/FOUeFXWs7lr/Pzy9n0LCEHRNTMVdgRacmTTFqWkAMiH2X2Wjv8lrh2uMbUzKdlCSkgomqhr5WHn6Yiv/fa+4NsOpaQAiLvZUe5svLCD4JUtZiOJWSAiIqlga1cZUl4e7+TS8MSMkDkrVxl7wgPPwhSxXIalpAAIq6tVLbyIADe4u4t+jdW41tCAoi8sqZnMdcNv/dxDqCra/EtgQciLqzXauVBxdD7nWfJpY3YlsADkWc2ha0dkc28d+9wb1ZFA3R+K7Yl0EBE6fY+tXL3rmHwlZcH81QBriXQQOSxgoArKy/YSDsiPzoJOqZ0N64lsEBEyd5+tXLd9n6kENMSWCDyUKGid7R2bmiIFb7qmJL9mJZAAhFFBwfUynXb+4FiPEsggch9xTFauWNH8L0QF0aXHepjig7jWQIHROw6GpdWrlsg9xzHsgQOiNxxQrOVRzfAv3ZEt8Q5budJLEuggIgtp+PaynXb+7azOJZAAZEbzvWxlUdaEnxlpW74my/iWAIDRORfHpRWrtve15VhWAIDRK4q62cr9yxRdxN1w8+/jmEJBBCRd3NQW3msAulatKLcviUQQOSy8gG2cudPEdSdowuKuuHn3bZviXUgIueukVau296XVNq1xDoQuagyTq08djPXae859+1aYhWIyHpotJXrtvcF1fYssQpEzqvWsCPyHodu4Yt+nHq9yXpszxJrQMSsp1ZauS7MOc/tWGINiJz2QmsHu/80o97HG7SpIXoxVO+cn/najiVWgIiMt1ZbuW57n1Jr3hIrQOSk2j7tYA+yROeOoTr42J+DZbw3b4lxICLtI0Qr123vE+rNWmIciBxX368d7P7FWKeV67d3lUlpn81aYhSIGPUVqpXrtvcxjeYsMQpEjmwc0A52/ztZ55567Pbe9Zzq5xr13ZwlxoCI5J+QrVy3vQ9vNmOJMSByaLNmK1ffA1f1Ev+Ok/B9WzrPqbYk+bcZS4wAEUPaoFu5bntP+Dv4lhgBEv9/Wfb/PiMDAWPLQBgIWAJg47AhDAQsAbBx2BAGApYA2DhsCAMBSwBsHDaEgYAlADYOG8JAwBIAG4cNYSBgCYCNw4YwELAEwMZhQxgIWAJg47AhDAQsAbBx2BAGApYA2DhsCBiQf/E3dbCOj6ydAAAAAElFTkSuQmCC">
+</body>
+</html>
