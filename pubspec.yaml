@@ -5,9 +5,9 @@ author: R.S. Schermer <roland0507@gmail.com>
 homepage: https://github.com/RSSchermer/bagl.dart
 documentation:
 environment:
-  sdk: '>=1.0.0 <2.0.0'
+  sdk: '>=1.19.0 <2.0.0'
 dependencies:
-  rl_matrix: '^0.6.3'
+  rl_matrix: '^0.6.4'
   collection: '^1.9.0'
   quiver: '^0.24.0'
 dev_dependencies:
