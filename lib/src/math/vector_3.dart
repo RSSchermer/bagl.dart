@@ -8,6 +8,12 @@ class Vector3 extends _VertexBase implements Matrix {
 
   final int rowDimension = 3;
 
+  double _squareSum;
+
+  double _magnitude;
+
+  Vector3 _unitVector;
+
   /// Instantiates a new [Vector3] with the specified values.
   factory Vector3(double x, double y, double z) {
     final values = new Float32List(3);
@@ -52,6 +58,64 @@ class Vector3 extends _VertexBase implements Matrix {
   double get s => _storage[0];
   double get t => _storage[1];
   double get p => _storage[2];
+
+  /// The magnitude of this [Vector3].
+  double get magnitude {
+    if (_magnitude == null) {
+      _squareSum ??= x * x + y * y + z * z;
+
+      if ((_squareSum - 1).abs() < 0.0001) {
+        _magnitude = 1.0;
+      } else {
+        _magnitude = sqrt(_squareSum);
+      }
+    }
+
+    return _magnitude;
+  }
+
+  /// This [Vector3]'s unit vector.
+  ///
+  /// A [Vector3] with a [magnitude] of `1` that has the same direction as this
+  /// [Vector3].
+  Vector3 get unitVector {
+    if (_unitVector == null) {
+      if (_unitVector == null) {
+        if (_magnitude != null) {
+          if (_magnitude == 1.0) {
+            _unitVector = new Vector3(x, y, z);
+          } else {
+            _unitVector = new Vector3(x / _magnitude, y / _magnitude, z / _magnitude);
+          }
+        } else {
+          _squareSum ??= x * x + y * y + z * z;
+
+          if ((_squareSum - 1).abs() < 0.0001) {
+            _unitVector = new Vector3(x, y, z);
+          } else {
+            _magnitude ??= sqrt(_squareSum);
+
+            _unitVector = new Vector3(x / _magnitude, y / _magnitude, z / _magnitude);
+          }
+        }
+      }
+
+      return _unitVector;
+    }
+
+    return _unitVector;
+  }
+
+  /// Whether or not this [Vector3] is a unit vector.
+  bool get isUnit {
+    if (_magnitude != null) {
+      return _magnitude == 1.0;
+    } else {
+      _squareSum ??= x * x + y * y + z * z;
+
+      return (_squareSum - 1).abs() < 0.0001;
+    }
+  }
 
   Vector3 scalarProduct(num s) {
     final values = new Float32List(3);

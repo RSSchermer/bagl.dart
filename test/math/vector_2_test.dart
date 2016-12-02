@@ -38,8 +38,20 @@ void main() {
       expect(v.values, orderedCloseTo([0.0, 0.0], 0.00001));
     });
     
-    group('instance', () {
+    group('instance (1.0, 2.0)', () {
       final vector = new Vector2(1.0, 2.0);
+
+      test('magnitude returns the correct value', () {
+        expect(vector.magnitude, closeTo(2.23607, 0.00001));
+      });
+
+      test('unitVector returns the correct value', () {
+        expect(vector.unitVector.values, orderedCloseTo([0.44721, 0.89443], 0.00001));
+      });
+
+      test('isUnit is false', () {
+        expect(vector.isUnit, isFalse);
+      });
 
       group('valueAt', () {
         test('(1, 0)', () {
@@ -148,6 +160,23 @@ void main() {
           expect(vector[0], closeTo(1.0, 0.00001));
           expect(vector[1], closeTo(2.0, 0.00001));
         });
+      });
+    });
+
+    group('instance (0.44721, 0.89443)', () {
+      final vector = new Vector2(0.44721, 0.89443);
+
+      test('magnitude returns the correct value', () {
+        expect(vector.magnitude, equals(1.0));
+      });
+
+      test('unitVector returns the correct value', () {
+        expect(vector.unitVector.values,
+            orderedCloseTo([0.44721, 0.89443], 0.00001));
+      });
+
+      test('isUnit is true', () {
+        expect(vector.isUnit, isTrue);
       });
     });
   });

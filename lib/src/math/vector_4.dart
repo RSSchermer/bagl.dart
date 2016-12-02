@@ -8,6 +8,12 @@ class Vector4 extends _VertexBase implements Matrix {
 
   final int rowDimension = 4;
 
+  double _squareSum;
+
+  double _magnitude;
+
+  Vector4 _unitVector;
+
   /// Instantiates a new [Vector4] with the specified values.
   factory Vector4(double x, double y, double z, double w) {
     final values = new Float32List(4);
@@ -56,6 +62,64 @@ class Vector4 extends _VertexBase implements Matrix {
   double get t => _storage[1];
   double get p => _storage[2];
   double get q => _storage[3];
+
+  /// The magnitude of this [Vector4].
+  double get magnitude {
+    if (_magnitude == null) {
+      _squareSum ??= x * x + y * y + z * z + w * w;
+
+      if ((_squareSum - 1).abs() < 0.0001) {
+        _magnitude = 1.0;
+      } else {
+        _magnitude = sqrt(_squareSum);
+      }
+    }
+
+    return _magnitude;
+  }
+
+  /// This [Vector4]'s unit vector.
+  ///
+  /// A [Vector4] with a [magnitude] of `1` that has the same direction as this
+  /// [Vector4].
+  Vector4 get unitVector {
+    if (_unitVector == null) {
+      if (_unitVector == null) {
+        if (_magnitude != null) {
+          if (_magnitude == 1.0) {
+            _unitVector = new Vector4(x, y, z, w);
+          } else {
+            _unitVector = new Vector4(x / _magnitude, y / _magnitude, z / _magnitude, w / _magnitude);
+          }
+        } else {
+          _squareSum ??= x * x + y * y + z * z + w * w;
+
+          if ((_squareSum - 1).abs() < 0.0001) {
+            _unitVector = new Vector4(x, y, z, w);
+          } else {
+            _magnitude ??= sqrt(_squareSum);
+
+            _unitVector = new Vector4(x / _magnitude, y / _magnitude, z / _magnitude, w / _magnitude);
+          }
+        }
+      }
+
+      return _unitVector;
+    }
+
+    return _unitVector;
+  }
+
+  /// Whether or not this [Vector4] is a unit vector.
+  bool get isUnit {
+    if (_magnitude != null) {
+      return _magnitude == 1.0;
+    } else {
+      _squareSum ??= x * x + y * y + z * z + w * w;
+
+      return (_squareSum - 1).abs() < 0.0001;
+    }
+  }
 
   Vector4 scalarProduct(num s) {
     final values = new Float32List(4);

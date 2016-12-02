@@ -8,6 +8,12 @@ class Vector2 extends _VertexBase implements Matrix {
 
   final int rowDimension = 2;
 
+  double _squareSum;
+
+  double _magnitude;
+
+  Vector2 _unitVector;
+
   /// Instantiates a new [Vector2] with the specified values.
   factory Vector2(double x, double y) {
     final values = new Float32List(2);
@@ -48,6 +54,60 @@ class Vector2 extends _VertexBase implements Matrix {
 
   double get s => _storage[0];
   double get t => _storage[1];
+
+  /// The magnitude of this [Vector2].
+  double get magnitude {
+    if (_magnitude == null) {
+      _squareSum ??= x * x + y * y;
+
+      if ((_squareSum - 1).abs() < 0.0001) {
+        _magnitude = 1.0;
+      } else {
+        _magnitude = sqrt(_squareSum);
+      }
+    }
+
+    return _magnitude;
+  }
+
+  /// This [Vector2]'s unit vector.
+  ///
+  /// A [Vector2] with a [magnitude] of `1` that has the same direction as this
+  /// [Vector2].
+  Vector2 get unitVector {
+    if (_unitVector == null) {
+      if (_magnitude != null) {
+        if (_magnitude == 1.0) {
+          _unitVector = new Vector2(x, y);
+        } else {
+          _unitVector = new Vector2(x / _magnitude, y / _magnitude);
+        }
+      } else {
+        _squareSum ??= x * x + y * y;
+
+        if ((_squareSum - 1).abs() < 0.0001) {
+          _unitVector = new Vector2(x, y);
+        } else {
+          _magnitude ??= sqrt(_squareSum);
+
+          _unitVector = new Vector2(x / _magnitude, y / _magnitude);
+        }
+      }
+    }
+
+    return _unitVector;
+  }
+
+  /// Whether or not this [Vector2] is a unit vector.
+  bool get isUnit {
+    if (_magnitude != null) {
+      return _magnitude == 1.0;
+    } else {
+      _squareSum ??= x * x + y * y;
+
+      return (_squareSum - 1).abs() < 0.0001;
+    }
+  }
 
   Vector2 scalarProduct(num s) {
     final values = new Float32List(2);
