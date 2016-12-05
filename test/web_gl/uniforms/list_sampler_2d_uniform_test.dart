@@ -56,7 +56,7 @@ main() {
         })
       ]);
 
-      final triangles = new Triangles(vertices, new IndexList.incrementing(3));
+      final triangles = new Triangles(vertices);
       final texture1 =
           new Texture2D.fromImageElement(document.querySelector('#texture_1'));
       final texture2 =

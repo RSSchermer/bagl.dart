@@ -1,7 +1,4 @@
-/// Primitives for describing vertex geometry.
-library geometry_primitives;
-
-import 'vertex.dart';
+part of geometry;
 
 /// Point vertex geometry primitive.
 ///

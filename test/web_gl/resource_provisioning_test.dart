@@ -54,7 +54,7 @@ void main() {
         })
       ]);
 
-      final triangles = new Triangles(vertices, new IndexList.incrementing(3));
+      final triangles = new Triangles(vertices);
       final texture = new Texture2D.fromImageElement(
           document.querySelector('#checkerboard_color_gradient'));
       final sampler = new Sampler2D(texture);

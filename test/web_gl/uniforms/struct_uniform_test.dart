@@ -44,7 +44,7 @@ void main() {
         new Vertex({'position': new Vector2(0.5, -0.5)})
       ]);
 
-      final triangles = new Triangles(vertices, new IndexList.incrementing(3));
+      final triangles = new Triangles(vertices);
 
       context.defaultFrame.draw(triangles, program, {
         'colors': new Struct({

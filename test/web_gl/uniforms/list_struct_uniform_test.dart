@@ -80,7 +80,7 @@ void main() {
         })
       ]);
 
-      final triangles = new Triangles(vertices, new IndexList.incrementing(6));
+      final triangles = new Triangles(vertices);
 
       context.defaultFrame.draw(triangles, program, {
         'colorPairs': <Struct>[

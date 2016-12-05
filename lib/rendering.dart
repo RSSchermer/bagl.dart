@@ -10,7 +10,7 @@ import 'package:collection/wrappers.dart';
 import 'package:quiver/core.dart';
 import 'package:quiver/collection.dart';
 
-import 'index_geometry.dart';
+import 'geometry.dart';
 import 'math.dart';
 import 'matrix_list.dart';
 import 'struct.dart';

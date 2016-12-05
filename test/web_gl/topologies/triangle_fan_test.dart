@@ -65,7 +65,7 @@ void main() {
       ]);
 
       final triangles =
-          new TriangleFan(vertices, new IndexList.incrementing(6));
+          new TriangleFan(vertices);
 
       context.defaultFrame.draw(triangles, program, {});
 

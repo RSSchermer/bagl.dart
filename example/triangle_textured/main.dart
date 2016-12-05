@@ -47,7 +47,7 @@ main() {
     })
   ]);
 
-  var triangles = new Triangles(vertices, new IndexList.incrementing(3));
+  var triangles = new Triangles(vertices);
   var texture = new Texture2D.fromImageURL('checkerboard_color_gradient.png');
   var sampler = new Sampler2D(texture,
       minificationFilter: MinificationFilter.linearMipmapLinear,

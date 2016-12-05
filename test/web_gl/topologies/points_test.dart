@@ -48,7 +48,7 @@ void main() {
         })
       ]);
 
-      final triangles = new Points(vertices, new IndexList.incrementing(2));
+      final triangles = new Points(vertices);
 
       context.defaultFrame.draw(triangles, program, {});
 

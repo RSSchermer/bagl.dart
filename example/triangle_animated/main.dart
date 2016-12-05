@@ -48,7 +48,7 @@ main() {
     })
   ]);
 
-  var triangles = new Triangles(vertices, new IndexList.incrementing(3));
+  var triangles = new Triangles(vertices);
 
   update(num time) {
     context.defaultFrame.draw(triangles, program, {'scale': sin(time / 1000)});

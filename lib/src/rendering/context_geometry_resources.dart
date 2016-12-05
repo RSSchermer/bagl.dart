@@ -4,7 +4,7 @@ part of rendering;
 /// resources for a [RendingContext].
 ///
 /// Manages the creation and deletion of vertex attribute data buffer objects
-/// and index data buffer objects for [IndexGeometry] instances.
+/// and index data buffer objects for [PrimitiveSequence] instances.
 class ContextGeometryResources {
   /// The [RenderingContext] with which these [ContextGeometryResources] are
   /// associated.
@@ -40,35 +40,38 @@ class ContextGeometryResources {
         _context = context._context;
 
   /// Returns whether or not GPU resources are currently being provisioned for
-  /// the [geometry].
-  bool areProvisionedFor(IndexGeometry geometry) =>
-      _isProvisionedGeometry[geometry] ?? false;
+  /// the [primitives].
+  bool areProvisionedFor(PrimitiveSequence primitives) =>
+      _isProvisionedGeometry[primitives] ?? false;
 
-  /// Provisions GPU resources for the [geometry].
+  /// Provisions GPU resources for the [primitives].
   ///
-  /// Sets up data buffers for the [geometry]'s index and attribute data. If the
-  /// [geometry] shares data with other geometries for which resources have been
-  /// previously provisioned, then these resources will be reused.
-  void provisionFor(IndexGeometry geometry) {
-    if (!areProvisionedFor(geometry)) {
-      final indexList = geometry.indices;
+  /// Sets up data buffers for the [primitives]'s index and attribute data. If
+  /// the [primitives] share data with other [PrimitiveSequence]s for which
+  /// resources have been previously provisioned, then these resources will be
+  /// reused.
+  void provisionFor(PrimitiveSequence primitives) {
+    if (!areProvisionedFor(primitives)) {
+      final indexList = primitives.indexList;
 
-      if ((_indexListReferenceCount[indexList] ?? 0) >= 1) {
-        _indexListReferenceCount[indexList] += 1;
-      } else {
-        final IBO = _context.createBuffer();
-        final usage =
-            indexList.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
+      if (indexList != null) {
+        if ((_indexListReferenceCount[indexList] ?? 0) >= 1) {
+          _indexListReferenceCount[indexList] += 1;
+        } else {
+          final IBO = _context.createBuffer();
+          final usage =
+              indexList.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
 
-        _indexListIBO[indexList] = IBO;
-        _indexListReferenceCount[indexList] = 1;
+          _indexListIBO[indexList] = IBO;
+          _indexListReferenceCount[indexList] = 1;
 
-        context._bindIndexList(indexList);
-        _context.bufferData(
-            WebGL.ELEMENT_ARRAY_BUFFER, indexList.buffer, usage);
+          context._bindIndexList(indexList);
+          _context.bufferData(
+              WebGL.ELEMENT_ARRAY_BUFFER, indexList.buffer, usage);
+        }
       }
 
-      geometry.vertices.attributeDataTables.forEach((table) {
+      primitives.vertexArray.attributeDataTables.forEach((table) {
         if ((_attributeDataTableReferenceCount[table] ?? 0) >= 1) {
           _attributeDataTableReferenceCount[table] += 1;
         } else {
@@ -83,37 +86,39 @@ class ContextGeometryResources {
         }
       });
 
-      _isProvisionedGeometry[geometry] = true;
+      _isProvisionedGeometry[primitives] = true;
     }
   }
 
-  /// Deprovisions the GPU resources associated with the [geometry].
+  /// Deprovisions the GPU resources associated with the [primitives].
   ///
-  /// Frees each resource associated with the [geometry], unless the [geometry]
-  /// shares the resource with another currently provisioned geometry. Returns
-  /// `true` if resources were provisioned for the [geometry], `false`
-  /// otherwise.
-  bool deprovisionFor(IndexGeometry geometry) {
-    if (areProvisionedFor(geometry)) {
-      final indexList = geometry.indices;
+  /// Frees each resource associated with the [primitives], unless the
+  /// [primitives] share the resource with another currently provisioned
+  /// [PrimitiveSequence]. Returns `true` if resources were provisioned for the
+  /// [primitives], `false` otherwise.
+  bool deprovisionFor(PrimitiveSequence primitives) {
+    if (areProvisionedFor(primitives)) {
+      final indexList = primitives.indexList;
 
-      // When index geometry is deprovisioned but its index list is still used
-      // by another index geometry, then the index list's index buffer object
-      // (IBO) should not yet be deleted. The IBO is only deleted when the
-      // reference count drops to 0.
-      if ((_indexListReferenceCount[indexList] ?? 0) > 1) {
-        _indexListReferenceCount[indexList] -= 1;
-      } else {
-        _context.deleteBuffer(_indexListIBO[indexList]);
-        _indexListIBO[indexList] = null;
-        _indexListReferenceCount[indexList] = null;
+      if (indexList != null) {
+        // When primitives are deprovisioned but their index list is still used
+        // by another primitive sequence, then the index list's index buffer
+        // object (IBO) should not yet be deleted. The IBO is only deleted when
+        // the reference count drops to 0.
+        if ((_indexListReferenceCount[indexList] ?? 0) > 1) {
+          _indexListReferenceCount[indexList] -= 1;
+        } else {
+          _context.deleteBuffer(_indexListIBO[indexList]);
+          _indexListIBO[indexList] = null;
+          _indexListReferenceCount[indexList] = null;
 
-        if (indexList == context._boundIndexList) {
-          context._bindIndexList(null);
+          if (indexList == context._boundIndexList) {
+            context._bindIndexList(null);
+          }
         }
       }
 
-      geometry.vertices.attributeDataTables.forEach((table) {
+      primitives.vertexArray.attributeDataTables.forEach((table) {
         // When geometry is deprovisioned but an attribute data table is still
         // used by another geometry, then the attribute data table's vertex
         // buffer object (VBO) should not yet be deleted. The VBO is only
@@ -131,7 +136,7 @@ class ContextGeometryResources {
         }
       });
 
-      _isProvisionedGeometry[geometry] = null;
+      _isProvisionedGeometry[primitives] = null;
 
       return true;
     } else {

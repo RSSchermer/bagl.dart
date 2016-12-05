@@ -195,9 +195,10 @@ main() {
     })
   ]);
 
-  var triangles = new Triangles(vertices, new IndexList.incrementing(36));
+  var triangles = new Triangles(vertices);
 
-  var model = new Matrix4.rotationY(0.25 * PI) * new Matrix4.rotationX(0.25 * PI);
+  var model =
+      new Matrix4.rotationY(0.25 * PI) * new Matrix4.rotationX(0.25 * PI);
   var projection = new Matrix4.perspective(0.3 * PI, 1.0, 1.0, 100.0);
   var view = new Matrix4.translation(0.0, 0.0, 20.0).inverse;
 
@@ -207,11 +208,15 @@ main() {
       magnificationFilter: MagnificationFilter.linear);
 
   texture.asFuture().whenComplete(() {
-    context.defaultFrame.draw(triangles, program, {
-      'model': model,
-      'projection': projection,
-      'view': view,
-      'samplerA': sampler
-    }, depthTest: const DepthTest());
+    context.defaultFrame.draw(
+        triangles,
+        program,
+        {
+          'model': model,
+          'projection': projection,
+          'view': view,
+          'samplerA': sampler
+        },
+        depthTest: const DepthTest());
   });
 }

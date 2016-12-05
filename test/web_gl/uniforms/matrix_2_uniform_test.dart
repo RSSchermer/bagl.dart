@@ -54,7 +54,7 @@ void main() {
         })
       ]);
 
-      final triangles = new Triangles(vertices, new IndexList.incrementing(3));
+      final triangles = new Triangles(vertices);
 
       context.defaultFrame.draw(
           triangles, program, {'rotation': new Matrix2(0.0, -1.0, 1.0, 0.0)});

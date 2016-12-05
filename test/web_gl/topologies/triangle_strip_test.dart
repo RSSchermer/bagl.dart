@@ -65,7 +65,7 @@ void main() {
       ]);
 
       final triangles =
-          new TriangleStrip(vertices, new IndexList.incrementing(6));
+          new TriangleStrip(vertices);
 
       context.defaultFrame.draw(triangles, program, {});
 

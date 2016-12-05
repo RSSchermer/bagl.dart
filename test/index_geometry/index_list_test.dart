@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:bagl/index_geometry.dart';
+import 'package:bagl/geometry.dart';
 import 'dart:typed_data';
 
 void main() {

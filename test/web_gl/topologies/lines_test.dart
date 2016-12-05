@@ -56,7 +56,7 @@ void main() {
         })
       ]);
 
-      final triangles = new Lines(vertices, new IndexList.incrementing(4));
+      final triangles = new Lines(vertices);
 
       context.defaultFrame.draw(triangles, program, {});
 

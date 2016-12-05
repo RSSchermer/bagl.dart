@@ -27,7 +27,7 @@ class Frame {
   /// This [Frame]'s height in pixels.
   int get height => context.canvas.height;
 
-  /// Draws the [geometry] using the [program] and the [uniforms].
+  /// Draws the [primitives] using the [program] and the [uniforms].
   ///
   /// Sets up the rendering pipeline to use the [program]. Each of the
   /// [program]'s active uniform variables is looked up by name in the
@@ -72,23 +72,23 @@ class Frame {
   ///   color components or indices to the color buffer. Defaults to `true`.
   /// - [attributeNameMap]: may be used to map the [program]'s attributes to
   ///   different attribute names in case the [program]'s attribute names do
-  ///   not match the attribute names used by the [geometry].
+  ///   not match the attribute names used by the [primitives].
   /// - [autoProvisioning]: whether or not the necessary GPU resources should
-  ///   be provisioned automatically for the [geometry], the [program] and any
+  ///   be provisioned automatically for the [primitives], the [program] and any
   ///   [Sampler] uniforms. If set to `false`, then the necessary resources
   ///   should be provisioned prior to the draw call, see
   ///   [context.geometryResources], [context.programResources] and
   ///   [context.samplerResources]. Defaults to `true`.
   ///
   /// Finally, the thus configured rendering pipeline is used to process the
-  /// [geometry], updating this [Frame]'s relevant output buffers accordingly.
+  /// [primitives], updating this [Frame]'s relevant output buffers accordingly.
   ///
   /// Throws a [ShaderCompilationError] if the [program]'s vertex shader or
   /// fragment shader fails to compile.
   ///
   /// Throws a [ProgramLinkingError] if the [program] fails to link.
   ///
-  /// Throws an [ArgumentError] if one of the [geometry]'s vertex attributes
+  /// Throws an [ArgumentError] if one of the [primitives]'s vertex attributes
   /// has no matching active attribute in the [program].
   ///
   /// Throws an [ArgumentError] if a uniform variable is active in the
@@ -110,8 +110,8 @@ class Frame {
   ///
   /// Throws a [StateError] if [autoProvisioning] is `false` and not all of the
   /// required geometry, program or sampler resources have been provisioned.
-  void draw(
-      IndexGeometry geometry, Program program, Map<String, dynamic> uniforms,
+  void draw(PrimitiveSequence primitives, Program program,
+      Map<String, dynamic> uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,
@@ -125,10 +125,10 @@ class Frame {
       Map<String, String> attributeNameMap: const {},
       bool autoProvisioning: true}) {
     if (autoProvisioning) {
-      context.geometryResources.provisionFor(geometry);
+      context.geometryResources.provisionFor(primitives);
       context.programResources.provisionFor(program);
     } else {
-      if (!context.geometryResources.areProvisionedFor(geometry)) {
+      if (!context.geometryResources.areProvisionedFor(primitives)) {
         throw new StateError('GPU resources have not yet been provisioned for '
             'the geometry and autoProvisioning was set to false. Provision '
             'resources with context.geometryResources.provisionFor(geometry) '
@@ -152,7 +152,7 @@ class Frame {
     // necessary
     glProgram.attributeInfoByName.forEach((name, attributeInfo) {
       final mappedName = attributeNameMap[name] ?? name;
-      final attribute = geometry.vertices.attributes[mappedName];
+      final attribute = primitives.vertexArray.attributes[mappedName];
 
       if (attribute == null) {
         throw new ArgumentError('The geometry does not define an attribute '
@@ -248,9 +248,18 @@ class Frame {
 
     // Draw elements to this frame
     context._bindFrame(this);
-    context._bindIndexList(geometry.indices);
-    _context.drawElements(_topologyMap[geometry.topology], geometry.indexCount,
-        WebGL.UNSIGNED_SHORT, geometry.offset * IndexList.BYTES_PER_ELEMENT);
+
+    if (primitives.indexList != null) {
+      context._bindIndexList(primitives.indexList);
+      _context.drawElements(
+          _topologyMap[primitives.topology],
+          primitives.count,
+          WebGL.UNSIGNED_SHORT,
+          primitives.offset * IndexList.BYTES_PER_ELEMENT);
+    } else {
+      _context.drawArrays(_topologyMap[primitives.topology], primitives.offset,
+          primitives.count);
+    }
   }
 
   /// Resets this [Frame]'s color attachment to the specified [color] value.

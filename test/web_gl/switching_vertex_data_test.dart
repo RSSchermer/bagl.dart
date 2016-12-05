@@ -68,9 +68,9 @@ void main() {
       ]);
 
       final triangles1 =
-          new Triangles(vertices1, new IndexList.incrementing(3));
+          new Triangles(vertices1);
       final triangles2 =
-          new Triangles(vertices2, new IndexList.incrementing(3));
+          new Triangles(vertices2);
 
       context.defaultFrame.draw(triangles1, program, {});
       context.defaultFrame.draw(triangles2, program, {});

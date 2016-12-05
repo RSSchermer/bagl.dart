@@ -70,28 +70,28 @@ main() {
     })
   ]);
 
-  var triangles = new Triangles(vertices, new IndexList.fromList([
-    0, 2, 1, // Back
-    1, 2, 3,
-    0, 6, 2, // Left
-    0, 4, 6,
-    1, 3, 7, // Right
-    1, 7, 5,
-    2, 7, 3, // Top
-    2, 6, 7,
-    0, 1, 5, // Bottom
-    0, 5, 4,
-    4, 5, 7, // Front
-    6, 4, 7
-  ]));
+  var triangles = new Triangles(vertices,
+      indexList: new IndexList.fromList([
+        0, 2, 1, // Back
+        1, 2, 3,
+        0, 6, 2, // Left
+        0, 4, 6,
+        1, 3, 7, // Right
+        1, 7, 5,
+        2, 7, 3, // Top
+        2, 6, 7,
+        0, 1, 5, // Bottom
+        0, 5, 4,
+        4, 5, 7, // Front
+        6, 4, 7
+      ]));
 
-  var model = new Matrix4.rotationY(0.25 * PI) * new Matrix4.rotationX(0.25 * PI);
+  var model =
+      new Matrix4.rotationY(0.25 * PI) * new Matrix4.rotationX(0.25 * PI);
   var projection = new Matrix4.perspective(0.3 * PI, 1.0, 1.0, 100.0);
   var view = new Matrix4.translation(0.0, 0.0, 30.0).inverse;
 
-  context.defaultFrame.draw(triangles, program, {
-    'model': model,
-    'projection': projection,
-    'view': view
-  }, depthTest: const DepthTest());
+  context.defaultFrame.draw(triangles, program,
+      {'model': model, 'projection': projection, 'view': view},
+      depthTest: const DepthTest());
 }

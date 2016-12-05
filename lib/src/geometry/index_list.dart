@@ -1,4 +1,4 @@
-part of index_geometry;
+part of geometry;
 
 /// List of integers used to describe how the vertices in a [VertexArray] are
 /// connected into geometry primitives.
