@@ -1,5 +1,31 @@
 # BaGL Change Log
 
+## 0.6.0
+
+This version includes a refactor of the geometry APIs and several related 
+breaking changes:
+
+- BREAKING: `IndexGeometry` has been renamed to `PrimitiveSequence`.
+- BREAKING: the default constructor signature of all `PrimitiveSequence`
+  implementations (`Points`, `Lines`, `LineStrip`, `LineLoop`, `Triangles`,
+  `TriangleStrip`, `TriangleFan`) has changed; the `indexList`, `offset` and 
+  `count` are now optional named parameters.
+- BREAKING: `TrianglesTriangleView`, `LinesLineView` and `PointsPointView` no
+  longer allow updates of their vertex indices directly. Instead the index list
+  of the `PrimitiveSequence` on which they are defined needs to be updated.
+- BREAKING: the `index_geometry` library has been renamed to `geometry`.
+- BREAKING: the `geometric_primitives` library has been removed; its contents
+  were merged into the new `geometry` library.
+- All `PrimitiveSequence` implementations (`Points`, `Lines`, `LineStrip`, 
+  `LineLoop`, `Triangles`, `TriangleStrip`, `TriangleFan`) now allow 
+  modification of the `count` after instantiation. This should help implement 
+  dynamic geometry, in which the index list size is overprovisioned initially 
+  such that later additional data can be added and the primitive sequence 
+  expanded (by increasing the `count`) without having to recreate and rebind a 
+  new buffer for each change.
+- Adds `magnitude`, `unitVector` and `isUnit` fields to `Vector2`, `Vector3` and
+  `Vector4`.
+
 ## 0.5.0
 
 `LineLoopIterator`, `LineStripIterator`, `LinesIterator`, `PointsIterator`,
