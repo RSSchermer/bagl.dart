@@ -85,7 +85,8 @@ class Vector3 extends _VertexBase implements Matrix {
           if (_magnitude == 1.0) {
             _unitVector = new Vector3(x, y, z);
           } else {
-            _unitVector = new Vector3(x / _magnitude, y / _magnitude, z / _magnitude);
+            _unitVector =
+                new Vector3(x / _magnitude, y / _magnitude, z / _magnitude);
           }
         } else {
           _squareSum ??= x * x + y * y + z * z;
@@ -95,7 +96,8 @@ class Vector3 extends _VertexBase implements Matrix {
           } else {
             _magnitude ??= sqrt(_squareSum);
 
-            _unitVector = new Vector3(x / _magnitude, y / _magnitude, z / _magnitude);
+            _unitVector =
+                new Vector3(x / _magnitude, y / _magnitude, z / _magnitude);
           }
         }
       }
