@@ -14,17 +14,29 @@ by [Glium](https://github.com/tomaka/glium) and [Elm WebGL](https://github.com/e
 
 Some basic examples are available in the [example](example) folder:
 
-- [Triangle](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle): 
+- Triangle (
+  [dart](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle/main.dart),
+  [html](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle/index.html)): 
   the "hello world" of the graphics world, drawing a single triangle.
-- [Animated triangle](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_animated): 
+- Animated triangle (
+  [dart](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_animated/main.dart),
+  [html](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_animated/index.html)): 
   demonstrates an animation loop with a triangle whose size oscillates.
-- [Textured triangle](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_textured): 
+- Textured triangle (
+  [dart](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_textured/main.dart),
+  [html](https://github.com/RSSchermer/bagl.dart/tree/master/example/triangle_textured/index.html)): 
   demonstrates texturing with a 2D texture from a separate `png` file.
-- [Cube](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube): 
+- Cube (
+  [dart](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube/main.dart),
+  [html](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube/index.html)): 
   demonstrates drawing a 3D mesh.
-- [Animated Cube](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_animated): 
+- Animated Cube (
+  [dart](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_animated/main.dart),
+  [html](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_animated/index.html)): 
   demonstrates an animation loop with a 3D mesh.
-- [Textured Cube](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_textured): 
+- Textured Cube (
+  [dart](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_textured/main.dart),
+  [html](https://github.com/RSSchermer/bagl.dart/tree/master/example/cube_textured/index.html)): 
   demonstrates texturing a 3D mesh with a 2D texture from a separate `png` file.
 
 ## Documentation
