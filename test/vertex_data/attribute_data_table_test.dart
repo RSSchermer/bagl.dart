@@ -87,54 +87,112 @@ void main() {
 
 
     group('view constructor', () {
-      final values = new Float32List.fromList([
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0,
-        2.0, 2.0, 2.0,
-        3.0, 3.0, 3.0,
-        4.0, 4.0, 4.0
-      ]);
+      group('with the length specified', () {
+        final values = new Float32List.fromList([
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0,
+          3.0, 3.0, 3.0,
+          4.0, 4.0, 4.0
+        ]);
 
-      final table = new AttributeDataTable.view(3, values.buffer, 12, 3);
+        final table = new AttributeDataTable.view(3, values.buffer, 12, 3);
 
-      test('instantiates a new table with the correct length', () {
-        expect(table.length, equals(3));
+        test('instantiates a new table with the correct length', () {
+          expect(table.length, equals(3));
+        });
+
+        test('instantiates a new table with the correct values', () {
+          expect(table[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+          expect(table[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+        });
+
+        test('instantiates a new table that is not marked as dynamic', () {
+          expect(table.isDynamic, isFalse);
+        });
       });
 
-      test('instantiates a new table with the correct values', () {
-        expect(table[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
-        expect(table[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
-        expect(table[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
-      });
+      group('without the length specified', () {
+        final values = new Float32List.fromList([
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0,
+          3.0, 3.0, 3.0,
+          4.0, 4.0, 4.0
+        ]);
 
-      test('instantiates a new table that is not marked as dynamic', () {
-        expect(table.isDynamic, isFalse);
+        final table = new AttributeDataTable.view(3, values.buffer, 12);
+
+        test('instantiates a new table with the correct length', () {
+          expect(table.length, equals(4));
+        });
+
+        test('instantiates a new table with the correct values', () {
+          expect(table[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+          expect(table[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+          expect(table[3], orderedCloseTo([4.0, 4.0, 4.0], 0.00001));
+        });
+
+        test('instantiates a new table that is not marked as dynamic', () {
+          expect(table.isDynamic, isFalse);
+        });
       });
     });
 
     group('dynamicView constructor', () {
-      final values = new Float32List.fromList([
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0,
-        2.0, 2.0, 2.0,
-        3.0, 3.0, 3.0,
-        4.0, 4.0, 4.0
-      ]);
+      group('with the length specified', () {
+        final values = new Float32List.fromList([
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0,
+          3.0, 3.0, 3.0,
+          4.0, 4.0, 4.0
+        ]);
 
-      final table = new AttributeDataTable.dynamicView(3, values.buffer, 12, 3);
+        final table = new AttributeDataTable.dynamicView(3, values.buffer, 12, 3);
 
-      test('instantiates a new table with the correct length', () {
-        expect(table.length, equals(3));
+        test('instantiates a new table with the correct length', () {
+          expect(table.length, equals(3));
+        });
+
+        test('instantiates a new table with the correct values', () {
+          expect(table[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+          expect(table[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+        });
+
+        test('instantiates a new table that is not marked as dynamic', () {
+          expect(table.isDynamic, isTrue);
+        });
       });
 
-      test('instantiates a new table with the correct values', () {
-        expect(table[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
-        expect(table[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
-        expect(table[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
-      });
+      group('without the length specified', () {
+        final values = new Float32List.fromList([
+          0.0, 0.0, 0.0,
+          1.0, 1.0, 1.0,
+          2.0, 2.0, 2.0,
+          3.0, 3.0, 3.0,
+          4.0, 4.0, 4.0
+        ]);
 
-      test('instantiates a new table that is marked as dynamic', () {
-        expect(table.isDynamic, isTrue);
+        final table = new AttributeDataTable.dynamicView(3, values.buffer, 12);
+
+        test('instantiates a new table with the correct length', () {
+          expect(table.length, equals(4));
+        });
+
+        test('instantiates a new table with the correct values', () {
+          expect(table[0], orderedCloseTo([1.0, 1.0, 1.0], 0.00001));
+          expect(table[1], orderedCloseTo([2.0, 2.0, 2.0], 0.00001));
+          expect(table[2], orderedCloseTo([3.0, 3.0, 3.0], 0.00001));
+          expect(table[3], orderedCloseTo([4.0, 4.0, 4.0], 0.00001));
+        });
+
+        test('instantiates a new table that is not marked as dynamic', () {
+          expect(table.isDynamic, isTrue);
+        });
       });
     });
 

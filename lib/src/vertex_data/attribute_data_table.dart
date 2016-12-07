@@ -146,13 +146,14 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   ///
   /// Throws an [ArgumentError] if [offsetInBytes] is not a multiple of
   /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
-  AttributeDataTable.view(int rowLength, ByteBuffer buffer,
-      [int offsetInBytes = 0, int length])
-      : rowLength = rowLength,
-        length = length,
-        isDynamic = false,
-        _storage =
-            new Float32List.view(buffer, offsetInBytes, length * rowLength);
+  factory AttributeDataTable.view(int rowLength, ByteBuffer buffer,
+      [int offsetInBytes = 0, int length]) {
+    length ??= (buffer.lengthInBytes - offsetInBytes) ~/
+        (Float32List.BYTES_PER_ELEMENT * rowLength);
+
+    return new AttributeDataTable._viewInternal(
+        rowLength, buffer, offsetInBytes, length, false);
+  }
 
   /// Creates an [AttributeDataTable] view of the specified region in the
   /// [buffer] that is marked as dynamic.
@@ -175,11 +176,20 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   ///
   /// Throws an [ArgumentError] if [offsetInBytes] is not a multiple of
   /// `rowLength * Float32List.BYTES_PER_ELEMENT`.
-  AttributeDataTable.dynamicView(int rowLength, ByteBuffer buffer,
-      [int offsetInBytes = 0, int length])
+  factory AttributeDataTable.dynamicView(int rowLength, ByteBuffer buffer,
+      [int offsetInBytes = 0, int length]) {
+    length ??= (buffer.lengthInBytes - offsetInBytes) ~/
+        (Float32List.BYTES_PER_ELEMENT * rowLength);
+
+    return new AttributeDataTable._viewInternal(
+        rowLength, buffer, offsetInBytes, length, true);
+  }
+
+  AttributeDataTable._viewInternal(int rowLength, ByteBuffer buffer,
+      int offsetInBytes, int length, bool isDynamic)
       : rowLength = rowLength,
         length = length,
-        isDynamic = true,
+        isDynamic = isDynamic,
         _storage =
             new Float32List.view(buffer, offsetInBytes, length * rowLength);
 
