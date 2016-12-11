@@ -32,6 +32,12 @@ class RenderingContext {
   /// The WebGL rendering context associated with the [canvas].
   WebGL.RenderingContext _context;
 
+  /// Memoizes the extensions supported by this [RenderContext].
+  Set<String> _supportedExtensions;
+
+  /// Caches the extension objects for previously requested extensions.
+  Map<String, Object> _extensionCache = {};
+
   /// The shader program that is currently used by the WebGL context.
   Program _activeProgram;
 
@@ -265,6 +271,33 @@ class RenderingContext {
   /// The default [Frame] is the [Frame] whose color output is displayed on the
   /// [canvas] associated with this [RenderingContext].
   Frame get defaultFrame => _defaultFrame;
+
+  /// The names of the extensions available in this [RenderingContext].
+  Iterable<String> get supportedExtensions {
+    _supportedExtensions ??= _context.getSupportedExtensions().toSet();
+
+    return _supportedExtensions;
+  }
+
+  /// Enables and returns an extension object if an extension named
+  /// [extensionName] is supported by this [RenderingContext], or returns `null`
+  /// otherwise.
+  ///
+  /// See [supportedExtensions] for the list of the extensions that are
+  /// available in this [RenderingContext].
+  Object requestExtension(String extensionName) {
+    final cached = _extensionCache[extensionName];
+
+    if (cached != null ) {
+      return cached;
+    } else {
+      final extensionObject = _context.getExtension(extensionName);
+
+      _extensionCache[extensionName] = extensionObject;
+
+      return extensionObject;
+    }
+  }
 
   void _bindAttributeDataTable(AttributeDataTable attributeDataTable) {
     if (attributeDataTable != _boundAttributeDataTable) {
