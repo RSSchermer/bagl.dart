@@ -56,9 +56,9 @@ class ContextSamplerResources {
               _wrappingMap[sampler.wrapT]);
         }
 
-        if (sampler.texture.isReady) {
-          _updateTexture2DData(sampler);
-        } else {
+        _updateTexture2DData(sampler);
+
+        if (!sampler.texture.isReady) {
           sampler.texture.asFuture().then((_) {
             _updateTexture2DData(sampler);
           });
@@ -99,15 +99,14 @@ class ContextSamplerResources {
 
   void _updateTexture2DData(Sampler2D sampler) {
     final texture = sampler.texture;
+    final image = texture.image;
+    final internalFormat = _pixelFormatMap[texture.internalFormat];
+    final format = _pixelFormatMap[image.format];
+    final type = _pixelTypeMap[image.type];
+
+    context._bindSampler2D(sampler);
 
     if (texture.isReady) {
-      context._bindSampler2D(sampler);
-
-      final image = texture.image;
-      final internalFormat = _pixelFormatMap[texture.internalFormat];
-      final format = _pixelFormatMap[image.format];
-      final type = _pixelTypeMap[image.type];
-
       if (image is ImageDataImage) {
         _context.texImage2D(
             WebGL.TEXTURE_2D, 0, internalFormat, format, type, image.imageData);
@@ -133,6 +132,9 @@ class ContextSamplerResources {
           minFilter == MinificationFilter.nearestMipmapNearest) {
         _context.generateMipmap(WebGL.TEXTURE_2D);
       }
+    } else {
+      _context.texImage2D(WebGL.TEXTURE_2D, 0, internalFormat, 1,
+          1, 0, WebGL.RGB, WebGL.UNSIGNED_BYTE, new Uint8List(3));
     }
   }
 }
