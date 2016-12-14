@@ -32,9 +32,9 @@ class ContextSamplerResources {
       final textureObject = _context.createTexture();
       _samplerTO[sampler] = textureObject;
 
-      context._bindSampler2D(sampler);
-
       if (sampler is Sampler2D) {
+        context._bindSampler2D(sampler);
+
         if (sampler.magnificationFilter != MagnificationFilter.linear) {
           _context.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER,
               _magnificationFilterMap[sampler.magnificationFilter]);
@@ -85,8 +85,14 @@ class ContextSamplerResources {
       _context.deleteTexture(_samplerTO[sampler]);
       _samplerTO[sampler] = null;
 
-      if (sampler == context._boundSampler2D) {
-        context._bindSampler2D(null);
+      final unit = context._textureUnitsSamplers.inverse[sampler];
+
+      if (unit != null) {
+        context._updateActiveTextureUnit(unit);
+
+        _context.bindTexture(WebGL.TEXTURE_2D, null);
+
+        context._textureUnitsSamplers.remove(unit);
       }
 
       return true;
@@ -133,7 +139,7 @@ class ContextSamplerResources {
         _context.generateMipmap(WebGL.TEXTURE_2D);
       }
     } else {
-      _context.texImage2D(WebGL.TEXTURE_2D, 0, internalFormat, 1,
+      _context.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGB, 1,
           1, 0, WebGL.RGB, WebGL.UNSIGNED_BYTE, new Uint8List(3));
     }
   }

@@ -122,22 +122,19 @@ class _GLProgram {
       final location = uniformInfoByName[uniformName].location;
 
       if (value is Sampler2D) {
-        if (context._textureUnitsSamplers.containsValue(value)) {
-          final unit = context._textureUnitsSamplers.inverse[value];
+        final existingUnit = context._textureUnitsSamplers.inverse[value];
 
-          if (_uniformValues[uniformName] != unit) {
-            glContext.uniform1i(location, unit);
-            _uniformValues[uniformName] = unit;
+        if (existingUnit != null) {
+
+          if (_uniformValues[uniformName] != existingUnit) {
+            glContext.uniform1i(location, existingUnit);
+            _uniformValues[uniformName] = existingUnit;
           }
 
           context._recentlyUsedTextureUnits
-            ..remove(unit)
-            ..addFirst(unit);
+            ..remove(existingUnit)
+            ..addFirst(existingUnit);
         } else {
-          final unit = context._recentlyUsedTextureUnits.last;
-
-          context._updateActiveTextureUnit(unit);
-
           if (autoProvisioning) {
             context.samplerResources.provisionFor(value);
           } else {
@@ -152,14 +149,12 @@ class _GLProgram {
 
           context._bindSampler2D(value);
 
+          final unit = context._activeTextureUnit;
+
           if (_uniformValues[uniformName] != unit) {
             glContext.uniform1i(location, unit);
             _uniformValues[uniformName] = unit;
           }
-
-          context._recentlyUsedTextureUnits
-            ..removeLast()
-            ..addFirst(unit);
         }
       } else if (value is List<Sampler2D>) {
         final length = value.length;
@@ -177,10 +172,6 @@ class _GLProgram {
 
             units[i] = unit;
           } else {
-            final unit = context._recentlyUsedTextureUnits.last;
-
-            context._updateActiveTextureUnit(unit);
-
             if (autoProvisioning) {
               context.samplerResources.provisionFor(sampler);
             } else {
@@ -195,11 +186,7 @@ class _GLProgram {
 
             context._bindSampler2D(sampler);
 
-            context._recentlyUsedTextureUnits
-              ..removeLast()
-              ..addFirst(unit);
-
-            units[i] = unit;
+            units[i] = context._activeTextureUnit;
           }
         }
 

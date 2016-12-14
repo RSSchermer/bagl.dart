@@ -326,15 +326,30 @@ class RenderingContext {
   }
 
   void _bindSampler2D(Sampler2D sampler) {
-    if (sampler != _boundSampler2D ||
-        sampler != _textureUnitsSamplers[_activeTextureUnit]) {
-      if (sampler == null) {
-        _context.bindTexture(WebGL.TEXTURE_2D, null);
-        _textureUnitsSamplers.remove(_activeTextureUnit);
+    if (sampler != _boundSampler2D && sampler != null) {
+      if (_textureUnitsSamplers.containsValue(sampler)) {
+        final unit = _textureUnitsSamplers.inverse[sampler];
+
+        if (unit != _activeTextureUnit) {
+          _updateActiveTextureUnit(unit);
+        }
+
+        _recentlyUsedTextureUnits
+          ..remove(unit)
+          ..addFirst(unit);
       } else {
+        final unit = _recentlyUsedTextureUnits.last;
+
+        _updateActiveTextureUnit(unit);
+
         _context.bindTexture(
             WebGL.TEXTURE_2D, samplerResources._getTO(sampler));
-        _textureUnitsSamplers[_activeTextureUnit] = sampler;
+
+        _textureUnitsSamplers[unit] = sampler;
+
+        _recentlyUsedTextureUnits
+          ..removeLast()
+          ..addFirst(unit);
       }
 
       _boundSampler2D = sampler;
