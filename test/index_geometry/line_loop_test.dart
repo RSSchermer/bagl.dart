@@ -46,7 +46,7 @@ void main() {
       });
 
       group('with an index list', () {
-        final indexList = new IndexList.fromList([0, 1, 2, 3, 1, 2, 3, 4]);
+        final indexList = new Index16List.fromList([0, 1, 2, 3, 1, 2, 3, 4]);
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
@@ -142,7 +142,7 @@ void main() {
     });
 
     group('instance with an index list', () {
-      final indexList = new IndexList.fromList([0, 5, 4, 3, 2, 1]);
+      final indexList = new Index16List.fromList([0, 5, 4, 3, 2, 1]);
       final lineLoop = new LineLoop(vertices, indexList: indexList);
 
       group('iterator', () {
@@ -247,7 +247,7 @@ void main() {
     });
 
     group('instance defined on LineLoop with an index list', () {
-      final indexList = new IndexList.fromList([3, 2, 1, 0]);
+      final indexList = new Index16List.fromList([3, 2, 1, 0]);
       final lineLoop = new LineLoop(vertices, indexList: indexList);
       final lineView = new LineLoopLineView(lineLoop, 1);
 

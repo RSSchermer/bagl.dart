@@ -3,9 +3,9 @@ import 'package:bagl/geometry.dart';
 import 'dart:typed_data';
 
 void main() {
-  group('IndexList', () {
+  group('Index8List', () {
     group('default constructor', () {
-      final indexList = new IndexList(5);
+      final indexList = new Index8List(5);
 
       test('creates a new instance with the correct length', () {
         expect(indexList.length, equals(5));
@@ -25,7 +25,7 @@ void main() {
     });
 
     group('dynamic constructor', () {
-      final indexList = new IndexList.dynamic(5);
+      final indexList = new Index8List.dynamic(5);
 
       test('creates a new instance with the correct length', () {
         expect(indexList.length, equals(5));
@@ -46,7 +46,7 @@ void main() {
 
     group('incrementing constructor', () {
       group('without the start parameter', () {
-        final indexList = new IndexList.incrementing(5);
+        final indexList = new Index8List.incrementing(5);
 
         test('creates a new instance with the correct length', () {
           expect(indexList.length, equals(5));
@@ -67,7 +67,7 @@ void main() {
 
 
       group('with the start parameter', () {
-        final indexList = new IndexList.incrementing(5, 3);
+        final indexList = new Index8List.incrementing(5, 3);
 
         test('creates a new instance with the correct length', () {
           expect(indexList.length, equals(5));
@@ -89,7 +89,7 @@ void main() {
 
     group('dynamicIncrementing constructor', () {
       group('without the start parameter', () {
-        final indexList = new IndexList.dynamicIncrementing(5);
+        final indexList = new Index8List.dynamicIncrementing(5);
 
         test('creates a new instance with the correct length', () {
           expect(indexList.length, equals(5));
@@ -110,7 +110,7 @@ void main() {
 
 
       group('with the start parameter', () {
-        final indexList = new IndexList.dynamicIncrementing(5, 3);
+        final indexList = new Index8List.dynamicIncrementing(5, 3);
 
         test('creates a new instance with the correct length', () {
           expect(indexList.length, equals(5));
@@ -131,7 +131,7 @@ void main() {
     });
 
     group('fromList constructor', () {
-      final indexList = new IndexList.fromList([4, 3, 2, 1, 0]);
+      final indexList = new Index8List.fromList([4, 3, 2, 1, 0]);
 
       test('creates a new instance with the correct length', () {
         expect(indexList.length, equals(5));
@@ -151,7 +151,7 @@ void main() {
     });
 
     group('dynamicFromList constructor', () {
-      final indexList = new IndexList.dynamicFromList([4, 3, 2, 1, 0]);
+      final indexList = new Index8List.dynamicFromList([4, 3, 2, 1, 0]);
 
       test('creates a new instance with the correct length', () {
         expect(indexList.length, equals(5));
@@ -171,8 +171,8 @@ void main() {
     });
 
     group('view constructor', () {
-      final data = new Uint16List.fromList([5, 4, 3, 2, 1, 0]);
-      final indexList = new IndexList.view(data.buffer, 2, 3);
+      final data = new Uint8List.fromList([5, 4, 3, 2, 1, 0]);
+      final indexList = new Index8List.view(data.buffer, 1, 3);
 
       test('creates a new instance with the correct length', () {
         expect(indexList.length, equals(3));
@@ -190,8 +190,8 @@ void main() {
     });
 
     group('dynamicView constructor', () {
-      final data = new Uint16List.fromList([5, 4, 3, 2, 1, 0]);
-      final indexList = new IndexList.dynamicView(data.buffer, 2, 3);
+      final data = new Uint8List.fromList([5, 4, 3, 2, 1, 0]);
+      final indexList = new Index8List.dynamicView(data.buffer, 1, 3);
 
       test('creates a new instance with the correct length', () {
         expect(indexList.length, equals(3));

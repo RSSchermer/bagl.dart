@@ -49,7 +49,7 @@ void main() {
       });
 
       group('with an index list', () {
-        final indexList = new IndexList.fromList([0, 1, 2, 3, 4, 1, 2, 3, 4, 5]);
+        final indexList = new Index16List.fromList([0, 1, 2, 3, 4, 1, 2, 3, 4, 5]);
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
@@ -145,7 +145,7 @@ void main() {
     });
 
     group('instance with an index list', () {
-      final indexList = new IndexList.fromList([0, 5, 4, 3, 2, 1]);
+      final indexList = new Index16List.fromList([0, 5, 4, 3, 2, 1]);
       final triangleFan = new TriangleFan(vertices, indexList: indexList);
 
       group('iterator', () {
@@ -262,7 +262,7 @@ void main() {
     });
 
     group('instance defined on TriangleFan with an index list', () {
-      final indexList = new IndexList.fromList([5, 4, 3, 2, 1, 0]);
+      final indexList = new Index16List.fromList([5, 4, 3, 2, 1, 0]);
       final triangleFan = new TriangleFan(vertices, indexList: indexList);
       final triangleView = new TriangleFanTriangleView(triangleFan, 2);
 

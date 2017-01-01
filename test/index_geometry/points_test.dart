@@ -44,7 +44,7 @@ void main() {
       });
 
       group('with an index list', () {
-        final indexList = new IndexList.fromList([0, 0, 1, 1, 2, 2, 3, 3]);
+        final indexList = new Index16List.fromList([0, 0, 1, 1, 2, 2, 3, 3]);
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
@@ -140,7 +140,7 @@ void main() {
     });
 
     group('instance with an index list', () {
-      final indexList = new IndexList.fromList([0, 3, 2, 1, 0]);
+      final indexList = new Index16List.fromList([0, 3, 2, 1, 0]);
       final points = new Points(vertices, indexList: indexList);
 
       group('iterator', () {
@@ -233,7 +233,7 @@ void main() {
     });
 
     group('instance defined on Points with an index list', () {
-      final indexList = new IndexList.fromList([3, 2, 1, 0]);
+      final indexList = new Index16List.fromList([3, 2, 1, 0]);
       final points = new Points(vertices, indexList: indexList);
       final pointView = new PointsPointView(points, 1);
 

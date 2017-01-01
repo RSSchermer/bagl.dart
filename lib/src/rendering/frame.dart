@@ -91,6 +91,9 @@ class Frame {
   /// Throws an [ArgumentError] if one of the [primitives]'s vertex attributes
   /// has no matching active attribute in the [program].
   ///
+  /// Throws an [Argument] if the [primitives] use a 32 bit index list
+  /// ([Index32List]), but 32 bit indices are not supported by the [context].
+  ///
   /// Throws an [ArgumentError] if a uniform variable is active in the
   /// [program], but no [value] with a matching name is found in the [uniforms]
   /// map.
@@ -249,13 +252,35 @@ class Frame {
     // Draw elements to this frame
     context._bindFrame(this);
 
-    if (primitives.indexList != null) {
-      context._bindIndexList(primitives.indexList);
-      _context.drawElements(
-          _topologyMap[primitives.topology],
-          primitives.count,
-          WebGL.UNSIGNED_SHORT,
-          primitives.offset * IndexList.BYTES_PER_ELEMENT);
+    final indexList = primitives.indexList;
+
+    if (indexList != null) {
+      context._bindIndexList(indexList);
+
+      if (indexList.indexSize == IndexSize.unsignedByte) {
+        _context.drawElements(
+            _topologyMap[primitives.topology],
+            primitives.count,
+            WebGL.UNSIGNED_BYTE,
+            primitives.offset * 8);
+      } else if (indexList.indexSize == IndexSize.unsignedShort) {
+        _context.drawElements(
+            _topologyMap[primitives.topology],
+            primitives.count,
+            WebGL.UNSIGNED_SHORT,
+            primitives.offset * 16);
+      } else {
+        if (context.requestExtension('OES_element_index_uint') != null) {
+          _context.drawElements(
+              _topologyMap[primitives.topology],
+              primitives.count,
+              WebGL.UNSIGNED_INT,
+              primitives.offset * 32);
+        } else {
+          throw new ArgumentError('The current context does not support 32 bit '
+              'index lists.');
+        }
+      }
     } else {
       _context.drawArrays(_topologyMap[primitives.topology], primitives.offset,
           primitives.count);
