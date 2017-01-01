@@ -175,14 +175,14 @@ void main () {
           0.0, 1.0, 0.0
         ]);
 
-        expect(() => new VertexArray.fromAttributes({
+        expect(() => new VertexArray.fromAttributes(<String, VertexAttribute>{
           'position': new Vector2Attribute(positionData),
           'color': new Vector3Attribute(shortColorData)
         }), throwsArgumentError);
       });
 
       group('from 2 tables of equal length', () {
-        final vertices = new VertexArray.fromAttributes({
+        final vertices = new VertexArray.fromAttributes(<String, VertexAttribute>{
           'position': new Vector2Attribute(positionData),
           'color': new Vector3Attribute(colorData)
         });
@@ -197,7 +197,7 @@ void main () {
       });
 
       group('from 1 interleaved table', () {
-        final vertices = new VertexArray.fromAttributes({
+        final vertices = new VertexArray.fromAttributes(<String, VertexAttribute>{
           'position': new Vector2Attribute(interleavedAttributeData),
           'color': new Vector3Attribute(interleavedAttributeData, offset: 2)
         });
@@ -273,7 +273,7 @@ void main () {
          0.5, -0.5,     0.0, 0.0, 1.0
       ]);
 
-      var vertices = new VertexArray.fromAttributes({
+      var vertices = new VertexArray.fromAttributes(<String, VertexAttribute>{
         'position': new Vector2Attribute(attributeData),
         'color': new Vector3Attribute(attributeData, offset: 2)
       });
@@ -313,7 +313,7 @@ void main () {
 
       group('indexOf', () {
         test('returns -1 if the vertex is not in the vertex array', () {
-          final other = new VertexArray.fromAttributes({
+          final other = new VertexArray.fromAttributes(<String, VertexAttribute>{
             'position': new Vector2Attribute(attributeData),
             'color': new Vector3Attribute(attributeData, offset: 2)
           });
@@ -404,7 +404,7 @@ void main () {
         0.0, 1.0, 0.0,
         0.0, 0.0, 1.0
       ]);
-      final vertices = new VertexArray.fromAttributes({
+      final vertices = new VertexArray.fromAttributes(<String, VertexAttribute>{
         'position': new Vector2Attribute(positionData),
         'color': new Vector3Attribute(colorData)
       });
