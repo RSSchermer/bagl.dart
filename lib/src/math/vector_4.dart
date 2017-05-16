@@ -205,6 +205,9 @@ class Vector4 extends _VertexBase implements Matrix {
     return new Vector4._internal(values);
   }
 
+  /// Computes the dot product of this [Vector4] `A` and another [Vector4] [B].
+  double dotProduct(Vector4 B) => x * B.x + y * B.y + z * B.z + w * B.w;
+
   Vector4 operator +(Matrix B) => entrywiseSum(B);
 
   Vector4 operator -(Matrix B) => entrywiseDifference(B);

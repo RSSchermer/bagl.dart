@@ -149,6 +149,14 @@ void main() {
           expect(product.values, orderedCloseTo([2.0, 2.0], 0.00001));
         });
       });
+
+      group('dotProduct', () {
+        final other = new Vector2(3.0, 4.0);
+
+        test('returns the correct value', () {
+          expect(vector.dotProduct(other), equals(11.0));
+        });
+      });
       
       group('[] operator', () {
         test('throws a RangeError if the index is out of bounds', () {

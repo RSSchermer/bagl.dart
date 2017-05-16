@@ -149,6 +149,27 @@ void main() {
           expect(product.values, orderedCloseTo([3.0, 4.0, 3.0], 0.00001));
         });
       });
+
+      group('dotProduct', () {
+        final other = new Vector3(4.0, 5.0, 6.0);
+
+        test('returns the correct value', () {
+          expect(vector.dotProduct(other), equals(32.0));
+        });
+      });
+
+      group('crossProduct', () {
+        final other = new Vector3(4.0, 5.0, 6.0);
+        final product = vector.crossProduct(other);
+
+        test('returns a Vector3', () {
+          expect(product, new isInstanceOf<Vector3>());
+        });
+
+        test('returns a vector with the correct values', () {
+          expect(product.values, orderedCloseTo([-3.0, 6.0, -3.0], 0.00001));
+        });
+      });
       
       group('[] operator', () {
         test('throws a RangeError if the index is out of bounds', () {

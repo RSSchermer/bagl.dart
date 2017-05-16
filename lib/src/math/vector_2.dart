@@ -175,6 +175,9 @@ class Vector2 extends _VertexBase implements Matrix {
     return new Vector2._internal(values);
   }
 
+  /// Computes the dot product of this [Vector2] `A` and another [Vector2] [B].
+  double dotProduct(Vector2 B) => x * B.x + y * B.y;
+
   Vector2 operator +(Matrix B) => entrywiseSum(B);
 
   Vector2 operator -(Matrix B) => entrywiseDifference(B);

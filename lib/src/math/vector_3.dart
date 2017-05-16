@@ -193,6 +193,17 @@ class Vector3 extends _VertexBase implements Matrix {
     return new Vector3._internal(values);
   }
 
+  /// Computes the dot product of this [Vector3] `A` and another [Vector3] [B].
+  double dotProduct(Vector3 B) => x * B.x + y * B.y + z * B.z;
+
+  /// Computes the cross product of this [Vector3] `A` and another [Vector3]
+  /// [B].
+  Vector3 crossProduct(Vector3 B) => new Vector3(
+      y * B.z - z * B.y,
+      z * B.x - x * B.z,
+      x * B.y - y * B.x,
+  );
+
   Vector3 operator +(Matrix B) => entrywiseSum(B);
 
   Vector3 operator -(Matrix B) => entrywiseDifference(B);
