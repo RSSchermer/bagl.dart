@@ -170,6 +170,8 @@ class Frame {
       final stride = table.elementSizeInBytes;
       final startLocation = attributeInfo.location;
 
+      context.geometryResources._updateVBO(table);
+
       for (var i = 0; i < columnCount; i++) {
         var location = startLocation + i;
 
@@ -256,6 +258,7 @@ class Frame {
 
     if (indexList != null) {
       context._bindIndexList(indexList);
+      context.geometryResources._updateIBO(indexList);
 
       if (indexList.indexSize == IndexSize.unsignedByte) {
         _context.drawElements(

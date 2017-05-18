@@ -19,6 +19,23 @@ abstract class IndexList implements List<int>, TypedData {
 
   /// The size of the indices stored in this [IndexList].
   IndexSize get indexSize;
+
+  /// Returns a version number for the data in this [IndexList].
+  ///
+  /// Starts at `0` but may increase if changes are made to the data in this
+  /// [IndexList]. May be used by a rendering backend that buffers a copy of the
+  /// data to determine if the copy is out of date.
+  ///
+  /// See also [markVersionOutdated].
+  int get version;
+
+  /// Marks the current [version] as outdated.
+  ///
+  /// The next time the [version] is requested a new version number will be
+  /// returned. Changes made through this [IndexList] will automatically mark
+  /// the version as outdated; use this method when you have made changes to the
+  /// underlying buffer directly or via another interface.
+  void markVersionOutdated();
 }
 
 /// An [IndexList] that stores its indices as unsigned bytes (8 bits).
@@ -32,6 +49,10 @@ class Index8List extends DelegatingList<int> implements IndexList, Uint8List {
   final IndexSize indexSize = IndexSize.unsignedShort;
 
   static const int BYTES_PER_ELEMENT = Uint8List.BYTES_PER_ELEMENT;
+
+  int _version = 0;
+
+  bool _versionOutdated = false;
 
   /// Instantiates a new [Index8List] of the given [length] for which every
   /// position is initially set to `0`.
@@ -162,6 +183,25 @@ class Index8List extends DelegatingList<int> implements IndexList, Uint8List {
   int get lengthInBytes => delegate.lengthInBytes;
 
   int get offsetInBytes => delegate.offsetInBytes;
+
+  int get version {
+    if (_versionOutdated) {
+      _versionOutdated = false;
+
+      return _version++;
+    } else {
+      return _version;
+    }
+  }
+
+  void markVersionOutdated() {
+    _versionOutdated = true;
+  }
+
+  void operator []=(int index, int value) {
+    delegate[index] = value;
+    _versionOutdated = true;
+  }
 }
 
 /// An [IndexList] that stores its indices as unsigned shorts (16 bits).
@@ -175,6 +215,10 @@ class Index16List extends DelegatingList<int> implements IndexList, Uint16List {
   final IndexSize indexSize = IndexSize.unsignedShort;
 
   static const int BYTES_PER_ELEMENT = Uint16List.BYTES_PER_ELEMENT;
+
+  int _version = 0;
+
+  bool _versionOutdated = false;
 
   /// Instantiates a new [Index16List] of the given [length] for which every
   /// position is initially set to `0`.
@@ -306,6 +350,25 @@ class Index16List extends DelegatingList<int> implements IndexList, Uint16List {
   int get lengthInBytes => delegate.lengthInBytes;
 
   int get offsetInBytes => delegate.offsetInBytes;
+
+  int get version {
+    if (_versionOutdated) {
+      _versionOutdated = false;
+
+      return _version++;
+    } else {
+      return _version;
+    }
+  }
+
+  void markVersionOutdated() {
+    _versionOutdated = true;
+  }
+
+  void operator []=(int index, int value) {
+    delegate[index] = value;
+    _versionOutdated = true;
+  }
 }
 
 /// An [IndexList] that stores its indices as unsigned ints (32 bits).
@@ -319,6 +382,10 @@ class Index32List extends DelegatingList<int> implements IndexList, Uint16List {
   final IndexSize indexSize = IndexSize.unsignedInt;
 
   static const int BYTES_PER_ELEMENT = Uint32List.BYTES_PER_ELEMENT;
+
+  int _version = 0;
+
+  bool _versionOutdated = false;
 
   /// Instantiates a new [Index32List] of the given [length] for which every
   /// position is initially set to `0`.
@@ -450,4 +517,23 @@ class Index32List extends DelegatingList<int> implements IndexList, Uint16List {
   int get lengthInBytes => delegate.lengthInBytes;
 
   int get offsetInBytes => delegate.offsetInBytes;
+
+  int get version {
+    if (_versionOutdated) {
+      _versionOutdated = false;
+
+      return _version++;
+    } else {
+      return _version;
+    }
+  }
+
+  void markVersionOutdated() {
+    _versionOutdated = true;
+  }
+
+  void operator []=(int index, int value) {
+    delegate[index] = value;
+    _versionOutdated = true;
+  }
 }

@@ -33,7 +33,7 @@ void main() {
         uniform sampler2D samplerA;
 
         void main(void) {
-          gl_FragColor = texture2D(samplerA, vec2(vTextureCoord.s, vTextureCoord.t));
+          gl_FragColor = texture2D(samplerA, vTextureCoord);
         }
       """;
 
@@ -94,6 +94,7 @@ void main() {
         });
 
         test('when all necessary resources are provisioned draws the correct frame', () {
+          print(texture.isReady);
           context.geometryResources.provisionFor(triangles);
           context.programResources.provisionFor(program);
           context.samplerResources.provisionFor(sampler);

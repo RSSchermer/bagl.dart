@@ -157,6 +157,8 @@ class FloatAttribute extends VertexAttribute<double> {
         rowIndex, attributeDataTable, 'rowIndex', _rowCount);
 
     _storage[rowIndex * attributeDataTable.rowLength + offset] = value;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   FloatAttribute onTable(AttributeDataTable attributeDataTable, {int offset}) =>
@@ -200,6 +202,8 @@ class Vector2Attribute extends VertexAttribute<Vector2> {
 
     _storage[s] = value.x;
     _storage[s + 1] = value.y;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   Vector2Attribute onTable(AttributeDataTable attributeDataTable,
@@ -245,6 +249,8 @@ class Vector3Attribute extends VertexAttribute<Vector3> {
     _storage[s] = value.x;
     _storage[s + 1] = value.y;
     _storage[s + 2] = value.z;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   Vector3Attribute onTable(AttributeDataTable attributeDataTable,
@@ -292,6 +298,8 @@ class Vector4Attribute extends VertexAttribute<Vector4> {
     _storage[s + 1] = value.y;
     _storage[s + 2] = value.z;
     _storage[s + 3] = value.w;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   Vector4Attribute onTable(AttributeDataTable attributeDataTable,
@@ -339,6 +347,8 @@ class Matrix2Attribute extends VertexAttribute<Matrix2> {
     _storage[s + 1] = value.r1c0;
     _storage[s + 2] = value.r0c1;
     _storage[s + 3] = value.r1c1;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   Matrix2Attribute onTable(AttributeDataTable attributeDataTable,
@@ -399,6 +409,8 @@ class Matrix3Attribute extends VertexAttribute<Matrix3> {
     _storage[s + 6] = value.r0c2;
     _storage[s + 7] = value.r1c2;
     _storage[s + 8] = value.r2c2;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   Matrix3Attribute onTable(AttributeDataTable attributeDataTable,
@@ -473,6 +485,8 @@ class Matrix4Attribute extends VertexAttribute<Matrix4> {
     _storage[s + 13] = value.r1c3;
     _storage[s + 14] = value.r2c3;
     _storage[s + 15] = value.r3c3;
+
+    attributeDataTable._versionOutdated = true;
   }
 
   Matrix4Attribute onTable(AttributeDataTable attributeDataTable,

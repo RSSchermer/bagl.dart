@@ -52,6 +52,10 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
   /// Typed [Float32List] view on the attribute data.
   final Float32List _storage;
 
+  int _version = 0;
+
+  bool _versionOutdated = false;
+
   /// Instantiates a new empty [AttributeDataTable] with the specified
   /// dimensions.
   ///
@@ -210,6 +214,33 @@ class AttributeDataTable extends IterableBase<AttributeDataRowView>
 
   Iterator<AttributeDataRowView> get iterator =>
       new _AttributeDataTableIterator(this);
+
+  /// Returns a version number for the data in this [AttributeDataTable].
+  ///
+  /// Starts at `0` but may increase if changes are made to the data in this
+  /// [AttributeDataTable]. May be used by a rendering backend that buffers
+  /// a copy of this table to determine if the copy is out of date.
+  ///
+  /// See also [markVersionOutdated].
+  int get version {
+    if (_versionOutdated) {
+      _versionOutdated = false;
+
+      return _version++;
+    } else {
+      return _version;
+    }
+  }
+
+  /// Marks the current [version] as outdated.
+  ///
+  /// The next time the [version] is requested a new version number will be
+  /// returned. Changes made through this [AttributeDataTable] will
+  /// automatically mark the version as outdated; use this method when you have
+  /// made changes to the underlying buffer directly or via another interface.
+  void markVersionOutdated() {
+    _versionOutdated = true;
+  }
 
   AttributeDataRowView elementAt(int index) {
     RangeError.checkValidIndex(index, this);
@@ -598,6 +629,7 @@ class AttributeDataRowView extends IterableBase<double> {
     RangeError.checkValidIndex(index, this);
 
     _storage[_rowDataOffset + index] = value;
+    attributeDataTable._versionOutdated = true;
   }
 }
 

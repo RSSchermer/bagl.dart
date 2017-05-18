@@ -21,6 +21,10 @@ class ContextGeometryResources {
   /// (VBOs).
   Expando<WebGL.Buffer> _attributeDataTableVBO = new Expando();
 
+  Expando<int> _indexListIBOVersion = new Expando();
+
+  Expando<int> _attributeDataTableVBOVersion = new Expando();
+
   /// Expands index lists with their reference counts.
   ///
   /// An [IndexList] may be used by multiple geometries attached to this
@@ -63,6 +67,7 @@ class ContextGeometryResources {
               indexList.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
 
           _indexListIBO[indexList] = IBO;
+          _indexListIBOVersion[indexList] = indexList.version;
           _indexListReferenceCount[indexList] = 1;
 
           context._bindIndexList(indexList);
@@ -79,6 +84,7 @@ class ContextGeometryResources {
           var usage = table.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
 
           _attributeDataTableVBO[table] = VBO;
+          _attributeDataTableVBOVersion[table] = table.version;
           _attributeDataTableReferenceCount[table] = 1;
 
           context._bindAttributeDataTable(table);
@@ -110,6 +116,7 @@ class ContextGeometryResources {
         } else {
           _context.deleteBuffer(_indexListIBO[indexList]);
           _indexListIBO[indexList] = null;
+          _indexListIBOVersion[indexList] = null;
           _indexListReferenceCount[indexList] = null;
 
           if (indexList == context._boundIndexList) {
@@ -128,6 +135,7 @@ class ContextGeometryResources {
         } else {
           _context.deleteBuffer(_attributeDataTableVBO[table]);
           _attributeDataTableVBO[table] = null;
+          _attributeDataTableVBOVersion[table] = null;
           _attributeDataTableReferenceCount[table] = null;
 
           if (table == context._boundAttributeDataTable) {
@@ -156,4 +164,22 @@ class ContextGeometryResources {
   /// [attributeDataTable].
   WebGL.Buffer _getVBO(AttributeDataTable attributeDataTable) =>
       _attributeDataTableVBO[attributeDataTable];
+
+  void _updateIBO(IndexList indexList) {
+    if (_indexListIBOVersion[indexList] != indexList.version) {
+      context._bindIndexList(indexList);
+      _context.bufferSubData(WebGL.ELEMENT_ARRAY_BUFFER, 0, indexList.buffer);
+
+      _indexListIBOVersion[indexList] = indexList.version;
+    }
+  }
+
+  void _updateVBO(AttributeDataTable table) {
+    if (_attributeDataTableVBOVersion[table] != table.version) {
+      context._bindAttributeDataTable(table);
+      _context.bufferSubData(WebGL.ARRAY_BUFFER, 0, table.buffer);
+
+      _attributeDataTableVBOVersion[table] = table.version;
+    }
+  }
 }
