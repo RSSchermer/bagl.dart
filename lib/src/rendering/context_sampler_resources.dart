@@ -95,6 +95,10 @@ class ContextSamplerResources {
         context._textureUnitsSamplers.remove(unit);
       }
 
+      if (context._boundSampler2D == sampler) {
+        context._boundSampler2D = null;
+      }
+
       return true;
     } else {
       return false;
