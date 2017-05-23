@@ -354,12 +354,7 @@ class Matrix2 extends _MatrixBase implements Matrix {
       final n0 = B.x;
       final n1 = B.y;
 
-      final values = new Float32List(2);
-
-      values[0] = (r0c0 * n0) + (r0c1 * n1);
-      values[1] = (r1c0 * n0) + (r1c1 * n1);
-
-      return new Vector2._internal(values);
+      return new Vector2((r0c0 * n0) + (r0c1 * n1), (r1c0 * n0) + (r1c1 * n1));
     } else {
       return super.matrixProduct(B);
     }

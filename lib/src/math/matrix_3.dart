@@ -544,13 +544,10 @@ class Matrix3 extends _MatrixBase implements Matrix {
       final n1 = B.y;
       final n2 = B.z;
 
-      final values = new Float32List(3);
-
-      values[0] = (r0c0 * n0) + (r0c1 * n1) + (r0c2 * n2);
-      values[1] = (r1c0 * n0) + (r1c1 * n1) + (r1c2 * n2);
-      values[2] = (r2c0 * n0) + (r2c1 * n1) + (r2c2 * n2);
-
-      return new Vector3._internal(values);
+      return new Vector3(
+          (r0c0 * n0) + (r0c1 * n1) + (r0c2 * n2),
+          (r1c0 * n0) + (r1c1 * n1) + (r1c2 * n2),
+          (r2c0 * n0) + (r2c1 * n1) + (r2c2 * n2));
     } else {
       return super.matrixProduct(B);
     }

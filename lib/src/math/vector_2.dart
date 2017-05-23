@@ -2,11 +2,15 @@ part of math;
 
 /// A column vector of length 2 (a 2 by 1 matrix).
 class Vector2 extends _VertexBase implements Matrix {
-  final Float32List _storage;
+  final double x;
+
+  final double y;
 
   final int columnDimension = 1;
 
   final int rowDimension = 2;
+
+  Float32List _storageInternal;
 
   double _squareSum;
 
@@ -15,14 +19,7 @@ class Vector2 extends _VertexBase implements Matrix {
   Vector2 _unitVector;
 
   /// Instantiates a new [Vector2] with the specified values.
-  factory Vector2(double x, double y) {
-    final values = new Float32List(2);
-
-    values[0] = x;
-    values[1] = y;
-
-    return new Vector2._internal(values);
-  }
+  Vector2(this.x, this.y);
 
   /// Instantiates a new [Vector2] from the given list.
   ///
@@ -33,22 +30,30 @@ class Vector2 extends _VertexBase implements Matrix {
           'A list of length 2 required to instantiate a Vector2.');
     }
 
-    return new Vector2._internal(new Float32List.fromList(values));
+    return new Vector2(values[0], values[1]);
   }
 
   /// Instantiates a new [Vector2] where every position is set to the specified
   /// value.
-  factory Vector2.constant(double value) =>
-      new Vector2._internal(new Float32List(2)..fillRange(0, 2, value));
+  Vector2.constant(double value)
+      : x = value,
+        y = value;
 
   /// Instantiates a new [Vector2] where every position is set to zero.
-  factory Vector2.zero() => new Vector2._internal(new Float32List(2));
+  Vector2.zero()
+      : x = 0.0,
+        y = 0.0;
 
-  Vector2._internal(this._storage);
+  Float32List get _storage {
+    if (_storageInternal == null) {
+      _storageInternal = new Float32List(2);
+      _storageInternal[0] = x;
+      _storageInternal[1] = y;
+    }
 
-  double get x => _storage[0];
-  double get y => _storage[1];
-  
+    return _storageInternal;
+  }
+
   // Vector2 xy swizzles: x first
   Vector2 get xx => new Vector2(x, x);
   Vector2 get xy => new Vector2(x, y);
@@ -56,7 +61,7 @@ class Vector2 extends _VertexBase implements Matrix {
   // Vector2 xy swizzles: y first
   Vector2 get yx => new Vector2(y, x);
   Vector2 get yy => new Vector2(y, y);
-  
+
   // Vector3 xy swizzles: x first
   Vector3 get xxx => new Vector3(x, x, x);
   Vector3 get xxy => new Vector3(x, x, y);
@@ -89,8 +94,8 @@ class Vector2 extends _VertexBase implements Matrix {
   Vector4 get yyyx => new Vector4(y, y, y, x);
   Vector4 get yyyy => new Vector4(y, y, y, y);
 
-  double get r => _storage[0];
-  double get g => _storage[1];
+  double get r => x;
+  double get g => y;
 
   // Vector2 rg swizzles: r first
   Vector2 get rr => new Vector2(r, r);
@@ -132,8 +137,8 @@ class Vector2 extends _VertexBase implements Matrix {
   Vector4 get gggr => new Vector4(g, g, g, r);
   Vector4 get gggg => new Vector4(g, g, g, g);
 
-  double get s => _storage[0];
-  double get t => _storage[1];
+  double get s => x;
+  double get t => y;
 
   // Vector2 st swizzles: s first
   Vector2 get ss => new Vector2(s, s);
@@ -229,70 +234,38 @@ class Vector2 extends _VertexBase implements Matrix {
     }
   }
 
-  Vector2 scalarProduct(num s) {
-    final values = new Float32List(2);
+  Vector2 scalarProduct(num s) => new Vector2(x * s, y * s);
 
-    values[0] = x * s;
-    values[1] = y * s;
-
-    return new Vector2._internal(values);
-  }
-
-  Vector2 scalarDivision(num s) {
-    final values = new Float32List(2);
-
-    values[0] = x / s;
-    values[1] = y / s;
-
-    return new Vector2._internal(values);
-  }
+  Vector2 scalarDivision(num s) => new Vector2(x / s, y / s);
 
   Vector2 entrywiseSum(Matrix B) {
-    final values = new Float32List(2);
-
     if (B is Vector2) {
-      values[0] = x + B.x;
-      values[1] = y + B.y;
+      return new Vector2(x + B.x, y + B.y);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x + B.valueAt(0, 0);
-      values[1] = y + B.valueAt(1, 0);
+      return new Vector2(x + B.valueAt(0, 0), y + B.valueAt(1, 0));
     }
-
-    return new Vector2._internal(values);
   }
 
   Vector2 entrywiseDifference(Matrix B) {
-    final values = new Float32List(2);
-
     if (B is Vector2) {
-      values[0] = x - B.x;
-      values[1] = y - B.y;
+      return new Vector2(x - B.x, y - B.y);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x - B.valueAt(0, 0);
-      values[1] = y - B.valueAt(1, 0);
+      return new Vector2(x - B.valueAt(0, 0), y - B.valueAt(1, 0));
     }
-
-    return new Vector2._internal(values);
   }
 
   Vector2 entrywiseProduct(Matrix B) {
-    final values = new Float32List(2);
-
     if (B is Vector2) {
-      values[0] = x * B.x;
-      values[1] = y * B.y;
+      return new Vector2(x * B.x, y * B.y);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x * B.valueAt(0, 0);
-      values[1] = y * B.valueAt(1, 0);
+      return new Vector2(x * B.valueAt(0, 0), y * B.valueAt(1, 0));
     }
-
-    return new Vector2._internal(values);
   }
 
   /// Computes the dot product of this [Vector2] `A` and another [Vector2] [B].
@@ -308,7 +281,11 @@ class Vector2 extends _VertexBase implements Matrix {
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 2);
 
-    return _storage[index];
+    if (index == 0) {
+      return x;
+    } else {
+      return y;
+    }
   }
 
   String toString() {

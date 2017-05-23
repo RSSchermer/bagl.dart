@@ -833,14 +833,11 @@ class Matrix4 extends _MatrixBase implements Matrix {
       final n2 = B.z;
       final n3 = B.w;
 
-      final values = new Float32List(4);
-
-      values[0] = (r0c0 * n0) + (r0c1 * n1) + (r0c2 * n2) + (r0c3 * n3);
-      values[1] = (r1c0 * n0) + (r1c1 * n1) + (r1c2 * n2) + (r1c3 * n3);
-      values[2] = (r2c0 * n0) + (r2c1 * n1) + (r2c2 * n2) + (r2c3 * n3);
-      values[3] = (r3c0 * n0) + (r3c1 * n1) + (r3c2 * n2) + (r3c3 * n3);
-
-      return new Vector4._internal(values);
+      return new Vector4(
+          (r0c0 * n0) + (r0c1 * n1) + (r0c2 * n2) + (r0c3 * n3),
+          (r1c0 * n0) + (r1c1 * n1) + (r1c2 * n2) + (r1c3 * n3),
+          (r2c0 * n0) + (r2c1 * n1) + (r2c2 * n2) + (r2c3 * n3),
+          (r3c0 * n0) + (r3c1 * n1) + (r3c2 * n2) + (r3c3 * n3));
     } else {
       return super.matrixProduct(B);
     }

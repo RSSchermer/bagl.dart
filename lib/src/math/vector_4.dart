@@ -2,11 +2,16 @@ part of math;
 
 /// A column vector of length 4 (a 4 by 1 matrix).
 class Vector4 extends _VertexBase implements Matrix {
-  final Float32List _storage;
+  final double x;
+  final double y;
+  final double z;
+  final double w;
 
   final int columnDimension = 1;
 
   final int rowDimension = 4;
+
+  Float32List _storageInternal;
 
   double _squareSum;
 
@@ -15,16 +20,7 @@ class Vector4 extends _VertexBase implements Matrix {
   Vector4 _unitVector;
 
   /// Instantiates a new [Vector4] with the specified values.
-  factory Vector4(double x, double y, double z, double w) {
-    final values = new Float32List(4);
-
-    values[0] = x;
-    values[1] = y;
-    values[2] = z;
-    values[3] = w;
-
-    return new Vector4._internal(values);
-  }
+  Vector4(this.x, this.y, this.z, this.w);
 
   /// Instantiates a new [Vector4] from the given list.
   ///
@@ -35,23 +31,35 @@ class Vector4 extends _VertexBase implements Matrix {
           'A list of length 4 required to instantiate a Vector4.');
     }
 
-    return new Vector4._internal(new Float32List.fromList(values));
+    return new Vector4(values[0], values[1], values[2], values[3]);
   }
 
   /// Instantiates a new [Vector4] where every position is set to the specified
   /// value.
-  factory Vector4.constant(double value) =>
-      new Vector4._internal(new Float32List(4)..fillRange(0, 4, value));
+  Vector4.constant(double value)
+      : x = value,
+        y = value,
+        z = value,
+        w = value;
 
   /// Instantiates a new [Vector4] where every position is set to zero.
-  factory Vector4.zero() => new Vector4._internal(new Float32List(4));
+  Vector4.zero()
+      : x = 0.0,
+        y = 0.0,
+        z = 0.0,
+        w = 0.0;
 
-  Vector4._internal(this._storage);
+  Float32List get _storage {
+    if (_storageInternal == null) {
+      _storageInternal = new Float32List(4);
+      _storageInternal[0] = x;
+      _storageInternal[1] = y;
+      _storageInternal[2] = z;
+      _storageInternal[3] = w;
+    }
 
-  double get x => _storage[0];
-  double get y => _storage[1];
-  double get z => _storage[2];
-  double get w => _storage[3];
+    return _storageInternal;
+  }
 
   // Vector2 xyzw swizzles: x first
   Vector2 get xx => new Vector2(x, x);
@@ -75,7 +83,7 @@ class Vector4 extends _VertexBase implements Matrix {
   Vector2 get wx => new Vector2(w, x);
   Vector2 get wy => new Vector2(w, y);
   Vector2 get wz => new Vector2(w, z);
-  Vector2 get ww => new Vector2(w, w);  
+  Vector2 get ww => new Vector2(w, w);
 
   // Vector3 xyzw swizzles: x first
   Vector3 get xxx => new Vector3(x, x, x);
@@ -413,10 +421,10 @@ class Vector4 extends _VertexBase implements Matrix {
   Vector4 get wwwz => new Vector4(w, w, w, z);
   Vector4 get wwww => new Vector4(w, w, w, w);
 
-  double get r => _storage[0];
-  double get g => _storage[1];
-  double get b => _storage[2];
-  double get a => _storage[3];
+  double get r => x;
+  double get g => y;
+  double get b => z;
+  double get a => w;
 
   // Vector2 rgba swizzles: r first
   Vector2 get rr => new Vector2(r, r);
@@ -778,10 +786,10 @@ class Vector4 extends _VertexBase implements Matrix {
   Vector4 get aaab => new Vector4(a, a, a, b);
   Vector4 get aaaa => new Vector4(a, a, a, a);
 
-  double get s => _storage[0];
-  double get t => _storage[1];
-  double get p => _storage[2];
-  double get q => _storage[3];
+  double get s => x;
+  double get t => y;
+  double get p => z;
+  double get q => w;
 
   // Vector2 stpq swizzles: s first
   Vector2 get ss => new Vector2(s, s);
@@ -1203,86 +1211,41 @@ class Vector4 extends _VertexBase implements Matrix {
     }
   }
 
-  Vector4 scalarProduct(num s) {
-    final values = new Float32List(4);
+  Vector4 scalarProduct(num s) => new Vector4(x * s, y * s, z * s, w * s);
 
-    values[0] = x * s;
-    values[1] = y * s;
-    values[2] = z * s;
-    values[3] = w * s;
-
-    return new Vector4._internal(values);
-  }
-
-  Vector4 scalarDivision(num s) {
-    final values = new Float32List(4);
-
-    values[0] = x / s;
-    values[1] = y / s;
-    values[2] = z / s;
-    values[3] = w / s;
-
-    return new Vector4._internal(values);
-  }
+  Vector4 scalarDivision(num s) => new Vector4(x / s, y / s, z / s, w / s);
 
   Vector4 entrywiseSum(Matrix B) {
-    final values = new Float32List(4);
-
     if (B is Vector4) {
-      values[0] = x + B.x;
-      values[1] = y + B.y;
-      values[2] = z + B.z;
-      values[3] = w + B.w;
+      return new Vector4(x + B.x, y + B.y, z + B.z, w + B.w);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x + B.valueAt(0, 0);
-      values[1] = y + B.valueAt(1, 0);
-      values[2] = z + B.valueAt(2, 0);
-      values[3] = w + B.valueAt(3, 0);
+      return new Vector4(x + B.valueAt(0, 0), y + B.valueAt(1, 0),
+          z + B.valueAt(2, 0), w + B.valueAt(3, 0));
     }
-
-    return new Vector4._internal(values);
   }
 
   Vector4 entrywiseDifference(Matrix B) {
-    final values = new Float32List(4);
-
     if (B is Vector4) {
-      values[0] = x - B.x;
-      values[1] = y - B.y;
-      values[2] = z - B.z;
-      values[3] = w - B.w;
+      return new Vector4(x - B.x, y - B.y, z - B.z, w - B.w);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x - B.valueAt(0, 0);
-      values[1] = y - B.valueAt(1, 0);
-      values[2] = z - B.valueAt(2, 0);
-      values[3] = w - B.valueAt(3, 0);
+      return new Vector4(x - B.valueAt(0, 0), y - B.valueAt(1, 0),
+          z - B.valueAt(2, 0), w - B.valueAt(3, 0));
     }
-
-    return new Vector4._internal(values);
   }
 
   Vector4 entrywiseProduct(Matrix B) {
-    final values = new Float32List(4);
-
     if (B is Vector4) {
-      values[0] = x * B.x;
-      values[1] = y * B.y;
-      values[2] = z * B.z;
-      values[3] = w * B.w;
+      return new Vector4(x * B.x, y * B.y, z * B.z, w * B.w);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x * B.valueAt(0, 0);
-      values[1] = y * B.valueAt(1, 0);
-      values[2] = z * B.valueAt(2, 0);
-      values[3] = w * B.valueAt(3, 0);
+      return new Vector4(x * B.valueAt(0, 0), y * B.valueAt(1, 0),
+          z * B.valueAt(2, 0), w * B.valueAt(3, 0));
     }
-
-    return new Vector4._internal(values);
   }
 
   /// Computes the dot product of this [Vector4] `A` and another [Vector4] [B].
@@ -1298,7 +1261,15 @@ class Vector4 extends _VertexBase implements Matrix {
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 4);
 
-    return _storage[index];
+    if (index == 0) {
+      return x;
+    } else if (index == 1) {
+      return y;
+    } else if (index == 2) {
+      return z;
+    } else {
+      return w;
+    }
   }
 
   String toString() {

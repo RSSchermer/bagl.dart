@@ -2,11 +2,15 @@ part of math;
 
 /// A column vector of length 3 (a 3 by 1 matrix).
 class Vector3 extends _VertexBase implements Matrix {
-  final Float32List _storage;
+  final double x;
+  final double y;
+  final double z;
 
   final int columnDimension = 1;
 
   final int rowDimension = 3;
+
+  Float32List _storageInternal;
 
   double _squareSum;
 
@@ -15,15 +19,7 @@ class Vector3 extends _VertexBase implements Matrix {
   Vector3 _unitVector;
 
   /// Instantiates a new [Vector3] with the specified values.
-  factory Vector3(double x, double y, double z) {
-    final values = new Float32List(3);
-
-    values[0] = x;
-    values[1] = y;
-    values[2] = z;
-
-    return new Vector3._internal(values);
-  }
+  Vector3(this.x, this.y, this.z);
 
   /// Instantiates a new [Vector3] from the given list.
   ///
@@ -34,23 +30,33 @@ class Vector3 extends _VertexBase implements Matrix {
           'A list of length 3 required to instantiate a Vector3.');
     }
 
-    return new Vector3._internal(new Float32List.fromList(values));
+    return new Vector3(values[0], values[1], values[2]);
   }
 
   /// Instantiates a new [Vector3] where every position is set to the specified
   /// value.
-  factory Vector3.constant(double value) =>
-      new Vector3._internal(new Float32List(3)..fillRange(0, 3, value));
+  Vector3.constant(double value)
+      : x = value,
+        y = value,
+        z = value;
 
   /// Instantiates a new [Vector3] where every position is set to zero.
-  factory Vector3.zero() => new Vector3._internal(new Float32List(3));
+  Vector3.zero()
+      : x = 0.0,
+        y = 0.0,
+        z = 0.0;
 
-  Vector3._internal(this._storage);
+  Float32List get _storage {
+    if (_storageInternal == null) {
+      _storageInternal = new Float32List(3);
+      _storageInternal[0] = x;
+      _storageInternal[1] = y;
+      _storageInternal[2] = z;
+    }
 
-  double get x => _storage[0];
-  double get y => _storage[1];
-  double get z => _storage[2];
-  
+    return _storageInternal;
+  }
+
   // Vector2 xyz swizzles: x first
   Vector2 get xx => new Vector2(x, x);
   Vector2 get xy => new Vector2(x, y);
@@ -186,9 +192,9 @@ class Vector3 extends _VertexBase implements Matrix {
   Vector4 get zzzy => new Vector4(z, z, z, y);
   Vector4 get zzzz => new Vector4(z, z, z, z);
 
-  double get r => _storage[0];
-  double get g => _storage[1];
-  double get b => _storage[2];
+  double get r => x;
+  double get g => y;
+  double get b => z;
 
   // Vector2 rgb swizzles: r first
   Vector2 get rr => new Vector2(r, r);
@@ -325,9 +331,9 @@ class Vector3 extends _VertexBase implements Matrix {
   Vector4 get bbbg => new Vector4(b, b, b, g);
   Vector4 get bbbb => new Vector4(b, b, b, b);
 
-  double get s => _storage[0];
-  double get t => _storage[1];
-  double get p => _storage[2];
+  double get s => x;
+  double get t => y;
+  double get p => z;
 
   // Vector2 stp swizzles: s first
   Vector2 get ss => new Vector2(s, s);
@@ -524,78 +530,41 @@ class Vector3 extends _VertexBase implements Matrix {
     }
   }
 
-  Vector3 scalarProduct(num s) {
-    final values = new Float32List(3);
+  Vector3 scalarProduct(num s) => new Vector3(x * s, y * s, z * s);
 
-    values[0] = x * s;
-    values[1] = y * s;
-    values[2] = z * s;
-
-    return new Vector3._internal(values);
-  }
-
-  Vector3 scalarDivision(num s) {
-    final values = new Float32List(3);
-
-    values[0] = x / s;
-    values[1] = y / s;
-    values[2] = z / s;
-
-    return new Vector3._internal(values);
-  }
+  Vector3 scalarDivision(num s) => new Vector3(x / s, y / s, z / s);
 
   Vector3 entrywiseSum(Matrix B) {
-    final values = new Float32List(3);
-
     if (B is Vector3) {
-      values[0] = x + B.x;
-      values[1] = y + B.y;
-      values[2] = z + B.z;
+      return new Vector3(x + B.x, y + B.y, z + B.z);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x + B.valueAt(0, 0);
-      values[1] = y + B.valueAt(1, 0);
-      values[2] = z + B.valueAt(2, 0);
+      return new Vector3(
+          x + B.valueAt(0, 0), y + B.valueAt(1, 0), z + B.valueAt(2, 0));
     }
-
-    return new Vector3._internal(values);
   }
 
   Vector3 entrywiseDifference(Matrix B) {
-    final values = new Float32List(3);
-
     if (B is Vector3) {
-      values[0] = x - B.x;
-      values[1] = y - B.y;
-      values[2] = z - B.z;
+      return new Vector3(x - B.x, y - B.y, z - B.z);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x - B.valueAt(0, 0);
-      values[1] = y - B.valueAt(1, 0);
-      values[2] = z - B.valueAt(2, 0);
+      return new Vector3(
+          x - B.valueAt(0, 0), y - B.valueAt(1, 0), z - B.valueAt(2, 0));
     }
-
-    return new Vector3._internal(values);
   }
 
   Vector3 entrywiseProduct(Matrix B) {
-    final values = new Float32List(3);
-
     if (B is Vector3) {
-      values[0] = x * B.x;
-      values[1] = y * B.y;
-      values[2] = z * B.z;
+      return new Vector3(x * B.x, y * B.y, z * B.z);
     } else {
       _assertEqualDimensions(this, B);
 
-      values[0] = x * B.valueAt(0, 0);
-      values[1] = y * B.valueAt(1, 0);
-      values[2] = z * B.valueAt(2, 0);
+      return new Vector3(
+          x * B.valueAt(0, 0), y * B.valueAt(1, 0), z * B.valueAt(2, 0));
     }
-
-    return new Vector3._internal(values);
   }
 
   /// Computes the dot product of this [Vector3] `A` and another [Vector3] [B].
@@ -604,10 +573,10 @@ class Vector3 extends _VertexBase implements Matrix {
   /// Computes the cross product of this [Vector3] `A` and another [Vector3]
   /// [B].
   Vector3 crossProduct(Vector3 B) => new Vector3(
-      y * B.z - z * B.y,
-      z * B.x - x * B.z,
-      x * B.y - y * B.x,
-  );
+        y * B.z - z * B.y,
+        z * B.x - x * B.z,
+        x * B.y - y * B.x,
+      );
 
   Vector3 operator +(Matrix B) => entrywiseSum(B);
 
@@ -619,7 +588,13 @@ class Vector3 extends _VertexBase implements Matrix {
   double operator [](int index) {
     RangeError.checkValidIndex(index, this, 'index', 3);
 
-    return _storage[index];
+    if (index == 0) {
+      return x;
+    } else if (index == 1) {
+      return y;
+    } else {
+      return z;
+    }
   }
 
   String toString() {
