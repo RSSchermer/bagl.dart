@@ -600,4 +600,8 @@ class Vector3 extends _VertexBase implements Matrix {
   String toString() {
     return 'Vector3(${values.toString()})';
   }
+
+  bool operator ==(Object other) => identical(this, other) || other is Vector3 && other.x == x && other.y == y && other.z == z;
+
+  int get hashCode => hash3(x, y, z);
 }
