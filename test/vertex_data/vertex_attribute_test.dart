@@ -125,8 +125,16 @@ void main() {
           expect(() => attribute.extractValueAtRow(3), throwsRangeError);
         });
 
-        test('returns the correct value with a valid index', () {
-          expect(attribute.extractValueAtRow(1), equals(new Vector2(1.1, 1.2)));
+        group('with a valid index', () {
+          final value = attribute.extractValueAtRow(1);
+
+          test('returns a Vector2 instance', () {
+            expect(value, new isInstanceOf<Vector2>());
+          });
+
+          test('returns a vector with the correct values', () {
+            expect(value.values, orderedCloseTo([1.1, 1.2], 0.00001));
+          });
         });
       });
 
@@ -156,8 +164,16 @@ void main() {
           expect(() => attribute.extractFrom(table2[1]), throwsArgumentError);
         });
 
-        test('with a valid row returns the correct value', () {
-          expect(attribute.extractFrom(table[2]), equals(new Vector2(2.1, 2.2)));
+        group('with a valid row', () {
+          final value = attribute.extractFrom(table[2]);
+
+          test('returns a Vector2 instance', () {
+            expect(value, new isInstanceOf<Vector2>());
+          });
+
+          test('returns a vector with the correct values', () {
+            expect(value.values, orderedCloseTo([2.1, 2.2], 0.00001));
+          });
         });
       });
 
@@ -191,13 +207,13 @@ void main() {
         test('returns a new attribute on the target table that extracts the correct values', () {
           final newAttribute = attribute.onTable(newTable);
 
-          expect(newAttribute.extractValueAtRow(1), equals(new Vector2(1.1, 1.0)));
+          expect(newAttribute.extractValueAtRow(1)?.values, orderedCloseTo([1.1, 1.0], 0.00001));
         });
 
         test('with an offset returns a new attribute on the target table that extracts the correct values', () {
           final newAttribute = attribute.onTable(newTable, offset: 0);
 
-          expect(newAttribute.extractValueAtRow(1), equals(new Vector2(1.2, 1.1)));
+          expect(newAttribute.extractValueAtRow(1)?.values, orderedCloseTo([1.2, 1.1], 0.00001));
         });
       });
     });
@@ -225,8 +241,16 @@ void main() {
           expect(() => attribute.extractValueAtRow(3), throwsRangeError);
         });
 
-        test('returns the correct value with a valid index', () {
-          expect(attribute.extractValueAtRow(1), equals(new Vector3(1.1, 1.2, 1.3)));
+        group('with a valid index', () {
+          final value = attribute.extractValueAtRow(1);
+
+          test('returns a Vector3 instance', () {
+            expect(value, new isInstanceOf<Vector3>());
+          });
+
+          test('returns a vector with the correct values', () {
+            expect(value.values, orderedCloseTo([1.1, 1.2, 1.3], 0.00001));
+          });
         });
       });
 
@@ -256,8 +280,16 @@ void main() {
           expect(() => attribute.extractFrom(table2[1]), throwsArgumentError);
         });
 
-        test('with a valid row returns the correct value', () {
-          expect(attribute.extractFrom(table[2]), equals(new Vector3(2.1, 2.2, 2.3)));
+        group('with a valid row', () {
+          final value = attribute.extractFrom(table[2]);
+
+          test('returns a Vector3 instance', () {
+            expect(value, new isInstanceOf<Vector3>());
+          });
+
+          test('returns a vector with the correct values', () {
+            expect(value.values, orderedCloseTo([2.1, 2.2, 2.3], 0.00001));
+          });
         });
       });
 
@@ -291,13 +323,13 @@ void main() {
         test('returns a new attribute on the target table that extracts the correct values', () {
           final newAttribute = attribute.onTable(newTable);
 
-          expect(newAttribute.extractValueAtRow(1), equals(new Vector3(1.2, 1.1, 1.0)));
+          expect(newAttribute.extractValueAtRow(1)?.values, orderedCloseTo([1.2, 1.1, 1.0], 0.00001));
         });
 
         test('with an offset returns a new attribute on the target table that extracts the correct values', () {
           final newAttribute = attribute.onTable(newTable, offset: 0);
 
-          expect(newAttribute.extractValueAtRow(1), equals(new Vector3(1.3, 1.2, 1.1)));
+          expect(newAttribute.extractValueAtRow(1)?.values, orderedCloseTo([1.3, 1.2, 1.1], 0.00001));
         });
       });
     });
@@ -325,8 +357,16 @@ void main() {
           expect(() => attribute.extractValueAtRow(3), throwsRangeError);
         });
 
-        test('returns the correct value with a valid index', () {
-          expect(attribute.extractValueAtRow(1), equals(new Vector4(1.1, 1.2, 1.3, 1.4)));
+        group('with a valid index', () {
+          final value = attribute.extractValueAtRow(1);
+
+          test('returns a Vector4 instance', () {
+            expect(value, new isInstanceOf<Vector4>());
+          });
+
+          test('returns a vector with the correct values', () {
+            expect(value.values, orderedCloseTo([1.1, 1.2, 1.3, 1.4], 0.00001));
+          });
         });
       });
 
@@ -356,8 +396,16 @@ void main() {
           expect(() => attribute.extractFrom(table2[1]), throwsArgumentError);
         });
 
-        test('with a valid row returns the correct value', () {
-          expect(attribute.extractFrom(table[2]), equals(new Vector4(2.1, 2.2, 2.3, 2.4)));
+        group('with a valid row', () {
+          final value = attribute.extractFrom(table[2]);
+
+          test('returns a Vector4 instance', () {
+            expect(value, new isInstanceOf<Vector4>());
+          });
+
+          test('returns a vector with the correct values', () {
+            expect(value.values, orderedCloseTo([2.1, 2.2, 2.3, 2.4], 0.00001));
+          });
         });
       });
 
@@ -391,13 +439,13 @@ void main() {
         test('returns a new attribute on the target table that extracts the correct values', () {
           final newAttribute = attribute.onTable(newTable);
 
-          expect(newAttribute.extractValueAtRow(1), equals(new Vector4(1.3, 1.2, 1.1, 1.0)));
+          expect(newAttribute.extractValueAtRow(1)?.values, orderedCloseTo([1.3, 1.2, 1.1, 1.0], 0.00001));
         });
 
         test('with an offset returns a new attribute on the target table that extracts the correct values', () {
           final newAttribute = attribute.onTable(newTable, offset: 0);
 
-          expect(newAttribute.extractValueAtRow(1), equals(new Vector4(1.4, 1.3, 1.2, 1.1)));
+          expect(newAttribute.extractValueAtRow(1)?.values, orderedCloseTo([1.4, 1.3, 1.2, 1.1], 0.00001));
         });
       });
     });
