@@ -85,6 +85,11 @@ class DepthTest {
   /// otherwise rendering will result in an error.
   final double rangeFar;
 
+  /// Specifies the scaling factor and units for polygon depth values.
+  ///
+  /// See [PolygonOffset] for details.
+  final PolygonOffset polygonOffset;
+
   /// Returns new instructions for the [DepthTest].
   ///
   /// Takes 4 optional parameters:
@@ -97,11 +102,14 @@ class DepthTest {
   ///   mapped. See [rangeNear] for details. Defaults to `0.0`.
   /// - [rangeFar]: the value onto which the far clipping plane will be mapped.
   ///   See [rangeFar] for details. Defaults to `1.0`.
+  /// - [polygonOffset]: the scaling factor and units for polygon depth values.
+  ///   See [PolygonOffset] for details.
   const DepthTest(
       {this.testFunction: TestFunction.less,
       this.write: true,
       this.rangeNear: 0.0,
-      this.rangeFar: 1.0});
+      this.rangeFar: 1.0,
+      this.polygonOffset: const PolygonOffset()});
 
   bool operator ==(other) =>
       identical(other, this) ||
@@ -116,4 +124,50 @@ class DepthTest {
 
   String toString() => 'DepthTest(testFunction: $testFunction, write: $write, '
       'rangeNear: $rangeNear, rangeFar: $rangeFar)';
+}
+
+/// Specifies the scaling factor and units for polygon depth values.
+///
+/// The value of the offset is `factor * DZ + r * units`, where `DZ` is a
+/// measurement of the change in depth relative to the screen area of the
+/// polygon, and `r` is the smallest value that is guaranteed to produce a
+/// resolvable offset for a given implementation.
+///
+/// The polygon offset is applied before the depth test is performed and before
+/// the depth value is written to the depth buffer.
+///
+/// Useful for rendering coplanar primitives. Can be used to prevent what is
+/// called "stitching", "bleeding" or "Z-fighting", where fragments with very
+/// similar z-values do not always produce predictable results.
+///
+/// Only applies to fragments from polygonal primitives (triangles); ignored
+/// for fragments from other primitives (points, lines). If you are rendering
+/// e.g. a coplanar triangle and line, specify a polygon offset to push back
+/// the triangle, rather than attempting to push forward the line.
+class PolygonOffset {
+  /// A scale factor that is used to create a variable depth offset for each
+  /// polygon.
+  final double factor;
+
+  /// Is multiplied by an implementation-specific value to create a constant
+  /// depth offset.
+  final double units;
+
+  /// Returns a new [PolygonOffset] specification.
+  ///
+  /// Takes 2 optional parameters:
+  ///
+  /// - [factor]: specifies a scale factor that is used to create a variable
+  ///   depth offset for each polygon.
+  /// - [units]: is multiplied by an implementation-specific value to create a
+  ///   constant depth offset.
+  const PolygonOffset([this.factor = 0.0, this.units = 0.0]);
+
+  bool operator ==(other) =>
+      identical(other, this) ||
+      other is PolygonOffset && other.factor == factor && other.units == units;
+
+  int get hashCode => hash2(factor, units);
+
+  String toString() => 'PolygonOffset($factor, $units)';
 }

@@ -100,7 +100,8 @@ class RenderingContext {
       testFunction: TestFunction.less,
       rangeNear: 0.0,
       rangeFar: 1.0,
-      write: true);
+      write: true,
+      polygonOffset: const PolygonOffset(0.0, 0.0));
 
   /// Whether or not stencil testing is currently enabled.
   bool _stencilTestEnabled = false;
@@ -288,7 +289,7 @@ class RenderingContext {
   Object requestExtension(String extensionName) {
     final cached = _extensionCache[extensionName];
 
-    if (cached != null ) {
+    if (cached != null) {
       return cached;
     } else {
       final extensionObject = _context.getExtension(extensionName);
@@ -423,6 +424,11 @@ class RenderingContext {
 
         if (depthTest.write != _depthTest.write) {
           _context.depthMask(depthTest.write);
+        }
+
+        if (depthTest.polygonOffset != _depthTest.polygonOffset) {
+          _context.polygonOffset(
+              depthTest.polygonOffset.factor, depthTest.polygonOffset.units);
         }
 
         _depthTest = depthTest;
