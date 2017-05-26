@@ -103,13 +103,14 @@ class DepthTest {
   /// - [rangeFar]: the value onto which the far clipping plane will be mapped.
   ///   See [rangeFar] for details. Defaults to `1.0`.
   /// - [polygonOffset]: the scaling factor and units for polygon depth values.
-  ///   See [PolygonOffset] for details.
+  ///   See [PolygonOffset] for details. Default to `null`, in which case
+  ///   polygon offsetting will be disabled.
   const DepthTest(
       {this.testFunction: TestFunction.less,
       this.write: true,
       this.rangeNear: 0.0,
       this.rangeFar: 1.0,
-      this.polygonOffset: const PolygonOffset()});
+      this.polygonOffset});
 
   bool operator ==(other) =>
       identical(other, this) ||

@@ -103,6 +103,9 @@ class RenderingContext {
       write: true,
       polygonOffset: const PolygonOffset(0.0, 0.0));
 
+  /// Whether or not polygon offsetting is currently enabled.
+  bool _polygonOffsetEnabled = false;
+
   /// Whether or not stencil testing is currently enabled.
   bool _stencilTestEnabled = false;
 
@@ -427,8 +430,20 @@ class RenderingContext {
         }
 
         if (depthTest.polygonOffset != _depthTest.polygonOffset) {
-          _context.polygonOffset(
-              depthTest.polygonOffset.factor, depthTest.polygonOffset.units);
+          if (depthTest.polygonOffset != null) {
+            if (!_polygonOffsetEnabled) {
+              _context.enable(WebGL.POLYGON_OFFSET_FILL);
+
+              _polygonOffsetEnabled = true;
+            }
+
+            _context.polygonOffset(
+                depthTest.polygonOffset.factor, depthTest.polygonOffset.units);
+          } else if (_polygonOffsetEnabled) {
+            _context.disable(WebGL.POLYGON_OFFSET_FILL);
+
+            _polygonOffsetEnabled = false;
+          }
         }
 
         _depthTest = depthTest;
