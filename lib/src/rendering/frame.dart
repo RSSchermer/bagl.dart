@@ -9,23 +9,21 @@ part of rendering;
 /// [clearColorAndDepth], [clearColorAndStencil], [clearDepthAndStencil] and
 /// [clearAll] may be used to reset (regions of) the [Frame]'s output
 /// attachments.
-class Frame {
+abstract class Frame {
   /// The [RenderingContext] with which this [Frame] is associated.
   final RenderingContext context;
 
   WebGL.RenderingContext _context;
 
-  WebGL.Framebuffer _framebufferObject;
-
-  Frame._default(RenderingContext context)
+  Frame._internal(RenderingContext context)
       : context = context,
         _context = context._context;
 
   /// This [Frame]'s width in pixels.
-  int get width => context.canvas.width;
+  int get width;
 
   /// This [Frame]'s height in pixels.
-  int get height => context.canvas.height;
+  int get height;
 
   /// Draws the [primitives] using the [program] and the [uniforms].
   ///
@@ -78,7 +76,7 @@ class Frame {
   ///   [Sampler] uniforms. If set to `false`, then the necessary resources
   ///   should be provisioned prior to the draw call, see
   ///   [context.geometryResources], [context.programResources] and
-  ///   [context.samplerResources]. Defaults to `true`.
+  ///   [context.textureResources]. Defaults to `true`.
   ///
   /// Finally, the thus configured rendering pipeline is used to process the
   /// [primitives], updating this [Frame]'s relevant output buffers accordingly.
@@ -251,9 +249,6 @@ class Frame {
     context._updateViewport(viewport ?? new Region(0, 0, width, height));
     context._updateDithering(dithering);
 
-    // Draw elements to this frame
-    context._bindFrame(this);
-
     final indexList = primitives.indexList;
 
     if (indexList != null) {
@@ -261,24 +256,15 @@ class Frame {
       context.geometryResources._updateIBO(indexList);
 
       if (indexList.indexSize == IndexSize.unsignedByte) {
-        _context.drawElements(
-            _topologyMap[primitives.topology],
-            primitives.count,
-            WebGL.UNSIGNED_BYTE,
-            primitives.offset * 8);
+        _context.drawElements(_topologyMap[primitives.topology],
+            primitives.count, WebGL.UNSIGNED_BYTE, primitives.offset * 8);
       } else if (indexList.indexSize == IndexSize.unsignedShort) {
-        _context.drawElements(
-            _topologyMap[primitives.topology],
-            primitives.count,
-            WebGL.UNSIGNED_SHORT,
-            primitives.offset * 16);
+        _context.drawElements(_topologyMap[primitives.topology],
+            primitives.count, WebGL.UNSIGNED_SHORT, primitives.offset * 16);
       } else {
         if (context.requestExtension('OES_element_index_uint') != null) {
-          _context.drawElements(
-              _topologyMap[primitives.topology],
-              primitives.count,
-              WebGL.UNSIGNED_INT,
-              primitives.offset * 32);
+          _context.drawElements(_topologyMap[primitives.topology],
+              primitives.count, WebGL.UNSIGNED_INT, primitives.offset * 32);
         } else {
           throw new ArgumentError('The current context does not support 32 bit '
               'index lists.');
@@ -379,4 +365,387 @@ class Frame {
         WebGL.DEPTH_BUFFER_BIT &
         WebGL.STENCIL_BUFFER_BIT);
   }
+}
+
+class _DefaultFrame extends Frame {
+  _DefaultFrame(RenderingContext context) : super._internal(context);
+
+  int get width => context.canvas.width;
+  int get height => context.canvas.height;
+
+  void draw(PrimitiveSequence primitives, Program program,
+      Map<String, dynamic> uniforms,
+      {DepthTest depthTest: null,
+      StencilTest stencilTest: null,
+      Blending blending: null,
+      CullingMode faceCulling: null,
+      WindingOrder frontFace: WindingOrder.counterClockwise,
+      ColorMask colorMask: const ColorMask(true, true, true, true),
+      num lineWidth: 1,
+      Region scissorBox: null,
+      Region viewport: null,
+      bool dithering: true,
+      Map<String, String> attributeNameMap: const {},
+      bool autoProvisioning: true}) {
+    context._bindDefaultFrame();
+
+    super.draw(primitives, program, uniforms,
+        depthTest: depthTest,
+        stencilTest: stencilTest,
+        blending: blending,
+        faceCulling: faceCulling,
+        frontFace: frontFace,
+        colorMask: colorMask,
+        lineWidth: lineWidth,
+        scissorBox: scissorBox,
+        viewport: viewport,
+        dithering: dithering,
+        attributeNameMap: attributeNameMap,
+        autoProvisioning: autoProvisioning);
+  }
+
+  void clearColor(Vector4 color, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearColor(color, region);
+  }
+
+  void clearDepth(double depth, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearDepth(depth, region);
+  }
+
+  void clearStencil(int stencil, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearStencil(stencil, region);
+  }
+
+  void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearColorAndDepth(color, depth, region);
+  }
+
+  void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearColorAndStencil(color, stencil, region);
+  }
+
+  void clearDepthAndStencil(double depth, int stencil, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearDepthAndStencil(depth, stencil, region);
+  }
+
+  void clearAll(Vector4 color, double depth, int stencil, [Region region]) {
+    context._bindDefaultFrame();
+
+    super.clearAll(color, depth, stencil, region);
+  }
+}
+
+class FrameBuffer extends Frame {
+  /// The width of this [FrameBuffer] in pixels.
+  final int width;
+
+  /// The height of this [FrameBuffer] in pixels.
+  final int height;
+
+  // TODO: this api can be a lot nicer once union types come around by using
+  // `Texture2D | RenderBuffer` for the attachment slots
+
+  /// The [Texture] or [RenderBuffer] attached to this [FrameBuffer]'s color
+  /// output channel.
+  dynamic _colorAttachment;
+
+  /// The [Texture] or [RenderBuffer] attached to the depth output channel.
+  ///
+  /// May be `null`. [FrameBuffer]s without a depth attachment can not perform
+  /// a depth test.
+  final dynamic depthAttachment;
+
+  /// The [Texture] or [RenderBuffer] attached to the stencil output channel.
+  ///
+  /// May be `null`. [FrameBuffer]s without a stencil attachment can not perform
+  /// a stencil test.
+  final dynamic stencilAttachment;
+
+  Map<RenderBuffer, WebGL.Renderbuffer> _renderBufferRBOs;
+
+  WebGL.Framebuffer _framebufferObject;
+
+  FrameBuffer(RenderingContext context, this.width, this.height,
+      {dynamic colorAttachment, this.depthAttachment, this.stencilAttachment})
+      : super._internal(context) {
+    _colorAttachment = colorAttachment ??
+        new RenderBuffer(RenderBufferFormat.RGBA_4, width, height);
+
+    _framebufferObject = _context.createFramebuffer();
+
+    context._bindFrameBuffer(this);
+
+    if (colorAttachment is Texture2D) {
+      if (colorAttachment.width != width) {
+        throw new ArgumentError(
+            'The color attachment\'s width (${colorAttachment.width}) must '
+            'match the FrameBuffer\'s width ($width).');
+      }
+
+      if (colorAttachment.height != height) {
+        throw new ArgumentError(
+            'The color attachment\'s height (${colorAttachment.height}) must '
+            'match the FrameBuffer\'s height ($height).');
+      }
+
+      context.textureResources.provisionFor(colorAttachment);
+      context._bindTexture2D(colorAttachment);
+      _context.framebufferTexture2D(
+          WebGL.FRAMEBUFFER,
+          WebGL.COLOR_ATTACHMENT0,
+          WebGL.TEXTURE_2D,
+          context.textureResources
+              ._getGLTexture2D(colorAttachment)
+              .glTextureObject,
+          0);
+
+      context._bindTexture2D(null);
+    } else if (colorAttachment is RenderBuffer) {
+      if (colorAttachment.width != width) {
+        throw new ArgumentError(
+            'The color attachment\'s width (${colorAttachment.width}) must '
+            'match the FrameBuffer\'s width ($width).');
+      }
+
+      if (colorAttachment.height != height) {
+        throw new ArgumentError(
+            'The color attachment\'s height (${colorAttachment.height}) must '
+            'match the FrameBuffer\'s height ($height).');
+      }
+
+      final rbo = _context.createRenderbuffer();
+
+      _renderBufferRBOs[colorAttachment] = rbo;
+
+      _context.bindRenderbuffer(WebGL.RENDERBUFFER, rbo);
+      _context.renderbufferStorage(
+          WebGL.RENDERBUFFER,
+          _renderBufferFormatMap[colorAttachment.internalFormat],
+          colorAttachment.width,
+          colorAttachment.height);
+
+      _context.framebufferRenderbuffer(
+          WebGL.FRAMEBUFFER, WebGL.COLOR_ATTACHMENT0, WebGL.RENDERBUFFER, rbo);
+    } else if (colorAttachment == null) {
+      throw new ArgumentError(
+          'A FrameBuffer\'s `colorAttachment0` must not be null.');
+    } else {
+      throw new ArgumentError(
+          'A FrameBuffer\'s `colorAttachment0` must be a Texture2D or a '
+          'RenderBuffer.');
+    }
+
+    if (depthAttachment is Texture2D) {
+      if (depthAttachment.width != width) {
+        throw new ArgumentError(
+            'The depth attachment\'s width (${depthAttachment.width}) must '
+            'match the FrameBuffer\'s width ($width).');
+      }
+
+      if (depthAttachment.height != height) {
+        throw new ArgumentError(
+            'The depth attachment\'s height (${depthAttachment.height}) must '
+            'match the FrameBuffer\'s height ($height).');
+      }
+
+      context.textureResources.provisionFor(depthAttachment);
+      context._bindTexture2D(depthAttachment);
+      _context.framebufferTexture2D(
+          WebGL.FRAMEBUFFER,
+          WebGL.DEPTH_ATTACHMENT,
+          WebGL.TEXTURE_2D,
+          context.textureResources
+              ._getGLTexture2D(depthAttachment)
+              .glTextureObject,
+          0);
+      context._bindTexture2D(null);
+    } else if (depthAttachment is RenderBuffer) {
+      if (depthAttachment.width != width) {
+        throw new ArgumentError(
+            'The depth attachment\'s width (${depthAttachment.width}) must '
+            'match the FrameBuffer\'s width ($width).');
+      }
+
+      if (depthAttachment.height != height) {
+        throw new ArgumentError(
+            'The depth attachment\'s height (${depthAttachment.height}) must '
+            'match the FrameBuffer\'s height ($height).');
+      }
+
+      final rbo = _context.createRenderbuffer();
+
+      _renderBufferRBOs[depthAttachment] = rbo;
+
+      _context.bindRenderbuffer(WebGL.RENDERBUFFER, rbo);
+      _context.renderbufferStorage(
+          WebGL.RENDERBUFFER,
+          _renderBufferFormatMap[depthAttachment.internalFormat],
+          depthAttachment.width,
+          depthAttachment.height);
+
+      _context.framebufferRenderbuffer(
+          WebGL.FRAMEBUFFER, WebGL.DEPTH_ATTACHMENT, WebGL.RENDERBUFFER, rbo);
+    }
+
+    if (stencilAttachment is Texture2D) {
+      if (stencilAttachment.width != width) {
+        throw new ArgumentError(
+            'The stencil attachment\'s width (${stencilAttachment.width}) must '
+            'match the FrameBuffer\'s width ($width).');
+      }
+
+      if (stencilAttachment.height != height) {
+        throw new ArgumentError(
+            'The stencil attachment\'s height (${stencilAttachment.height}) must '
+            'match the FrameBuffer\'s height ($height).');
+      }
+
+      context.textureResources.provisionFor(stencilAttachment);
+      context._bindTexture2D(stencilAttachment);
+      _context.framebufferTexture2D(
+          WebGL.FRAMEBUFFER,
+          WebGL.DEPTH_ATTACHMENT,
+          WebGL.TEXTURE_2D,
+          context.textureResources
+              ._getGLTexture2D(stencilAttachment)
+              .glTextureObject,
+          0);
+      context._bindTexture2D(null);
+    } else if (stencilAttachment is RenderBuffer) {
+      if (stencilAttachment.width != width) {
+        throw new ArgumentError(
+            'The stencil attachment\'s width (${stencilAttachment.width}) must '
+            'match the FrameBuffer\'s width ($width).');
+      }
+
+      if (stencilAttachment.height != height) {
+        throw new ArgumentError(
+            'The stencil attachment\'s height (${stencilAttachment.height}) '
+            'must match the FrameBuffer\'s height ($height).');
+      }
+
+      final rbo = _context.createRenderbuffer();
+
+      _renderBufferRBOs[stencilAttachment] = rbo;
+
+      _context.bindRenderbuffer(WebGL.RENDERBUFFER, rbo);
+      _context.renderbufferStorage(
+          WebGL.RENDERBUFFER,
+          _renderBufferFormatMap[stencilAttachment.internalFormat],
+          depthAttachment.width,
+          depthAttachment.height);
+
+      _context.framebufferRenderbuffer(
+          WebGL.FRAMEBUFFER, WebGL.DEPTH_ATTACHMENT, WebGL.RENDERBUFFER, rbo);
+    }
+  }
+
+  /// The [Texture] or [RenderBuffer] attached to this [FrameBuffer]'s color
+  /// output channel.
+  dynamic get colorAttachment => _colorAttachment;
+
+  void draw(PrimitiveSequence primitives, Program program,
+      Map<String, dynamic> uniforms,
+      {DepthTest depthTest: null,
+      StencilTest stencilTest: null,
+      Blending blending: null,
+      CullingMode faceCulling: null,
+      WindingOrder frontFace: WindingOrder.counterClockwise,
+      ColorMask colorMask: const ColorMask(true, true, true, true),
+      num lineWidth: 1,
+      Region scissorBox: null,
+      Region viewport: null,
+      bool dithering: true,
+      Map<String, String> attributeNameMap: const {},
+      bool autoProvisioning: true}) {
+    context._bindFrameBuffer(this);
+
+    super.draw(primitives, program, uniforms,
+        depthTest: depthTest,
+        stencilTest: stencilTest,
+        blending: blending,
+        faceCulling: faceCulling,
+        frontFace: frontFace,
+        colorMask: colorMask,
+        lineWidth: lineWidth,
+        scissorBox: scissorBox,
+        viewport: viewport,
+        dithering: dithering,
+        attributeNameMap: attributeNameMap,
+        autoProvisioning: autoProvisioning);
+  }
+
+  void clearColor(Vector4 color, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearColor(color, region);
+  }
+
+  void clearDepth(double depth, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearDepth(depth, region);
+  }
+
+  void clearStencil(int stencil, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearStencil(stencil, region);
+  }
+
+  void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearColorAndDepth(color, depth, region);
+  }
+
+  void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearColorAndStencil(color, stencil, region);
+  }
+
+  void clearDepthAndStencil(double depth, int stencil, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearDepthAndStencil(depth, stencil, region);
+  }
+
+  void clearAll(Vector4 color, double depth, int stencil, [Region region]) {
+    context._bindFrameBuffer(this);
+
+    super.clearAll(color, depth, stencil, region);
+  }
+}
+
+class RenderBuffer {
+  final RenderBufferFormat internalFormat;
+
+  final int width;
+
+  final int height;
+
+  const RenderBuffer(this.internalFormat, this.width, this.height);
+}
+
+/// Enumerates the formats available for a [RenderBuffer].
+enum RenderBufferFormat {
+  RGBA_4,
+  RGB_5_6_5,
+  RGB_5_A_1,
+  depth_component_16,
+  stencil_index_8,
+  depth_stencil
 }

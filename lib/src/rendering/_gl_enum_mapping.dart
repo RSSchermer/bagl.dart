@@ -97,3 +97,12 @@ const Map<Wrapping, int> _wrappingMap = const {
   Wrapping.mirroredRepeat: WebGL.MIRRORED_REPEAT,
   Wrapping.clampToEdge: WebGL.CLAMP_TO_EDGE
 };
+
+const Map<RenderBufferFormat, int> _renderBufferFormatMap = const {
+  RenderBufferFormat.RGBA_4: WebGL.RGBA4,
+  RenderBufferFormat.RGB_5_6_5: WebGL.RGB565,
+  RenderBufferFormat.RGB_5_A_1: WebGL.RGB5_A1,
+  RenderBufferFormat.depth_component_16: WebGL.DEPTH_COMPONENT16,
+  RenderBufferFormat.stencil_index_8: WebGL.STENCIL_INDEX8,
+  RenderBufferFormat.depth_stencil: WebGL.DEPTH_STENCIL
+};

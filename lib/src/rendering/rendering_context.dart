@@ -20,9 +20,9 @@ class RenderingContext {
   /// resources for this [RenderingContext].
   ContextProgramResources programResources;
 
-  /// Manages the provisioning and deprovisioning of sampler related GPU
+  /// Manages the provisioning and deprovisioning of texture related GPU
   /// resources for this [RenderingContext].
-  ContextSamplerResources samplerResources;
+  ContextTextureResources textureResources;
 
   /// The default [Frame] for this [RenderingContext].
   ///
@@ -43,7 +43,7 @@ class RenderingContext {
 
   /// The frame that is currently bound to the WebGL context as the draw
   /// context.
-  Frame _boundFrame;
+  Frame _boundFrameBuffer;
 
   /// The [AttributeDataTable] currently bound to the WebGL context.
   AttributeDataTable _boundAttributeDataTable;
@@ -51,8 +51,8 @@ class RenderingContext {
   /// The [IndexList] currently bound to the WebGL context.
   IndexList _boundIndexList;
 
-  /// The [Sampler2D] currently bound to the WebGL context.
-  Sampler _boundSampler2D;
+  /// The [Texture2D] currently bound to the WebGL context.
+  Texture2D _boundTexture2D;
 
   /// Map from shader program attribute locations to the [VertexAttribute]
   /// currently bound to this location.
@@ -79,9 +79,9 @@ class RenderingContext {
   /// the last value is the least recently used texture unit.
   Queue<int> _recentlyUsedTextureUnits;
 
-  /// A map from texture unit indices to the [Sampler]s currently bound to these
+  /// A map from texture unit indices to the [Texture]s currently bound to these
   /// units.
-  BiMap<int, Sampler> _textureUnitsSamplers = new BiMap();
+  BiMap<int, Texture> _textureUnitsTextures = new BiMap();
 
   /// The value that is currently set as the clearColor on the WebGL context.
   Vector4 _clearColor = new Vector4.zero();
@@ -194,9 +194,9 @@ class RenderingContext {
 
     geometryResources = new ContextGeometryResources._internal(this);
     programResources = new ContextProgramResources._internal(this);
-    samplerResources = new ContextSamplerResources._internal(this);
-    _defaultFrame = new Frame._default(this);
-    _boundFrame = _defaultFrame;
+    textureResources = new ContextTextureResources._internal(this);
+    _defaultFrame = new _DefaultFrame(this);
+    _boundFrameBuffer = _defaultFrame;
     _recentlyUsedTextureUnits =
         new Queue.from(new List.generate(maxTextureUnits, (i) => i));
   }
@@ -329,10 +329,18 @@ class RenderingContext {
     }
   }
 
-  void _bindSampler2D(Sampler2D sampler) {
-    if (sampler != _boundSampler2D && sampler != null) {
-      if (_textureUnitsSamplers.containsValue(sampler)) {
-        final unit = _textureUnitsSamplers.inverse[sampler];
+  void _bindTexture2D(Texture2D texture) {
+    if (texture != _boundTexture2D) {
+      if (texture == null){
+        _context.bindTexture(WebGL.TEXTURE_2D, null);
+
+        _textureUnitsTextures.remove(_activeTextureUnit);
+
+        _recentlyUsedTextureUnits
+          ..remove(_activeTextureUnit)
+          ..addLast(_activeTextureUnit);
+      } else if (_textureUnitsTextures.containsValue(texture)) {
+        final unit = _textureUnitsTextures.inverse[texture];
 
         if (unit != _activeTextureUnit) {
           _updateActiveTextureUnit(unit);
@@ -347,28 +355,32 @@ class RenderingContext {
         _updateActiveTextureUnit(unit);
 
         _context.bindTexture(
-            WebGL.TEXTURE_2D, samplerResources._getTO(sampler));
+            WebGL.TEXTURE_2D, textureResources._getGLTexture2D(texture).glTextureObject);
 
-        _textureUnitsSamplers[unit] = sampler;
+        _textureUnitsTextures[unit] = texture;
 
         _recentlyUsedTextureUnits
           ..removeLast()
           ..addFirst(unit);
       }
 
-      _boundSampler2D = sampler;
+      _boundTexture2D = texture;
     }
   }
 
-  void _bindFrame(Frame frame) {
-    if (frame != _boundFrame) {
-      if (frame == defaultFrame) {
-        _context.bindFramebuffer(WebGL.FRAMEBUFFER, null);
-      } else {
-        _context.bindFramebuffer(WebGL.FRAMEBUFFER, frame._framebufferObject);
-      }
+  void _bindDefaultFrame() {
+    if (_boundFrameBuffer != null) {
+      _context.bindFramebuffer(WebGL.FRAMEBUFFER, null);
+      _boundFrameBuffer = null;
+    }
+  }
 
-      _boundFrame = frame;
+  void _bindFrameBuffer(FrameBuffer frameBuffer) {
+    if (frameBuffer != _boundFrameBuffer) {
+      _context.bindFramebuffer(
+          WebGL.FRAMEBUFFER, frameBuffer._framebufferObject);
+
+      _boundFrameBuffer = frameBuffer;
     }
   }
 

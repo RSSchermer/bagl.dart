@@ -63,7 +63,7 @@ void main() {
         test('when resources are not provisioned for the geometry draw throws a StateError', () {
           context.geometryResources.deprovisionFor(triangles);
           context.programResources.provisionFor(program);
-          context.samplerResources.provisionFor(sampler);
+          context.textureResources.provisionFor(texture);
 
           expect(() {
             context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
@@ -74,7 +74,7 @@ void main() {
         test('when resources are not provisioned for the program draw throws a StateError', () {
           context.geometryResources.provisionFor(triangles);
           context.programResources.deprovisionFor(program);
-          context.samplerResources.provisionFor(sampler);
+          context.textureResources.provisionFor(texture);
 
           expect(() {
             context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
@@ -85,7 +85,7 @@ void main() {
         test('when resources are not provisioned for the sampler draw throws a StateError', () {
           context.geometryResources.provisionFor(triangles);
           context.programResources.provisionFor(program);
-          context.samplerResources.deprovisionFor(sampler);
+          context.textureResources.deprovisionFor(texture);
 
           expect(() {
             context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
@@ -94,10 +94,9 @@ void main() {
         });
 
         test('when all necessary resources are provisioned draws the correct frame', () {
-          print(texture.isReady);
           context.geometryResources.provisionFor(triangles);
           context.programResources.provisionFor(program);
-          context.samplerResources.provisionFor(sampler);
+          context.textureResources.provisionFor(texture);
 
           context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
               autoProvisioning: false);

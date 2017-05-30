@@ -122,10 +122,10 @@ class _GLProgram {
       final location = uniformInfoByName[uniformName].location;
 
       if (value is Sampler2D) {
-        final existingUnit = context._textureUnitsSamplers.inverse[value];
+        final texture = value.texture;
+        final existingUnit = context._textureUnitsTextures.inverse[texture];
 
         if (existingUnit != null) {
-
           if (_uniformValues[uniformName] != existingUnit) {
             glContext.uniform1i(location, existingUnit);
             _uniformValues[uniformName] = existingUnit;
@@ -136,18 +136,18 @@ class _GLProgram {
             ..addFirst(existingUnit);
         } else {
           if (autoProvisioning) {
-            context.samplerResources.provisionFor(value);
+            context.textureResources.provisionFor(texture);
           } else {
-            if (!context.samplerResources.areProvisionedFor(value)) {
+            if (!context.textureResources.areProvisionedFor(texture)) {
               throw new StateError('GPU resources have not yet been '
                   'provisioned for sampler "$uniformName" and autoProvisioning '
                   'was set to false. Provision resources with '
-                  'context.samplerResources.provisionFor(sampler) or set '
-                  'autoProvisioning to true.');
+                  'context.textureResources.provisionFor(sampler.texture) or '
+                  'set autoProvisioning to true.');
             }
           }
 
-          context._bindSampler2D(value);
+          context._bindTexture2D(texture);
 
           final unit = context._activeTextureUnit;
 
@@ -156,38 +156,43 @@ class _GLProgram {
             _uniformValues[uniformName] = unit;
           }
         }
+
+        context.textureResources._getGLTexture2D(texture).applySampler(value);
       } else if (value is List<Sampler2D>) {
         final length = value.length;
         final units = new Int32List(length);
 
         for (var i = 0; i < length; i++) {
           final sampler = value[i];
+          final texture = sampler.texture;
+          final existingUnit = context._textureUnitsTextures.inverse[texture];
 
-          if (context._textureUnitsSamplers.containsValue(sampler)) {
-            final unit = context._textureUnitsSamplers.inverse[sampler];
+          if (existingUnit != null) {
+            units[i] = existingUnit;
 
             context._recentlyUsedTextureUnits
-              ..remove(unit)
-              ..addFirst(unit);
-
-            units[i] = unit;
+              ..remove(existingUnit)
+              ..addFirst(existingUnit);
           } else {
             if (autoProvisioning) {
-              context.samplerResources.provisionFor(sampler);
+              context.textureResources.provisionFor(texture);
             } else {
-              if (!context.samplerResources.areProvisionedFor(sampler)) {
+              if (!context.textureResources.areProvisionedFor(texture)) {
                 throw new StateError('GPU resources have not yet been '
                     'provisioned for sampler "$uniformName" and '
                     'autoProvisioning was set to false. Provision resources '
-                    'with context.samplerResources.provisionFor(sampler) or '
+                    'with '
+                    'context.textureResources.provisionFor(sampler.texture) or '
                     'set autoProvisioning to true.');
               }
             }
 
-            context._bindSampler2D(sampler);
+            context._bindTexture2D(texture);
 
             units[i] = context._activeTextureUnit;
           }
+
+          context.textureResources._getGLTexture2D(texture).applySampler(sampler);
         }
 
         glContext.uniform1iv(location, units);

@@ -36,3 +36,4 @@ part 'src/rendering/winding_order.dart';
 
 part 'src/rendering/_gl_enum_mapping.dart';
 part 'src/rendering/_gl_program.dart';
+part 'src/rendering/_gl_texture.dart';

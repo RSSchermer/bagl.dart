@@ -1,102 +1,80 @@
 part of rendering;
 
-/// Manages the provisioning and deprovisioning of sampler related GPU resources
+/// Manages the provisioning and deprovisioning of texture related GPU resources
 /// for a [RendingContext].
-class ContextSamplerResources {
-  /// The [RenderingContext] with which these [ContextSamplerResources] are
+class ContextTextureResources {
+  /// The [RenderingContext] with which these [ContextTextureResources] are
   /// associated.
   final RenderingContext context;
 
   final WebGL.RenderingContext _context;
 
-  /// Expands [Sampler]s with their associated texture objects for all currently
-  /// provisioned samplers.
-  Expando<WebGL.Texture> _samplerTO = new Expando();
+  /// Expands [Texture2D]s with their associated texture objects for all
+  /// currently provisioned textures.
+  Expando<_GLTexture2D> _texture2DGLTexture2D = new Expando();
 
-  ContextSamplerResources._internal(RenderingContext context)
+  ContextTextureResources._internal(RenderingContext context)
       : context = context,
         _context = context._context;
 
   /// Returns whether or not GPU resources are currently being provisioned for
-  /// the [sampler].
-  bool areProvisionedFor(Sampler sampler) => _samplerTO[sampler] != null;
+  /// the [texture].
+  bool areProvisionedFor(Texture texture) => _texture2DGLTexture2D[texture] != null;
 
-  /// Provisions GPU resources for the [sampler].
+  /// Provisions GPU resources for the [texture].
   ///
-  /// Sets up a texture object for the [sampler]. If resources had been
-  /// provisioned previously for the [sampler] then these resources will be
-  /// reused. For samplers with dynamic textures this method will update the
-  /// texture data.
-  void provisionFor(Sampler sampler) {
-    if (!areProvisionedFor(sampler)) {
+  /// Sets up a texture object for the [texture]. If resources had been
+  /// provisioned previously for the [texture] then these resources will be
+  /// reused. For dynamic textures this method will update the texture image
+  /// data.
+  void provisionFor(Texture texture) {
+    if (!areProvisionedFor(texture)) {
       final textureObject = _context.createTexture();
-      _samplerTO[sampler] = textureObject;
 
-      if (sampler is Sampler2D) {
-        context._bindSampler2D(sampler);
+      _texture2DGLTexture2D[texture] = new _GLTexture2D(context, texture, textureObject);
 
-        if (sampler.magnificationFilter != MagnificationFilter.linear) {
-          _context.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER,
-              _magnificationFilterMap[sampler.magnificationFilter]);
-        }
+      if (texture is Texture2D) {
+        _updateTexture2DData(texture);
 
-        if (sampler.minificationFilter !=
-            MinificationFilter.nearestMipmapLinear) {
-          _context.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER,
-              _minificationFilterMap[sampler.minificationFilter]);
-        }
-
-        if (sampler.wrapS != Wrapping.repeat) {
-          _context.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S,
-              _wrappingMap[sampler.wrapS]);
-        }
-
-        if (sampler.wrapT != Wrapping.repeat) {
-          _context.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T,
-              _wrappingMap[sampler.wrapT]);
-        }
-
-        _updateTexture2DData(sampler);
-
-        if (!sampler.texture.isReady) {
-          sampler.texture.asFuture().then((_) {
-            _updateTexture2DData(sampler);
+        if (!texture.isReady) {
+          texture.asFuture().then((_) {
+            _updateTexture2DData(texture);
           });
         }
       } else {
-        throw new ArgumentError('Tried to provision resources for a sampler of '
-            'type "${sampler.runtimeType}", but this sampler type is not '
-            'supported in the current context. Supported sampler types are: '
-            'Sampler2D.');
+        throw new ArgumentError('Tried to provision resources for a texture of '
+            'type "${texture.runtimeType}", but this texture type is not '
+            'supported in the current context. Supported texture types are: '
+            'Texture2D.');
       }
-    } else if (sampler.texture.isReady && sampler.texture.isDynamic) {
-      if (sampler is Sampler2D) {
-        _updateTexture2DData(sampler);
+    } else if (texture.isReady && texture.isDynamic) {
+      if (texture is Texture2D) {
+        _updateTexture2DData(texture);
       }
     }
   }
 
-  /// Deprovisions the GPU resources associated with the [sampler].
+  /// Deprovisions the GPU resources associated with the [texture].
   ///
-  /// Returns `true` if resources were provisioned for the [sampler], `false`
+  /// Returns `true` if resources were provisioned for the [texture], `false`
   /// otherwise.
-  bool deprovisionFor(Sampler sampler) {
-    if (areProvisionedFor(sampler)) {
-      _context.deleteTexture(_samplerTO[sampler]);
-      _samplerTO[sampler] = null;
+  bool deprovisionFor(Texture texture) {
+    if (areProvisionedFor(texture)) {
+      _context.deleteTexture(_texture2DGLTexture2D[texture].glTextureObject);
+      _texture2DGLTexture2D[texture] = null;
 
-      final unit = context._textureUnitsSamplers.inverse[sampler];
+      final unit = context._textureUnitsTextures.inverse[texture];
 
       if (unit != null) {
         context._updateActiveTextureUnit(unit);
 
         _context.bindTexture(WebGL.TEXTURE_2D, null);
 
-        context._textureUnitsSamplers.remove(unit);
+        context._textureUnitsTextures.remove(unit);
       }
 
-      if (context._boundSampler2D == sampler) {
-        context._boundSampler2D = null;
+      if (context._boundTexture2D == texture) {
+        context._boundTexture2D = null;
       }
 
       return true;
@@ -105,16 +83,15 @@ class ContextSamplerResources {
     }
   }
 
-  WebGL.Texture _getTO(Sampler sampler) => _samplerTO[sampler];
+  _GLTexture2D _getGLTexture2D(Texture2D texture) => _texture2DGLTexture2D[texture];
 
-  void _updateTexture2DData(Sampler2D sampler) {
-    final texture = sampler.texture;
+  void _updateTexture2DData(Texture2D texture) {
     final image = texture.image;
     final internalFormat = _pixelFormatMap[texture.internalFormat];
     final format = _pixelFormatMap[image.format];
     final type = _pixelTypeMap[image.type];
 
-    context._bindSampler2D(sampler);
+    context._bindTexture2D(texture);
 
     if (texture.isReady) {
       if (image is ImageDataImage) {
@@ -133,18 +110,9 @@ class ContextSamplerResources {
         _context.texImage2D(WebGL.TEXTURE_2D, 0, internalFormat, image.width,
             image.height, 0, format, type, image.data);
       }
-
-      final minFilter = sampler.minificationFilter;
-
-      if (minFilter == MinificationFilter.linearMipmapLinear ||
-          minFilter == MinificationFilter.linearMipMapNearest ||
-          minFilter == MinificationFilter.nearestMipmapLinear ||
-          minFilter == MinificationFilter.nearestMipmapNearest) {
-        _context.generateMipmap(WebGL.TEXTURE_2D);
-      }
     } else {
-      _context.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGB, 1,
-          1, 0, WebGL.RGB, WebGL.UNSIGNED_BYTE, new Uint8List(3));
+      _context.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGB, 1, 1, 0, WebGL.RGB,
+          WebGL.UNSIGNED_BYTE, new Uint8List(3));
     }
   }
 }
