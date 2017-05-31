@@ -6,10 +6,12 @@ part of rendering;
 /// pixels from the top of the canvas, [width] pixels wide and [height] pixels
 /// tall.
 class Region {
-  /// The horizontal offset from the left of the canvas in pixels.
+  /// The horizontal offset of the bottom left corner of this [Region] from the
+  /// left of the canvas in pixels.
   final int x;
 
-  /// The vertical offset from the top of the canvas in pixels.
+  /// The vertical offset of the bottom left corner of this [Region] from the
+  /// bottom of the canvas in pixels.
   final int y;
 
   /// The width of this [Region] in pixels.
