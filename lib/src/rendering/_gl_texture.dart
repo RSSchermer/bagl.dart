@@ -16,14 +16,16 @@ class _GLTexture2D {
 
   bool _hasMipMap = false;
 
-  _GLTexture2D(this.context, this.texture, this.glTextureObject) : _context = context._context;
+  _GLTexture2D(this.context, this.texture, this.glTextureObject)
+      : _context = context._context;
 
   void applySampler(Sampler2D sampler) {
     if (sampler != _appliedSampler) {
       context._bindTexture2D(texture);
 
       if (_appliedSampler == null) {
-        if (sampler.minificationFilter != MinificationFilter.nearestMipmapLinear) {
+        if (sampler.minificationFilter !=
+            MinificationFilter.nearestMipmapLinear) {
           _context.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER,
               _minificationFilterMap[sampler.minificationFilter]);
         }
@@ -67,10 +69,11 @@ class _GLTexture2D {
 
       final minFilter = sampler.minificationFilter;
 
-      if (!_hasMipMap  && (minFilter == MinificationFilter.linearMipmapLinear ||
-          minFilter == MinificationFilter.linearMipMapNearest ||
-          minFilter == MinificationFilter.nearestMipmapLinear ||
-          minFilter == MinificationFilter.nearestMipmapNearest)) {
+      if (!_hasMipMap &&
+          (minFilter == MinificationFilter.linearMipmapLinear ||
+              minFilter == MinificationFilter.linearMipMapNearest ||
+              minFilter == MinificationFilter.nearestMipmapLinear ||
+              minFilter == MinificationFilter.nearestMipmapNearest)) {
         _context.generateMipmap(WebGL.TEXTURE_2D);
         _hasMipMap = true;
       }

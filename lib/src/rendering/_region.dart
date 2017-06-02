@@ -5,7 +5,7 @@ part of rendering;
 /// Describes a region for which the bottom left corner is located at an offset
 /// [x] pixels from the left of the canvas and [y] pixels from the bottom of the
 /// canvas, [width] pixels wide and [height] pixels tall.
-class Region {
+class _Region {
   /// The horizontal offset of the bottom left corner of this [Region] from the
   /// left of the canvas in pixels.
   final int x;
@@ -22,11 +22,11 @@ class Region {
 
   /// Returns a new [Region] with the given [x] and [y] offset and the given
   /// [width] and [height].
-  const Region(this.x, this.y, this.width, this.height);
+  const _Region(this.x, this.y, this.width, this.height);
 
   bool operator ==(other) =>
       identical(other, this) ||
-      other is Region &&
+      other is _Region &&
           other.x == x &&
           other.y == y &&
           other.width == width &&

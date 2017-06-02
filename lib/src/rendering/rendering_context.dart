@@ -154,10 +154,10 @@ class RenderingContext {
   bool _scissorTestEnabled = false;
 
   /// The region currently used for scissor testing.
-  Region _scissorBox;
+  _Region _scissorBox;
 
   /// The region currently used as the viewport.
-  Region _viewport;
+  _Region _viewport;
 
   /// Whether or not dithering is currently enabled.
   bool _dithering = true;
@@ -331,7 +331,7 @@ class RenderingContext {
 
   void _bindTexture2D(Texture2D texture) {
     if (texture != _boundTexture2D) {
-      if (texture == null){
+      if (texture == null) {
         _context.bindTexture(WebGL.TEXTURE_2D, null);
 
         _textureUnitsTextures.remove(_activeTextureUnit);
@@ -354,8 +354,8 @@ class RenderingContext {
 
         _updateActiveTextureUnit(unit);
 
-        _context.bindTexture(
-            WebGL.TEXTURE_2D, textureResources._getGLTexture2D(texture).glTextureObject);
+        _context.bindTexture(WebGL.TEXTURE_2D,
+            textureResources._getGLTexture2D(texture).glTextureObject);
 
         _textureUnitsTextures[unit] = texture;
 
@@ -604,7 +604,7 @@ class RenderingContext {
     }
   }
 
-  void _updateScissorBox(Region scissorBox) {
+  void _updateScissorBox(_Region scissorBox) {
     if (scissorBox != null) {
       if (!_scissorTestEnabled) {
         _context.enable(WebGL.SCISSOR_TEST);
@@ -623,7 +623,7 @@ class RenderingContext {
     }
   }
 
-  void _updateViewport(Region viewport) {
+  void _updateViewport(_Region viewport) {
     if (viewport != null && viewport != _viewport) {
       _context.viewport(
           viewport.x, viewport.y, viewport.width, viewport.height);

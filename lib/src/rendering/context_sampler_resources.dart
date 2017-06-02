@@ -19,7 +19,8 @@ class ContextTextureResources {
 
   /// Returns whether or not GPU resources are currently being provisioned for
   /// the [texture].
-  bool areProvisionedFor(Texture texture) => _texture2DGLTexture2D[texture] != null;
+  bool areProvisionedFor(Texture texture) =>
+      _texture2DGLTexture2D[texture] != null;
 
   /// Provisions GPU resources for the [texture].
   ///
@@ -31,7 +32,8 @@ class ContextTextureResources {
     if (!areProvisionedFor(texture)) {
       final textureObject = _context.createTexture();
 
-      _texture2DGLTexture2D[texture] = new _GLTexture2D(context, texture, textureObject);
+      _texture2DGLTexture2D[texture] =
+          new _GLTexture2D(context, texture, textureObject);
 
       if (texture is Texture2D) {
         _updateTexture2DData(texture);
@@ -83,7 +85,8 @@ class ContextTextureResources {
     }
   }
 
-  _GLTexture2D _getGLTexture2D(Texture2D texture) => _texture2DGLTexture2D[texture];
+  _GLTexture2D _getGLTexture2D(Texture2D texture) =>
+      _texture2DGLTexture2D[texture];
 
   void _updateTexture2DData(Texture2D texture) {
     final image = texture.image;

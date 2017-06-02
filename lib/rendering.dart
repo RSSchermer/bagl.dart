@@ -3,6 +3,7 @@ library rendering;
 
 import 'dart:collection';
 import 'dart:html';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:web_gl' as WebGL;
 
@@ -27,7 +28,6 @@ part 'src/rendering/depth_test.dart';
 part 'src/rendering/errors.dart';
 part 'src/rendering/frame.dart';
 part 'src/rendering/program.dart';
-part 'src/rendering/region.dart';
 part 'src/rendering/rendering_context.dart';
 part 'src/rendering/shader.dart';
 part 'src/rendering/stencil_test.dart';
@@ -37,3 +37,4 @@ part 'src/rendering/winding_order.dart';
 part 'src/rendering/_gl_enum_mapping.dart';
 part 'src/rendering/_gl_program.dart';
 part 'src/rendering/_gl_texture.dart';
+part 'src/rendering/_region.dart';

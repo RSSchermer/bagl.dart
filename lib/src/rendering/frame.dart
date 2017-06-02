@@ -60,9 +60,9 @@ abstract class Frame {
   ///   components will be written to the color attachment.
   /// - [lineWidth]: sets the width with which [Line] primitives will be drawn.
   ///   Defaults to `1`.
-  /// - [scissorBox]: fragments outside the given [Region] will be discarded by
-  ///   the scissor test. Defaults to `null`, in which case scissor testing will
-  ///   be disabled.
+  /// - [scissorBox]: fragments outside the given [Rectangle] will be discarded
+  ///   by the scissor test. Defaults to `null`, in which case scissor testing
+  ///   will be disabled.
   /// - [viewport]: sets the viewport to the given region of this [Frame].
   ///   Defaults to `null`, in which case the viewport is set to cover the frame
   ///   exactly.
@@ -120,8 +120,8 @@ abstract class Frame {
       WindingOrder frontFace: WindingOrder.counterClockwise,
       ColorMask colorMask: const ColorMask(true, true, true, true),
       num lineWidth: 1,
-      Region scissorBox: null,
-      Region viewport: null,
+      Rectangle<int> scissorBox: null,
+      Rectangle<int> viewport: null,
       bool dithering: true,
       Map<String, String> attributeNameMap: const {},
       bool autoProvisioning: true}) {
@@ -245,8 +245,14 @@ abstract class Frame {
     context._updateFrontFace(frontFace);
     context._updateColorMask(colorMask);
     context._updateLineWidth(lineWidth);
-    context._updateScissorBox(scissorBox);
-    context._updateViewport(viewport ?? new Region(0, 0, width, height));
+    context._updateScissorBox(scissorBox == null
+        ? null
+        : new _Region(scissorBox.left, height - scissorBox.bottom,
+            scissorBox.width, scissorBox.height));
+    context._updateViewport(viewport == null
+        ? new _Region(0, 0, width, height)
+        : new _Region(viewport.left, height - viewport.bottom, viewport.width,
+            viewport.height));
     context._updateDithering(dithering);
 
     final indexList = primitives.indexList;
@@ -280,9 +286,12 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearColor(Vector4 color, [Region region]) {
+  void clearColor(Vector4 color, [Rectangle<int> region]) {
     context._updateClearColor(color);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.COLOR_BUFFER_BIT);
   }
 
@@ -290,9 +299,12 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearDepth(double depth, [Region region]) {
+  void clearDepth(double depth, [Rectangle<int> region]) {
     context._updateClearDepth(depth);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.DEPTH_BUFFER_BIT);
   }
 
@@ -300,9 +312,12 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearStencil(int stencil, [Region region]) {
+  void clearStencil(int stencil, [Rectangle<int> region]) {
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -313,10 +328,14 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
+  void clearColorAndDepth(Vector4 color, double depth,
+      [Rectangle<int> region]) {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.DEPTH_BUFFER_BIT);
   }
 
@@ -327,10 +346,14 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
+  void clearColorAndStencil(Vector4 color, int stencil,
+      [Rectangle<int> region]) {
     context._updateClearColor(color);
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -341,10 +364,14 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearDepthAndStencil(double depth, int stencil, [Region region]) {
+  void clearDepthAndStencil(double depth, int stencil,
+      [Rectangle<int> region]) {
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.DEPTH_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -356,11 +383,15 @@ abstract class Frame {
   ///
   /// Optionally a [region] may be specified, which restricts this clear
   /// operation to a rectangular area.
-  void clearAll(Vector4 color, double depth, int stencil, [Region region]) {
+  void clearAll(Vector4 color, double depth, int stencil,
+      [Rectangle<int> region]) {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region);
+    context._updateScissorBox(region == null
+        ? null
+        : new _Region(
+            region.left, height - region.bottom, region.width, region.height));
     _context.clear(WebGL.COLOR_BUFFER_BIT &
         WebGL.DEPTH_BUFFER_BIT &
         WebGL.STENCIL_BUFFER_BIT);
@@ -382,8 +413,8 @@ class _DefaultFrame extends Frame {
       WindingOrder frontFace: WindingOrder.counterClockwise,
       ColorMask colorMask: const ColorMask(true, true, true, true),
       num lineWidth: 1,
-      Region scissorBox: null,
-      Region viewport: null,
+      Rectangle<int> scissorBox: null,
+      Rectangle<int> viewport: null,
       bool dithering: true,
       Map<String, String> attributeNameMap: const {},
       bool autoProvisioning: true}) {
@@ -404,43 +435,47 @@ class _DefaultFrame extends Frame {
         autoProvisioning: autoProvisioning);
   }
 
-  void clearColor(Vector4 color, [Region region]) {
+  void clearColor(Vector4 color, [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearColor(color, region);
   }
 
-  void clearDepth(double depth, [Region region]) {
+  void clearDepth(double depth, [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearDepth(depth, region);
   }
 
-  void clearStencil(int stencil, [Region region]) {
+  void clearStencil(int stencil, [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearStencil(stencil, region);
   }
 
-  void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
+  void clearColorAndDepth(Vector4 color, double depth,
+      [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearColorAndDepth(color, depth, region);
   }
 
-  void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
+  void clearColorAndStencil(Vector4 color, int stencil,
+      [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearColorAndStencil(color, stencil, region);
   }
 
-  void clearDepthAndStencil(double depth, int stencil, [Region region]) {
+  void clearDepthAndStencil(double depth, int stencil,
+      [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearDepthAndStencil(depth, stencil, region);
   }
 
-  void clearAll(Vector4 color, double depth, int stencil, [Region region]) {
+  void clearAll(Vector4 color, double depth, int stencil,
+      [Rectangle<int> region]) {
     context._bindDefaultFrame();
 
     super.clearAll(color, depth, stencil, region);
@@ -665,8 +700,8 @@ class FrameBuffer extends Frame {
       WindingOrder frontFace: WindingOrder.counterClockwise,
       ColorMask colorMask: const ColorMask(true, true, true, true),
       num lineWidth: 1,
-      Region scissorBox: null,
-      Region viewport: null,
+      Rectangle<int> scissorBox: null,
+      Rectangle<int> viewport: null,
       bool dithering: true,
       Map<String, String> attributeNameMap: const {},
       bool autoProvisioning: true}) {
@@ -687,43 +722,47 @@ class FrameBuffer extends Frame {
         autoProvisioning: autoProvisioning);
   }
 
-  void clearColor(Vector4 color, [Region region]) {
+  void clearColor(Vector4 color, [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearColor(color, region);
   }
 
-  void clearDepth(double depth, [Region region]) {
+  void clearDepth(double depth, [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearDepth(depth, region);
   }
 
-  void clearStencil(int stencil, [Region region]) {
+  void clearStencil(int stencil, [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearStencil(stencil, region);
   }
 
-  void clearColorAndDepth(Vector4 color, double depth, [Region region]) {
+  void clearColorAndDepth(Vector4 color, double depth,
+      [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearColorAndDepth(color, depth, region);
   }
 
-  void clearColorAndStencil(Vector4 color, int stencil, [Region region]) {
+  void clearColorAndStencil(Vector4 color, int stencil,
+      [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearColorAndStencil(color, stencil, region);
   }
 
-  void clearDepthAndStencil(double depth, int stencil, [Region region]) {
+  void clearDepthAndStencil(double depth, int stencil,
+      [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearDepthAndStencil(depth, stencil, region);
   }
 
-  void clearAll(Vector4 color, double depth, int stencil, [Region region]) {
+  void clearAll(Vector4 color, double depth, int stencil,
+      [Rectangle<int> region]) {
     context._bindFrameBuffer(this);
 
     super.clearAll(color, depth, stencil, region);

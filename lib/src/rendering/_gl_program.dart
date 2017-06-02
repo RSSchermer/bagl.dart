@@ -192,7 +192,9 @@ class _GLProgram {
             units[i] = context._activeTextureUnit;
           }
 
-          context.textureResources._getGLTexture2D(texture).applySampler(sampler);
+          context.textureResources
+              ._getGLTexture2D(texture)
+              .applySampler(sampler);
         }
 
         glContext.uniform1iv(location, units);
