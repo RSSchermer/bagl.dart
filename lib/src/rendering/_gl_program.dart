@@ -213,49 +213,11 @@ class _GLProgram {
         } else if (value is Vector4) {
           glContext.uniform4f(location, value.x, value.y, value.z, value.w);
         } else if (value is Matrix2) {
-          var columnPacked = new Float32List(4);
-
-          columnPacked[0] = value.r0c0;
-          columnPacked[1] = value.r1c0;
-          columnPacked[2] = value.r0c1;
-          columnPacked[3] = value.r1c1;
-
-          glContext.uniformMatrix2fv(location, false, columnPacked);
+          glContext.uniformMatrix2fv(location, false, value.valuesColumnPacked);
         } else if (value is Matrix3) {
-          var columnPacked = new Float32List(9);
-
-          columnPacked[0] = value.r0c0;
-          columnPacked[1] = value.r1c0;
-          columnPacked[2] = value.r2c0;
-          columnPacked[3] = value.r0c1;
-          columnPacked[4] = value.r1c1;
-          columnPacked[5] = value.r2c1;
-          columnPacked[6] = value.r0c2;
-          columnPacked[7] = value.r1c2;
-          columnPacked[8] = value.r2c2;
-
-          glContext.uniformMatrix3fv(location, false, columnPacked);
+          glContext.uniformMatrix3fv(location, false, value.valuesColumnPacked);
         } else if (value is Matrix4) {
-          var columnPacked = new Float32List(16);
-
-          columnPacked[0] = value.r0c0;
-          columnPacked[1] = value.r1c0;
-          columnPacked[2] = value.r2c0;
-          columnPacked[3] = value.r3c0;
-          columnPacked[4] = value.r0c1;
-          columnPacked[5] = value.r1c1;
-          columnPacked[6] = value.r2c1;
-          columnPacked[7] = value.r3c1;
-          columnPacked[8] = value.r0c2;
-          columnPacked[9] = value.r1c2;
-          columnPacked[10] = value.r2c2;
-          columnPacked[11] = value.r3c2;
-          columnPacked[12] = value.r0c3;
-          columnPacked[13] = value.r1c3;
-          columnPacked[14] = value.r2c3;
-          columnPacked[15] = value.r3c3;
-
-          glContext.uniformMatrix4fv(location, false, columnPacked);
+          glContext.uniformMatrix4fv(location, false, value.valuesColumnPacked);
         } else if (value is Int32List) {
           glContext.uniform1iv(location, value);
         } else if (value is Float32List) {
@@ -300,6 +262,9 @@ class _GLProgram {
               'Matrix2List, Matrix3List, Matrix4List, List<Sampler2D>, '
               'List<Struct>.');
         }
+
+        // TODO: the Vector/Matrix List uniforms above all generate garbage,
+        // refactor to avoid this.
 
         _uniformValues[uniformName] = value;
       }

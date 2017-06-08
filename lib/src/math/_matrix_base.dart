@@ -8,7 +8,7 @@ abstract class _MatrixBase implements Matrix {
 
   ReducedQRDecomposition _qrDecomposition;
 
-  Iterable<double> get valuesRowPacked => new UnmodifiableListView(_storage);
+  Iterable<double> get valuesColumnPacked => _storage;
 
   Iterable<double> get values => valuesRowPacked;
 
@@ -16,10 +16,9 @@ abstract class _MatrixBase implements Matrix {
     RangeError.checkValueInInterval(index, 0, rowDimension);
 
     final values = new Float32List(columnDimension);
-    final start = index * columnDimension;
 
     for (var i = 0; i < columnDimension; i++) {
-      values[i] = _storage[start + i];
+      values[i] = _storage[i * columnDimension + index];
     }
 
     return values;
@@ -29,7 +28,7 @@ abstract class _MatrixBase implements Matrix {
     RangeError.checkValueInInterval(row, 0, rowDimension);
     RangeError.checkValueInInterval(column, 0, columnDimension);
 
-    return _storage[row * columnDimension + column];
+    return _storage[column * rowDimension + row];
   }
 
   Matrix subMatrix(int rowStart, int rowEnd, int colStart, int colEnd) {
@@ -90,13 +89,11 @@ abstract class _MatrixBase implements Matrix {
     var counter = 0;
 
     for (var row = 0; row < rows; row++) {
-      final m = row * columnDimension;
-
       for (var col = 0; col < bCols; col++) {
         var sum = 0.0;
 
         for (var j = 0; j < columnDimension; j++) {
-          sum += _storage[m + j] * bVals.elementAt(j * bCols + col);
+          sum += _storage[j * columnDimension + row] * bVals.elementAt(j * bCols + col);
         }
 
         productValues[counter] = sum;
@@ -141,7 +138,7 @@ abstract class _MatrixBase implements Matrix {
       identical(this, other) ||
       other is Matrix &&
           columnDimension == other.columnDimension &&
-          _iterableEquals(_storage, other.values);
+          _iterableEquals(_storage, other.valuesColumnPacked);
 
   int get hashCode =>
       hash3(columnDimension, rowDimension, hashObjects(_storage));

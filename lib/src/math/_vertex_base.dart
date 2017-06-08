@@ -5,7 +5,7 @@ abstract class _VertexBase extends _MatrixBase {
 
   Matrix _transpose;
 
-  Iterable<double> get valuesColumnPacked => valuesRowPacked;
+  Iterable<double> get valuesRowPacked => valuesColumnPacked;
 
   Matrix get transpose {
     if (_transpose == null) {

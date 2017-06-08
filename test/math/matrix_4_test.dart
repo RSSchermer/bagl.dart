@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/math.dart';
+import 'package:rl_matrix/rl_matrix.dart';
 import 'dart:math';
 import '../helpers.dart';
 
@@ -27,13 +28,13 @@ void main() {
       test('throws an error when the list has more than 16 items', () {
         final list = new List<double>.filled(17, 1.0);
 
-        expect(() => new Matrix4.fromList(list), throwsArgumentError);
+        expect(() => new Matrix4.fromColumnPackedList(list), throwsArgumentError);
       });
 
       test('throws an error when the list has less than 16 items', () {
         final list = new List<double>.filled(15, 1.0);
 
-        expect(() => new Matrix4.fromList(list), throwsArgumentError);
+        expect(() => new Matrix4.fromColumnPackedList(list), throwsArgumentError);
       });
     });
 
@@ -171,6 +172,40 @@ void main() {
       group('valueAt', () {
         test('(1, 0)', () {
           expect(matrix.valueAt(1, 0), closeTo(1.0, 0.00001));
+        });
+      });
+
+      group('subMatrix', () {
+        group('(1, 3), (1, 3)', () {
+          final subMatrix = matrix.subMatrix(1, 3, 1, 3);
+
+          test('has the correct row dimension', () {
+            expect(subMatrix.rowDimension, equals(2));
+          });
+
+          test('has the correct column dimension', () {
+            expect(subMatrix.columnDimension, equals(2));
+          });
+
+          test('has the correct values', () {
+            expect(subMatrix.values, orderedCloseTo([7.0, 9.0, 2.0, 13.0], 0.00001));
+          });
+        });
+
+        group('(1, 2), (1, 4)', () {
+          final subMatrix = matrix.subMatrix(1, 2, 1, 4);
+
+          test('has the correct row dimension', () {
+            expect(subMatrix.rowDimension, equals(1));
+          });
+
+          test('has the correct column dimension', () {
+            expect(subMatrix.columnDimension, equals(3));
+          });
+
+          test('has the correct values', () {
+            expect(subMatrix.values, orderedCloseTo([7.0, 9.0, 10.0], 0.00001));
+          });
         });
       });
 
@@ -372,6 +407,33 @@ void main() {
 
           test('results in a new matrix with the correct values', () {
             expect(product.values, orderedCloseTo([110.0, 82.0, 113.0, 76.0], 0.00001));
+          });
+        });
+
+        group('with a Matrix', () {
+          final m2 = new Matrix([
+              [1.0,  2.0,  3.0,  4.0],
+              [5.0,  6.0,  7.0,  8.0],
+              [9.0, 10.0, 11.0, 12.0],
+              [13.0, 14.0, 15.0, 16.0]
+          ]);
+          final product = matrix * m2;
+
+          test('results in a new matrix with the correct row dimension', () {
+            expect(product.rowDimension, equals(4));
+          });
+
+          test('results in a new matrix with the correct column dimension', () {
+            expect(product.columnDimension, equals(4));
+          });
+
+          test('results in a new matrix with the correct values', () {
+            expect(product.values, orderedCloseTo([
+              326.0, 364.0, 402.0, 440.0,
+              247.0, 274.0, 301.0, 328.0,
+              341.0, 378.0, 415.0, 452.0,
+              202.0, 236.0, 270.0, 304.0
+            ], 0.00001));
           });
         });
       });

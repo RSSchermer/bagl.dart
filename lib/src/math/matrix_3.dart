@@ -29,7 +29,7 @@ class Matrix3 extends _MatrixBase implements Matrix {
 
   double _determinant;
 
-  Iterable<double> _valuesColumnPacked;
+  Float32List _valuesRowPacked;
 
   /// Instantiates a new [Matrix3] from the given values, partitioned into rows
   /// of length 3.
@@ -51,19 +51,19 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final values = new Float32List(9);
 
     values[0] = val0;
-    values[1] = val1;
-    values[2] = val2;
-    values[3] = val3;
+    values[3] = val1;
+    values[6] = val2;
+    values[1] = val3;
     values[4] = val4;
-    values[5] = val5;
-    values[6] = val6;
-    values[7] = val7;
+    values[7] = val5;
+    values[2] = val6;
+    values[5] = val7;
     values[8] = val8;
 
     return new Matrix3._internal(values);
   }
 
-  /// Instantiates a new [Matrix3] from the given list, partitioned into rows
+  /// Instantiates a new [Matrix3] from the given list, partitioned into columns
   /// of length 3.
   ///
   ///     // Instantiates the following matrix:
@@ -73,13 +73,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
   ///     //    7.0 8.0 9.0
   ///     //
   ///     var matrix = new Matrix3([
-  ///       1.0, 2.0, 3.0,
-  ///       4.0, 5.0, 6.0,
-  ///       7.0, 8.0, 9.0
+  ///       1.0, 4.0, 7.0,
+  ///       2.0, 5.0, 8.0,
+  ///       3.0, 6.0, 9.0
   ///     ]);
   ///
   /// Throws an [ArgumentError] if the list does not have a length of 9.
-  factory Matrix3.fromList(List<double> values) {
+  factory Matrix3.fromColumnPackedList(List<double> values) {
     if (values.length != 9) {
       throw new ArgumentError(
           'A list of length 9 required to instantiate a Matrix3.');
@@ -141,9 +141,9 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final values = new Float32List(9);
 
     values[0] = 1.0;
-    values[2] = translateX;
     values[4] = 1.0;
-    values[5] = translateY;
+    values[6] = translateX;
+    values[7] = translateY;
     values[8] = 1.0;
 
     return new Matrix3._internal(values);
@@ -176,13 +176,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final ty = t * y;
 
     values[0] = tx * x + c;
-    values[1] = tx * y - s * z;
-    values[2] = tx * z + s * y;
-    values[3] = tx * y + s * z;
+    values[1] = tx * y + s * z;
+    values[2] = tx * z - s * y;
+    values[3] = tx * y - s * z;
     values[4] = ty * y + c;
-    values[5] = ty * z - s * x;
-    values[6] = tx * z - s * y;
-    values[7] = ty * z + s * x;
+    values[5] = ty * z + s * x;
+    values[6] = tx * z + s * y;
+    values[7] = ty * z - s * x;
     values[8] = t * z * z + c;
 
     return new Matrix3._internal(values);
@@ -197,8 +197,8 @@ class Matrix3 extends _MatrixBase implements Matrix {
 
     values[0] = 1.0;
     values[4] = c;
-    values[5] = -s;
-    values[7] = s;
+    values[5] = s;
+    values[7] = -s;
     values[8] = c;
 
     return new Matrix3._internal(values);
@@ -212,9 +212,9 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final s = sin(radians);
 
     values[0] = c;
-    values[2] = s;
+    values[2] = -s;
     values[4] = 1.0;
-    values[6] = -s;
+    values[6] = s;
     values[8] = c;
 
     return new Matrix3._internal(values);
@@ -228,8 +228,8 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final s = sin(radians);
 
     values[0] = c;
-    values[1] = -s;
-    values[3] = s;
+    values[1] = s;
+    values[3] = -s;
     values[4] = c;
     values[8] = 1.0;
 
@@ -250,21 +250,21 @@ class Matrix3 extends _MatrixBase implements Matrix {
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c1 => _storage[1];
+  double get r0c1 => _storage[3];
 
   /// Returns the value in the third column of the first row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r0c2 => _storage[2];
+  double get r0c2 => _storage[6];
 
   /// Returns the value in the first column of the second row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c0 => _storage[3];
+  double get r1c0 => _storage[1];
 
   /// Returns the value in the second column of the second row.
   ///
@@ -278,21 +278,21 @@ class Matrix3 extends _MatrixBase implements Matrix {
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r1c2 => _storage[5];
+  double get r1c2 => _storage[7];
 
   /// Returns the value in the first column of the third row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r2c0 => _storage[6];
+  double get r2c0 => _storage[2];
 
   /// Returns the value in the second column of the third row.
   ///
   /// This should provide better performance than using [valueAt] or the array
   /// operator `[]` to retrieve a specific value, as no bounds checks need to
   /// be performed on value indices.
-  double get r2c1 => _storage[7];
+  double get r2c1 => _storage[5];
 
   /// Returns the value in the third column of the third row.
   ///
@@ -303,24 +303,22 @@ class Matrix3 extends _MatrixBase implements Matrix {
 
   bool get isNonSingular => determinant != 0;
 
-  Iterable<double> get valuesColumnPacked {
-    if (_valuesColumnPacked == null) {
-      final values = new Float32List(9);
+  Iterable<double> get valuesRowPacked {
+    if (_valuesRowPacked == null) {
+      _valuesRowPacked = new Float32List(9);
 
-      values[0] = r0c0;
-      values[1] = r1c0;
-      values[2] = r2c0;
-      values[3] = r0c1;
-      values[4] = r1c1;
-      values[5] = r2c1;
-      values[6] = r0c2;
-      values[7] = r1c2;
-      values[8] = r2c2;
-
-      _valuesColumnPacked = new UnmodifiableListView(values);
+      _valuesRowPacked[0] = r0c0;
+      _valuesRowPacked[1] = r0c1;
+      _valuesRowPacked[2] = r0c2;
+      _valuesRowPacked[3] = r1c0;
+      _valuesRowPacked[4] = r1c1;
+      _valuesRowPacked[5] = r1c2;
+      _valuesRowPacked[6] = r2c0;
+      _valuesRowPacked[7] = r2c1;
+      _valuesRowPacked[8] = r2c2;
     }
 
-    return _valuesColumnPacked;
+    return _valuesRowPacked;
   }
 
   Matrix3 get transpose {
@@ -328,13 +326,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
       final values = new Float32List(9);
 
       values[0] = r0c0;
-      values[1] = r1c0;
-      values[2] = r2c0;
-      values[3] = r0c1;
+      values[1] = r0c1;
+      values[2] = r0c2;
+      values[3] = r1c0;
       values[4] = r1c1;
-      values[5] = r2c1;
-      values[6] = r0c2;
-      values[7] = r1c2;
+      values[5] = r1c2;
+      values[6] = r2c0;
+      values[7] = r2c1;
       values[8] = r2c2;
 
       _transpose = new Matrix3._internal(values);
@@ -367,13 +365,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
       final values = new Float32List(9);
 
       values[0] = detInv * (r1c1 * r2c2 - r1c2 * r2c1);
-      values[1] = detInv * (r0c2 * r2c1 - r0c1 * r2c2);
-      values[2] = detInv * (r0c1 * r1c2 - r0c2 * r1c1);
-      values[3] = detInv * (r1c2 * r2c0 - r1c0 * r2c2);
+      values[1] = detInv * (r1c2 * r2c0 - r1c0 * r2c2);
+      values[2] = detInv * (r1c0 * r2c1 - r1c1 * r2c0);
+      values[3] = detInv * (r0c2 * r2c1 - r0c1 * r2c2);
       values[4] = detInv * (r0c0 * r2c2 - r0c2 * r2c0);
-      values[5] = detInv * (r0c2 * r1c0 - r0c0 * r1c2);
-      values[6] = detInv * (r1c0 * r2c1 - r1c1 * r2c0);
-      values[7] = detInv * (r0c1 * r2c0 - r0c0 * r2c1);
+      values[5] = detInv * (r0c1 * r2c0 - r0c0 * r2c1);
+      values[6] = detInv * (r0c1 * r1c2 - r0c2 * r1c1);
+      values[7] = detInv * (r0c2 * r1c0 - r0c0 * r1c2);
       values[8] = detInv * (r0c0 * r1c1 - r0c1 * r1c0);
 
       _inverse = new Matrix3._internal(values);
@@ -386,13 +384,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final values = new Float32List(9);
 
     values[0] = r0c0 * s;
-    values[1] = r0c1 * s;
-    values[2] = r0c2 * s;
-    values[3] = r1c0 * s;
+    values[1] = r1c0 * s;
+    values[2] = r2c0 * s;
+    values[3] = r0c1 * s;
     values[4] = r1c1 * s;
-    values[5] = r1c2 * s;
-    values[6] = r2c0 * s;
-    values[7] = r2c1 * s;
+    values[5] = r2c1 * s;
+    values[6] = r0c2 * s;
+    values[7] = r1c2 * s;
     values[8] = r2c2 * s;
 
     return new Matrix3._internal(values);
@@ -402,13 +400,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
     final values = new Float32List(9);
 
     values[0] = r0c0 / s;
-    values[1] = r0c1 / s;
-    values[2] = r0c2 / s;
-    values[3] = r1c0 / s;
+    values[1] = r1c0 / s;
+    values[2] = r2c0 / s;
+    values[3] = r0c1 / s;
     values[4] = r1c1 / s;
-    values[5] = r1c2 / s;
-    values[6] = r2c0 / s;
-    values[7] = r2c1 / s;
+    values[5] = r2c1 / s;
+    values[6] = r0c2 / s;
+    values[7] = r1c2 / s;
     values[8] = r2c2 / s;
 
     return new Matrix3._internal(values);
@@ -419,25 +417,25 @@ class Matrix3 extends _MatrixBase implements Matrix {
 
     if (B is Matrix3) {
       values[0] = r0c0 + B.r0c0;
-      values[1] = r0c1 + B.r0c1;
-      values[2] = r0c2 + B.r0c2;
-      values[3] = r1c0 + B.r1c0;
+      values[1] = r1c0 + B.r1c0;
+      values[2] = r2c0 + B.r2c0;
+      values[3] = r0c1 + B.r0c1;
       values[4] = r1c1 + B.r1c1;
-      values[5] = r1c2 + B.r1c2;
-      values[6] = r2c0 + B.r2c0;
-      values[7] = r2c1 + B.r2c1;
+      values[5] = r2c1 + B.r2c1;
+      values[6] = r0c2 + B.r0c2;
+      values[7] = r1c2 + B.r1c2;
       values[8] = r2c2 + B.r2c2;
     } else {
       _assertEqualDimensions(this, B);
 
       values[0] = r0c0 + B.valueAt(0, 0);
-      values[1] = r0c1 + B.valueAt(0, 1);
-      values[2] = r0c2 + B.valueAt(0, 2);
-      values[3] = r1c0 + B.valueAt(1, 0);
+      values[1] = r1c0 + B.valueAt(1, 0);
+      values[2] = r2c0 + B.valueAt(2, 0);
+      values[3] = r0c1 + B.valueAt(0, 1);
       values[4] = r1c1 + B.valueAt(1, 1);
-      values[5] = r1c2 + B.valueAt(1, 2);
-      values[6] = r2c0 + B.valueAt(2, 0);
-      values[7] = r2c1 + B.valueAt(2, 1);
+      values[5] = r2c1 + B.valueAt(2, 1);
+      values[6] = r0c2 + B.valueAt(0, 2);
+      values[7] = r1c2 + B.valueAt(1, 2);
       values[8] = r2c2 + B.valueAt(2, 2);
     }
 
@@ -449,25 +447,25 @@ class Matrix3 extends _MatrixBase implements Matrix {
 
     if (B is Matrix3) {
       values[0] = r0c0 - B.r0c0;
-      values[1] = r0c1 - B.r0c1;
-      values[2] = r0c2 - B.r0c2;
-      values[3] = r1c0 - B.r1c0;
+      values[3] = r0c1 - B.r0c1;
+      values[6] = r0c2 - B.r0c2;
+      values[1] = r1c0 - B.r1c0;
       values[4] = r1c1 - B.r1c1;
-      values[5] = r1c2 - B.r1c2;
-      values[6] = r2c0 - B.r2c0;
-      values[7] = r2c1 - B.r2c1;
+      values[7] = r1c2 - B.r1c2;
+      values[2] = r2c0 - B.r2c0;
+      values[5] = r2c1 - B.r2c1;
       values[8] = r2c2 - B.r2c2;
     } else {
       _assertEqualDimensions(this, B);
 
       values[0] = r0c0 - B.valueAt(0, 0);
-      values[1] = r0c1 - B.valueAt(0, 1);
-      values[2] = r0c2 - B.valueAt(0, 2);
-      values[3] = r1c0 - B.valueAt(1, 0);
+      values[1] = r1c0 - B.valueAt(1, 0);
+      values[2] = r2c0 - B.valueAt(2, 0);
+      values[3] = r0c1 - B.valueAt(0, 1);
       values[4] = r1c1 - B.valueAt(1, 1);
-      values[5] = r1c2 - B.valueAt(1, 2);
-      values[6] = r2c0 - B.valueAt(2, 0);
-      values[7] = r2c1 - B.valueAt(2, 1);
+      values[5] = r2c1 - B.valueAt(2, 1);
+      values[6] = r0c2 - B.valueAt(0, 2);
+      values[7] = r1c2 - B.valueAt(1, 2);
       values[8] = r2c2 - B.valueAt(2, 2);
     }
 
@@ -479,25 +477,25 @@ class Matrix3 extends _MatrixBase implements Matrix {
 
     if (B is Matrix3) {
       values[0] = r0c0 * B.r0c0;
-      values[1] = r0c1 * B.r0c1;
-      values[2] = r0c2 * B.r0c2;
-      values[3] = r1c0 * B.r1c0;
+      values[1] = r1c0 * B.r1c0;
+      values[2] = r2c0 * B.r2c0;
+      values[3] = r0c1 * B.r0c1;
       values[4] = r1c1 * B.r1c1;
-      values[5] = r1c2 * B.r1c2;
-      values[6] = r2c0 * B.r2c0;
-      values[7] = r2c1 * B.r2c1;
+      values[5] = r2c1 * B.r2c1;
+      values[6] = r0c2 * B.r0c2;
+      values[7] = r1c2 * B.r1c2;
       values[8] = r2c2 * B.r2c2;
     } else {
       _assertEqualDimensions(this, B);
 
       values[0] = r0c0 * B.valueAt(0, 0);
-      values[1] = r0c1 * B.valueAt(0, 1);
-      values[2] = r0c2 * B.valueAt(0, 2);
-      values[3] = r1c0 * B.valueAt(1, 0);
+      values[1] = r1c0 * B.valueAt(1, 0);
+      values[2] = r2c0 * B.valueAt(2, 0);
+      values[3] = r0c1 * B.valueAt(0, 1);
       values[4] = r1c1 * B.valueAt(1, 1);
-      values[5] = r1c2 * B.valueAt(1, 2);
-      values[6] = r2c0 * B.valueAt(2, 0);
-      values[7] = r2c1 * B.valueAt(2, 1);
+      values[5] = r2c1 * B.valueAt(2, 1);
+      values[6] = r0c2 * B.valueAt(0, 2);
+      values[7] = r1c2 * B.valueAt(1, 2);
       values[8] = r2c2 * B.valueAt(2, 2);
     }
 
@@ -529,13 +527,13 @@ class Matrix3 extends _MatrixBase implements Matrix {
       final values = new Float32List(9);
 
       values[0] = (m00 * n00) + (m01 * n10) + (m02 * n20);
-      values[1] = (m00 * n01) + (m01 * n11) + (m02 * n21);
-      values[2] = (m00 * n02) + (m01 * n12) + (m02 * n22);
-      values[3] = (m10 * n00) + (m11 * n10) + (m12 * n20);
+      values[1] = (m10 * n00) + (m11 * n10) + (m12 * n20);
+      values[2] = (m20 * n00) + (m21 * n10) + (m22 * n20);
+      values[3] = (m00 * n01) + (m01 * n11) + (m02 * n21);
       values[4] = (m10 * n01) + (m11 * n11) + (m12 * n21);
-      values[5] = (m10 * n02) + (m11 * n12) + (m12 * n22);
-      values[6] = (m20 * n00) + (m21 * n10) + (m22 * n20);
-      values[7] = (m20 * n01) + (m21 * n11) + (m22 * n21);
+      values[5] = (m20 * n01) + (m21 * n11) + (m22 * n21);
+      values[6] = (m00 * n02) + (m01 * n12) + (m02 * n22);
+      values[7] = (m10 * n02) + (m11 * n12) + (m12 * n22);
       values[8] = (m20 * n02) + (m21 * n12) + (m22 * n22);
 
       return new Matrix3._internal(values);
