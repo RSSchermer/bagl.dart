@@ -54,12 +54,12 @@ class RenderingContext {
   /// The [Texture2D] currently bound to the WebGL context.
   Texture2D _boundTexture2D;
 
-  /// Map from shader program attribute locations to the [VertexAttribute]
-  /// currently bound to this location.
+  /// List of [VertexAttributes] currently bound to shader program attribute
+  /// locations to the [VertexAttribute].
   ///
   /// Used to verify if the vertexAttribPointer needs to be changed or if the
   /// vertexAttribPointer is already set up correctly.
-  Map<int, VertexAttribute> _locationAttributeMap = new Map();
+  List<VertexAttribute> _locationAttributes;
 
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
@@ -199,6 +199,8 @@ class RenderingContext {
     _boundFrameBuffer = _defaultFrame;
     _recentlyUsedTextureUnits =
         new Queue.from(new List.generate(maxTextureUnits, (i) => i));
+    _locationAttributes = new List<VertexAttribute>(
+        _context.getParameter(WebGL.MAX_VERTEX_ATTRIBS));
   }
 
   /// Retrieves a [RenderingContext] for the [canvas].

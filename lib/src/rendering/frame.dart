@@ -34,7 +34,8 @@ abstract class Frame {
   /// [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D], [Struct],
   /// [Int32List], [Float32List], [Vector2List], [Vector3List], [Vector4List],
   /// [Matrix2List], [Matrix3List], [Matrix4List], [List]<[Sampler2D]>,
-  /// [List]<[Struct]>.
+  /// [List]<[Struct]>. The value type must match the type specified for the
+  /// uniform in the shader program.
   ///
   /// The rendering process may be further configured with the following
   /// optional parameters:
@@ -96,15 +97,8 @@ abstract class Frame {
   /// [program], but no [value] with a matching name is found in the [uniforms]
   /// map.
   ///
-  /// Throws an [ArgumentError] if a uniform value is provided by the [uniforms]
-  /// map, but no matching uniform variable is active in the [program].
-  ///
-  /// Throws an [ArgumentError] if one of the uniform values provided in the
-  /// [uniforms] map is not of a valid type ([bool], [int], [double], [Vector2],
-  /// [Vector3], [Vector4], [Matrix2], [Matrix3], [Matrix4], [Sampler2D],
-  /// [Struct], [Int32List], [Float32List], [Vector2List], [Vector3List],
-  /// [Vector4List], [Matrix2List], [Matrix3List], [Matrix4List],
-  /// [List]<[Sampler2D]>, [List]<[Struct]>).
+  /// Throws an [ArgumentError] if one of the uniform values does not match the
+  /// expected type in the shader program.
   ///
   /// Throws an [ArgumentError] if more [Sampler] type uniforms are provided
   /// than [context.maxTextureUnits].
@@ -131,33 +125,41 @@ abstract class Frame {
     } else {
       if (!context.geometryResources.areProvisionedFor(primitives)) {
         throw new StateError('GPU resources have not yet been provisioned for '
-            'the geometry and autoProvisioning was set to false. Provision '
-            'resources with context.geometryResources.provisionFor(geometry) '
-            'or set autoProvisioning to true.');
+            'the primivites and `autoProvisioning` was set to `false`. '
+            'Provision resources with '
+            '`context.geometryResources.provisionFor(geometry)` or set '
+            '`autoProvisioning` to `true`.');
       }
 
       if (!context.programResources.areProvisionedFor(program)) {
         throw new StateError('GPU resources have not yet been provisioned for '
-            'the program and autoProvisioning was set to false. Provision '
-            'resources with context.programResources.provisionFor(program) or '
-            'set autoProvisioning to true.');
+            'the program and `autoProvisioning` was set to `false`. Provision '
+            'resources with `context.programResources.provisionFor(program)` '
+            'or set `autoProvisioning` to `true`.');
       }
     }
 
     context._useProgram(program);
 
     final glProgram = context.programResources._getGLProgram(program);
+
+    // TODO: find better way than creating a new set every time.
     final unusedAttribLocations = context._enabledAttributeLocations.toSet();
 
     // Enable vertex attributes and adjust vertex attribute pointers if
     // necessary
-    glProgram.attributeInfoByName.forEach((name, attributeInfo) {
-      final mappedName = attributeNameMap[name] ?? name;
+
+    // TODO: check if this instantiates an iterator, otherwise switch to
+    // a classic for loop.
+    for (final attributeInfo in glProgram.attributes) {
+      final mappedName =
+          attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
       final attribute = primitives.vertexArray.attributes[mappedName];
 
       if (attribute == null) {
         throw new ArgumentError('The geometry does not define an attribute '
-            'matching the "$name" attribute on the shader program.');
+            'matching the "${attributeInfo.name}" attribute on the shader '
+            'program.');
       }
 
       // TODO: add check to see if attributeInfo.type matches attribute?
@@ -175,14 +177,14 @@ abstract class Frame {
 
         // If the attribute bound to the location is null or an attribute other
         // than the current attribute, set up a new vertex attribute pointer.
-        if (context._locationAttributeMap[location] != attribute) {
+        if (context._locationAttributes[location] != attribute) {
           var offset = attribute.offsetInBytes + i * columnSize * 4;
 
           context._bindAttributeDataTable(table);
           _context.vertexAttribPointer(
               location, columnSize, WebGL.FLOAT, false, stride, offset);
 
-          context._locationAttributeMap[location] = attribute;
+          context._locationAttributes[location] = attribute;
         }
 
         if (!context._enabledAttributeLocations.contains(location)) {
@@ -192,7 +194,7 @@ abstract class Frame {
 
         unusedAttribLocations.remove(location);
       }
-    });
+    }
 
     // Disable unused attribute positions
     for (var position in unusedAttribLocations) {
@@ -201,35 +203,25 @@ abstract class Frame {
     }
 
     // Set uniform values
-    final missingUniforms = glProgram.uniformInfoByName.keys.toSet();
+    // final missingUniforms = glProgram.uniformInfoByName.keys.toSet();
     var samplerCount = 0;
 
-    uniforms.forEach((name, value) {
-      glProgram.bindUniformValue(name, value, autoProvisioning);
+    // TODO: check if this instantiates an iterator, otherwise switch to
+    // a classic for loop.
+    for (final uniform in glProgram.uniforms) {
+      final value = uniforms[uniform.name];
 
-      if (value is Struct) {
-        for (var member in value.members) {
-          missingUniforms.remove("$name.$member");
-        }
-      } else if (value is List<Struct>) {
-        for (var i = 0; i < value.length; i++) {
-          for (var member in value[i].members) {
-            missingUniforms.remove("$name[$i].$member");
-          }
-        }
+      if (value == null) {
+        throw new ArgumentError('No value was provided for the uniform named '
+            '"${uniform.name}". Values must be provided for all active '
+            'uniforms.');
       } else {
-        missingUniforms.remove(name);
-      }
+        if (value is Sampler) {
+          samplerCount++;
+        }
 
-      if (value is Sampler) {
-        samplerCount++;
+        uniform.bindValue(value, autoProvisioning);
       }
-    });
-
-    if (missingUniforms.isNotEmpty) {
-      throw new ArgumentError('No value was provided for the uniform named '
-          '"${missingUniforms.first}". Values must be provided for all '
-          'active uniforms.');
     }
 
     if (samplerCount > context.maxTextureUnits) {
@@ -245,10 +237,12 @@ abstract class Frame {
     context._updateFrontFace(frontFace);
     context._updateColorMask(colorMask);
     context._updateLineWidth(lineWidth);
+    // TODO: refactor to not create new _Region instance
     context._updateScissorBox(scissorBox == null
         ? null
         : new _Region(scissorBox.left, height - scissorBox.bottom,
             scissorBox.width, scissorBox.height));
+    // TODO: refactor to not create new _Region instance
     context._updateViewport(viewport == null
         ? new _Region(0, 0, width, height)
         : new _Region(viewport.left, height - viewport.bottom, viewport.width,
