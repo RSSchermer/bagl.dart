@@ -162,6 +162,8 @@ class RenderingContext {
   /// Whether or not dithering is currently enabled.
   bool _dithering = true;
 
+  bool _supportsElementIndexUint;
+
   RenderingContext._internal(this.canvas,
       {bool alpha: true,
       bool depth: true,

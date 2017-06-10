@@ -262,7 +262,11 @@ abstract class Frame {
         _context.drawElements(_topologyMap[primitives.topology],
             primitives.count, WebGL.UNSIGNED_SHORT, primitives.offset * 16);
       } else {
-        if (context.requestExtension('OES_element_index_uint') != null) {
+        if (context._supportsElementIndexUint == null) {
+          context._supportsElementIndexUint = context.requestExtension('OES_element_index_uint') != null;
+        }
+
+        if (context._supportsElementIndexUint) {
           _context.drawElements(_topologyMap[primitives.topology],
               primitives.count, WebGL.UNSIGNED_INT, primitives.offset * 32);
         } else {
