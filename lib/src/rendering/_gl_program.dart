@@ -836,9 +836,10 @@ class _StructUniform implements _GLUniform {
 
   void bindValue(Object value, bool autoProvisioning) {
     if (value is Struct) {
-      // TODO: check if this instantiates an iterator, otherwise switch to
-      // a classic for loop.
-      for (final component in components) {
+      final componentsLength = components.length;
+
+      for (var i = 0; i < componentsLength; i++) {
+        final component = components[i];
         final componentValue = value[component.name];
 
         if (componentValue == null) {

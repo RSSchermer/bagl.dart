@@ -149,9 +149,11 @@ abstract class Frame {
     // Enable vertex attributes and adjust vertex attribute pointers if
     // necessary
 
-    // TODO: check if this instantiates an iterator, otherwise switch to
-    // a classic for loop.
-    for (final attributeInfo in glProgram.attributes) {
+    final attributes = glProgram.attributes;
+    final attributesLength = attributes.length;
+
+    for (var i = 0; i < attributesLength; i++) {
+      final attributeInfo = attributes[i];
       final mappedName =
           attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
       final attribute = primitives.vertexArray.attributes[mappedName];
@@ -208,7 +210,11 @@ abstract class Frame {
 
     // TODO: check if this instantiates an iterator, otherwise switch to
     // a classic for loop.
-    for (final uniform in glProgram.uniforms) {
+    final programUniforms = glProgram.uniforms;
+    final programUniformsLength = programUniforms.length;
+
+    for (var i = 0; i < programUniformsLength; i++) {
+      final uniform = programUniforms[i];
       final value = uniforms[uniform.name];
 
       if (value == null) {
@@ -237,17 +243,22 @@ abstract class Frame {
     context._updateFrontFace(frontFace);
     context._updateColorMask(colorMask);
     context._updateLineWidth(lineWidth);
-    // TODO: refactor to not create new _Region instance
-    context._updateScissorBox(scissorBox == null
-        ? null
-        : new _Region(scissorBox.left, height - scissorBox.bottom,
-            scissorBox.width, scissorBox.height));
-    // TODO: refactor to not create new _Region instance
-    context._updateViewport(viewport == null
-        ? new _Region(0, 0, width, height)
-        : new _Region(viewport.left, height - viewport.bottom, viewport.width,
-            viewport.height));
     context._updateDithering(dithering);
+
+    if (viewport == null) {
+      context._updateViewport(0, 0, width, height);
+    } else {
+      context._updateViewport(viewport.left, height - viewport.bottom,
+          viewport.width, viewport.height);
+    }
+
+    if (scissorBox == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(scissorBox.left, height - scissorBox.bottom,
+          scissorBox.width, scissorBox.height);
+      context._enableScissorTest();
+    }
 
     final indexList = primitives.indexList;
 
@@ -287,10 +298,15 @@ abstract class Frame {
   /// operation to a rectangular area.
   void clearColor(Vector4 color, [Rectangle<int> region]) {
     context._updateClearColor(color);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.COLOR_BUFFER_BIT);
   }
 
@@ -300,10 +316,15 @@ abstract class Frame {
   /// operation to a rectangular area.
   void clearDepth(double depth, [Rectangle<int> region]) {
     context._updateClearDepth(depth);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.DEPTH_BUFFER_BIT);
   }
 
@@ -313,10 +334,15 @@ abstract class Frame {
   /// operation to a rectangular area.
   void clearStencil(int stencil, [Rectangle<int> region]) {
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -331,10 +357,15 @@ abstract class Frame {
       [Rectangle<int> region]) {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.DEPTH_BUFFER_BIT);
   }
 
@@ -349,10 +380,15 @@ abstract class Frame {
       [Rectangle<int> region]) {
     context._updateClearColor(color);
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.COLOR_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -367,10 +403,15 @@ abstract class Frame {
       [Rectangle<int> region]) {
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.DEPTH_BUFFER_BIT & WebGL.STENCIL_BUFFER_BIT);
   }
 
@@ -387,10 +428,15 @@ abstract class Frame {
     context._updateClearColor(color);
     context._updateClearDepth(depth);
     context._updateClearStencil(stencil);
-    context._updateScissorBox(region == null
-        ? null
-        : new _Region(
-            region.left, height - region.bottom, region.width, region.height));
+
+    if (region == null) {
+      context._disableScissorTest();
+    } else {
+      context._updateScissorBox(
+          region.left, height - region.bottom, region.width, region.height);
+      context._enableScissorTest();
+    }
+
     _context.clear(WebGL.COLOR_BUFFER_BIT &
         WebGL.DEPTH_BUFFER_BIT &
         WebGL.STENCIL_BUFFER_BIT);

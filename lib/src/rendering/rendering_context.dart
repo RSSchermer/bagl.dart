@@ -153,11 +153,33 @@ class RenderingContext {
   /// Whether or not the scissor test is enabled.
   bool _scissorTestEnabled = false;
 
-  /// The region currently used for scissor testing.
-  _Region _scissorBox;
+  /// The horizontal offset of the bottom left corner from the left of the
+  /// canvas of the current scissor box.
+  int _scissorX;
 
-  /// The region currently used as the viewport.
-  _Region _viewport;
+  /// The vertical offset of the bottom left corner from the bottom of the
+  /// canvas of the current scissor box.
+  int _scissorY;
+
+  /// The width of the current scissor box.
+  int _scissorWidth;
+
+  /// The height of the current scissor box.
+  int _scissorHeight;
+
+  /// The horizontal offset of the bottom left corner from the left of the
+  /// canvas of the current viewport.
+  int _viewportX;
+
+  /// The vertical offset of the bottom left corner from the bottom of the
+  /// canvas of the current viewport.
+  int _viewportY;
+
+  /// The width of the current viewport.
+  int _viewportWidth;
+
+  /// The height of the current viewport.
+  int _viewportHeight;
 
   /// Whether or not dithering is currently enabled.
   bool _dithering = true;
@@ -608,31 +630,45 @@ class RenderingContext {
     }
   }
 
-  void _updateScissorBox(_Region scissorBox) {
-    if (scissorBox != null) {
-      if (!_scissorTestEnabled) {
-        _context.enable(WebGL.SCISSOR_TEST);
-        _scissorTestEnabled = true;
-      }
+  void _enableScissorTest() {
+    if (!_scissorTestEnabled) {
+      _context.enable(WebGL.SCISSOR_TEST);
+      _scissorTestEnabled = true;
+    }
+  }
 
-      if (scissorBox != _scissorBox) {
-        _context.scissor(
-            scissorBox.x, scissorBox.y, scissorBox.width, scissorBox.height);
-
-        _scissorBox = scissorBox;
-      }
-    } else if (scissorBox == null && _scissorTestEnabled) {
+  void _disableScissorTest() {
+    if (_scissorTestEnabled) {
       _context.disable(WebGL.SCISSOR_TEST);
       _scissorTestEnabled = false;
     }
   }
 
-  void _updateViewport(_Region viewport) {
-    if (viewport != null && viewport != _viewport) {
-      _context.viewport(
-          viewport.x, viewport.y, viewport.width, viewport.height);
+  void _updateScissorBox(int x, int y, int width, int height) {
+    if (x != _scissorX ||
+        y != _scissorY ||
+        width != _scissorWidth ||
+        height != _scissorHeight) {
+      _context.scissor(x, y, width, height);
 
-      _viewport = viewport;
+      _scissorX = x;
+      _scissorY = y;
+      _scissorWidth = width;
+      _scissorHeight = height;
+    }
+  }
+
+  void _updateViewport(int x, int y, int width, int height) {
+    if (x != _viewportX ||
+        y != _viewportY ||
+        width != _viewportWidth ||
+        height != _viewportHeight) {
+      _context.viewport(x, y, width, height);
+
+      _viewportX = x;
+      _viewportY = y;
+      _viewportWidth = width;
+      _viewportHeight = height;
     }
   }
 
