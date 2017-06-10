@@ -263,7 +263,8 @@ abstract class Frame {
             primitives.count, WebGL.UNSIGNED_SHORT, primitives.offset * 16);
       } else {
         if (context._supportsElementIndexUint == null) {
-          context._supportsElementIndexUint = context.requestExtension('OES_element_index_uint') != null;
+          context._supportsElementIndexUint =
+              context.requestExtension('OES_element_index_uint') != null;
         }
 
         if (context._supportsElementIndexUint) {
