@@ -209,18 +209,17 @@ class _GLAttributeInfo {
   /// The location of the attribute in the [glProgram].
   final int location;
 
-  final WebGL.ActiveInfo _activeInfo;
-
-  _GLAttributeInfo(this.glProgram, this.location, this._activeInfo);
-
   /// The attribute's name.
-  String get name => _activeInfo.name;
+  final String name;
 
   /// The attribute's type.
-  int get type => _activeInfo.type;
+  final int type;
 
   /// The attribute's size in term of the [type].
-  int get size => _activeInfo.size;
+  final int size;
+
+  _GLAttributeInfo(this.glProgram, this.location, WebGL.ActiveInfo activeInfo)
+      : name = activeInfo.name, type = activeInfo.type, size = activeInfo.size;
 }
 
 /// Information about an active rendering program uniform variable.
