@@ -758,9 +758,12 @@ class _Matrix4ArrayUniform extends _BasicUniform {
 class _Sampler2DArrayUniform extends _BasicUniform {
   final int _size;
 
+  final Int32List _units;
+
   _Sampler2DArrayUniform(RenderingContext context, _GLProgram program,
       WebGL.UniformLocation location, WebGL.ActiveInfo info, String name)
       : _size = info.size,
+        _units = new Int32List(info.size),
         super(context, program, location, info, name);
 
   void bindValue(Object value, bool autoProvisioning) {
@@ -773,15 +776,13 @@ class _Sampler2DArrayUniform extends _BasicUniform {
             'does not match the size of the uniform ($_size).');
       }
 
-      final units = new Int32List(length);
-
       for (var i = 0; i < length; i++) {
         final sampler = value[i];
         final texture = sampler.texture;
         final existingUnit = context._textureUnitsTextures.inverse[texture];
 
         if (existingUnit != null) {
-          units[i] = existingUnit;
+          _units[i] = existingUnit;
 
           context._recentlyUsedTextureUnits
             ..remove(existingUnit)
@@ -801,13 +802,13 @@ class _Sampler2DArrayUniform extends _BasicUniform {
 
           context._bindTexture2D(texture);
 
-          units[i] = context._activeTextureUnit;
+          _units[i] = context._activeTextureUnit;
         }
 
         context.textureResources._getGLTexture2D(texture).applySampler(sampler);
       }
 
-      glContext.uniform1iv(location, units);
+      glContext.uniform1iv(location, _units);
     } else {
       throw new ArgumentError('Cannot bind a value of type '
           '`${value.runtimeType}` to uniform `${info.name}` of type '
