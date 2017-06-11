@@ -119,45 +119,53 @@ abstract class Frame {
       bool dithering: true,
       Map<String, String> attributeNameMap: const {},
       bool autoProvisioning: true}) {
-    if (autoProvisioning) {
-      context.geometryResources.provisionFor(primitives);
-      context.programResources.provisionFor(program);
-    } else {
-      if (!context.geometryResources.areProvisionedFor(primitives)) {
+    var glPrimitives =
+        context.geometryResources._getGlPrimitiveSequence(primitives);
+    var glProgram = context.programResources._getGLProgram(program);
+
+    if (glPrimitives == null) {
+      if (autoProvisioning) {
+        context.geometryResources.provisionFor(primitives);
+
+        glPrimitives = context.geometryResources._getGlPrimitiveSequence(primitives);
+      } else {
         throw new StateError('GPU resources have not yet been provisioned for '
             'the primivites and `autoProvisioning` was set to `false`. '
             'Provision resources with '
             '`context.geometryResources.provisionFor(geometry)` or set '
             '`autoProvisioning` to `true`.');
       }
+    }
 
-      if (!context.programResources.areProvisionedFor(program)) {
-        throw new StateError('GPU resources have not yet been provisioned for '
-            'the program and `autoProvisioning` was set to `false`. Provision '
-            'resources with `context.programResources.provisionFor(program)` '
-            'or set `autoProvisioning` to `true`.');
+    if (glProgram == null) {
+      if (autoProvisioning) {
+        context.programResources.provisionFor(program);
+
+        glProgram = context.programResources._getGLProgram(program);
+      } else {
+          throw new StateError('GPU resources have not yet been provisioned for '
+              'the program and `autoProvisioning` was set to `false`. Provision '
+              'resources with `context.programResources.provisionFor(program)` '
+              'or set `autoProvisioning` to `true`.');
       }
     }
 
     context._useProgram(program);
 
-    final glPrimitives =
-        context.geometryResources._getGlPrimitiveSequence(primitives);
-    final glProgram = context.programResources._getGLProgram(program);
     final glIndexList = glPrimitives.indexList;
 
     glPrimitives.updateBuffers();
 
     if (context._supportsVertexArrayObjects) {
       if (glPrimitives.vao != null) {
-        context._vaoExtension.bindVertexArray(glPrimitives.vao);
+        context._bindVertexArrayObject(glPrimitives.vao);
       } else {
         context._bindAttributeDataTable(null);
         context._bindIndexList(null);
 
         final vao = context._vaoExtension.createVertexArray();
 
-        context._vaoExtension.bindVertexArray(vao);
+        context._bindVertexArrayObject(vao);
 
         final attributes = glProgram.attributes;
         final attributesLength = attributes.length;
