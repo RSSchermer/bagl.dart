@@ -159,10 +159,6 @@ abstract class Frame {
 
         context._vaoExtension.bindVertexArray(vao);
 
-        if (glIndexList != null) {
-          context._bindIndexList(glIndexList);
-        }
-
         final attributes = glProgram.attributes;
         final attributesLength = attributes.length;
         final tables = new Set<AttributeDataTable>();
@@ -205,8 +201,6 @@ abstract class Frame {
         glPrimitives.vao = vao;
       }
     } else {
-      context._bindIndexList(glIndexList);
-
       // TODO: find better way than creating a new set every time.
       final unusedAttribLocations = context._enabledAttributeLocations.toSet();
 
@@ -327,6 +321,8 @@ abstract class Frame {
     }
 
     if (glIndexList != null) {
+      context._bindIndexList(glIndexList);
+
       final indexList = glIndexList.indexList;
 
       if (indexList.indexSize == IndexSize.unsignedByte) {
