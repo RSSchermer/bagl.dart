@@ -193,6 +193,8 @@ class _GLIndexList {
       context._bindIndexList(this);
       context._context
           .bufferSubData(WebGL.ELEMENT_ARRAY_BUFFER, 0, indexList.buffer);
+
+      currentIBOVersion = indexList.version;
     }
   }
 }
@@ -215,6 +217,8 @@ class _GLAttributeDataTable {
     if (table.version != currentVBOVersion) {
       context._bindAttributeDataTable(this);
       context._context.bufferSubData(WebGL.ARRAY_BUFFER, 0, table.buffer);
+
+      currentVBOVersion = table.version;
     }
   }
 }
