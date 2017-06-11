@@ -46,10 +46,10 @@ class RenderingContext {
   Frame _boundFrameBuffer;
 
   /// The [AttributeDataTable] currently bound to the WebGL context.
-  AttributeDataTable _boundAttributeDataTable;
+  _GLAttributeDataTable _boundAttributeDataTable;
 
   /// The [IndexList] currently bound to the WebGL context.
-  IndexList _boundIndexList;
+  _GLIndexList _boundIndexList;
 
   /// The [Texture2D] currently bound to the WebGL context.
   Texture2D _boundTexture2D;
@@ -186,6 +186,10 @@ class RenderingContext {
 
   bool _supportsElementIndexUint;
 
+  WebGL.OesVertexArrayObject _vaoExtension;
+
+  bool _supportsVertexArrayObjects;
+
   RenderingContext._internal(this.canvas,
       {bool alpha: true,
       bool depth: true,
@@ -225,6 +229,8 @@ class RenderingContext {
         new Queue.from(new List.generate(maxTextureUnits, (i) => i));
     _locationAttributes = new List<VertexAttribute>(
         _context.getParameter(WebGL.MAX_VERTEX_ATTRIBS));
+    _vaoExtension = _context.getExtension('OES_vertex_array_object');
+    _supportsVertexArrayObjects = _vaoExtension != null;
   }
 
   /// Retrieves a [RenderingContext] for the [canvas].
@@ -329,26 +335,24 @@ class RenderingContext {
     }
   }
 
-  void _bindAttributeDataTable(AttributeDataTable attributeDataTable) {
-    if (attributeDataTable != _boundAttributeDataTable) {
-      if (attributeDataTable == null) {
+  void _bindAttributeDataTable(_GLAttributeDataTable table) {
+    if (table != _boundAttributeDataTable) {
+      if (table == null) {
         _context.bindBuffer(WebGL.ARRAY_BUFFER, null);
       } else {
-        _context.bindBuffer(
-            WebGL.ARRAY_BUFFER, geometryResources._getVBO(attributeDataTable));
+        _context.bindBuffer(WebGL.ARRAY_BUFFER, table.VBO);
       }
 
-      _boundAttributeDataTable = attributeDataTable;
+      _boundAttributeDataTable = table;
     }
   }
 
-  void _bindIndexList(IndexList indexList) {
+  void _bindIndexList(_GLIndexList indexList) {
     if (indexList != _boundIndexList) {
       if (indexList == null) {
         _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, null);
       } else {
-        _context.bindBuffer(
-            WebGL.ELEMENT_ARRAY_BUFFER, geometryResources._getIBO(indexList));
+        _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, indexList.IBO);
       }
 
       _boundIndexList = indexList;

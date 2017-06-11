@@ -12,32 +12,11 @@ class ContextGeometryResources {
 
   final WebGL.RenderingContext _context;
 
-  Expando<bool> _isProvisionedGeometry = new Expando();
+  Expando<_GLIndexList> _indexListGLIndexList = new Expando();
 
-  /// Expands index lists with their associated index buffer objects (IBOs).
-  Expando<WebGL.Buffer> _indexListIBO = new Expando();
+  Expando<_GLAttributeDataTable> _tableGLTable = new Expando();
 
-  /// Expands attribute data tables with their associated vertex buffer objects
-  /// (VBOs).
-  Expando<WebGL.Buffer> _attributeDataTableVBO = new Expando();
-
-  Expando<int> _indexListIBOVersion = new Expando();
-
-  Expando<int> _attributeDataTableVBOVersion = new Expando();
-
-  /// Expands index lists with their reference counts.
-  ///
-  /// An [IndexList] may be used by multiple geometries attached to this
-  /// context. If 3 different geometries use the same [IndexList], then the
-  /// reference count for that [IndexList] will be 3.
-  Expando<int> _indexListReferenceCount = new Expando();
-
-  /// Expands attribute data tables with their reference counts.
-  ///
-  /// An [AttributeDataTable] may be used by multiple geometries attached to
-  /// this context. If 3 different geometries use the same [AttributeDataTable],
-  /// then the reference count for that [AttributeDataTable] will be 3.
-  Expando<int> _attributeDataTableReferenceCount = new Expando();
+  Expando<_GLPrimitiveSequence> _primitivesGLPrimitives = new Expando();
 
   ContextGeometryResources._internal(RenderingContext context)
       : context = context,
@@ -46,7 +25,7 @@ class ContextGeometryResources {
   /// Returns whether or not GPU resources are currently being provisioned for
   /// the [primitives].
   bool areProvisionedFor(PrimitiveSequence primitives) =>
-      _isProvisionedGeometry[primitives] ?? false;
+      _primitivesGLPrimitives[primitives] != null;
 
   /// Provisions GPU resources for the [primitives].
   ///
@@ -57,42 +36,51 @@ class ContextGeometryResources {
   void provisionFor(PrimitiveSequence primitives) {
     if (!areProvisionedFor(primitives)) {
       final indexList = primitives.indexList;
+      var glIndexList;
+      final glTables = <_GLAttributeDataTable>[];
 
       if (indexList != null) {
-        if ((_indexListReferenceCount[indexList] ?? 0) >= 1) {
-          _indexListReferenceCount[indexList] += 1;
+        glIndexList = _indexListGLIndexList[indexList];
+
+        if (glIndexList != null) {
+          glIndexList.referenceCount += 1;
         } else {
           final IBO = _context.createBuffer();
           final usage =
               indexList.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
 
-          _indexListIBO[indexList] = IBO;
-          _indexListIBOVersion[indexList] = indexList.version;
-          _indexListReferenceCount[indexList] = 1;
+          glIndexList = new _GLIndexList(context, indexList, IBO);
 
-          context._bindIndexList(indexList);
+          _indexListGLIndexList[indexList] = glIndexList;
+
+          context._bindIndexList(glIndexList);
           _context.bufferData(
               WebGL.ELEMENT_ARRAY_BUFFER, indexList.buffer, usage);
         }
       }
 
       primitives.vertexArray.attributeDataTables.forEach((table) {
-        if ((_attributeDataTableReferenceCount[table] ?? 0) >= 1) {
-          _attributeDataTableReferenceCount[table] += 1;
+        final existing = _tableGLTable[table];
+
+        if (existing != null) {
+          existing.referenceCount += 1;
+
+          glTables.add(existing);
         } else {
           var VBO = _context.createBuffer();
           var usage = table.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
+          final glTable = new _GLAttributeDataTable(context, table, VBO);
 
-          _attributeDataTableVBO[table] = VBO;
-          _attributeDataTableVBOVersion[table] = table.version;
-          _attributeDataTableReferenceCount[table] = 1;
+          _tableGLTable[table] = glTable;
+          glTables.add(glTable);
 
-          context._bindAttributeDataTable(table);
+          context._bindAttributeDataTable(glTable);
           _context.bufferData(WebGL.ARRAY_BUFFER, table.buffer, usage);
         }
       });
 
-      _isProvisionedGeometry[primitives] = true;
+      _primitivesGLPrimitives[primitives] =
+          new _GLPrimitiveSequence(primitives, glIndexList, glTables);
     }
   }
 
@@ -104,47 +92,49 @@ class ContextGeometryResources {
   /// [primitives], `false` otherwise.
   bool deprovisionFor(PrimitiveSequence primitives) {
     if (areProvisionedFor(primitives)) {
-      final indexList = primitives.indexList;
+      final glIndexList = _indexListGLIndexList[primitives.indexList];
 
-      if (indexList != null) {
+      if (glIndexList != null) {
         // When primitives are deprovisioned but their index list is still used
         // by another primitive sequence, then the index list's index buffer
         // object (IBO) should not yet be deleted. The IBO is only deleted when
         // the reference count drops to 0.
-        if ((_indexListReferenceCount[indexList] ?? 0) > 1) {
-          _indexListReferenceCount[indexList] -= 1;
+        if (glIndexList.referenceCount > 1) {
+          glIndexList.referenceCount -= 1;
         } else {
-          _context.deleteBuffer(_indexListIBO[indexList]);
-          _indexListIBO[indexList] = null;
-          _indexListIBOVersion[indexList] = null;
-          _indexListReferenceCount[indexList] = null;
+          _context.deleteBuffer(glIndexList.IBO);
 
-          if (indexList == context._boundIndexList) {
+          _indexListGLIndexList[primitives.indexList] = null;
+
+          if (glIndexList == context._boundIndexList) {
             context._bindIndexList(null);
           }
         }
       }
 
       primitives.vertexArray.attributeDataTables.forEach((table) {
-        // When geometry is deprovisioned but an attribute data table is still
-        // used by another geometry, then the attribute data table's vertex
-        // buffer object (VBO) should not yet be deleted. The VBO is only
-        // deleted when the reference count drops to 0.
-        if ((_attributeDataTableReferenceCount[table] ?? 0) > 1) {
-          _attributeDataTableReferenceCount[table] -= 1;
-        } else {
-          _context.deleteBuffer(_attributeDataTableVBO[table]);
-          _attributeDataTableVBO[table] = null;
-          _attributeDataTableVBOVersion[table] = null;
-          _attributeDataTableReferenceCount[table] = null;
+        final glTable = _tableGLTable[table];
 
-          if (table == context._boundAttributeDataTable) {
-            context._bindAttributeDataTable(null);
+        if (glTable != null) {
+          // When geometry is deprovisioned but an attribute data table is still
+          // used by another geometry, then the attribute data table's vertex
+          // buffer object (VBO) should not yet be deleted. The VBO is only
+          // deleted when the reference count drops to 0.
+          if (glTable.referenceCount > 1) {
+            glTable.referenceCount -= 1;
+          } else {
+            _context.deleteBuffer(glTable.VBO);
+
+            _tableGLTable[table] = null;
+
+            if (glTable == context._boundAttributeDataTable) {
+              context._bindAttributeDataTable(null);
+            }
           }
         }
       });
 
-      _isProvisionedGeometry[primitives] = null;
+      _primitivesGLPrimitives[primitives] = null;
 
       return true;
     } else {
@@ -152,34 +142,79 @@ class ContextGeometryResources {
     }
   }
 
-  /// Returns the Index Buffer Object (IBO) associated with the [indexList].
-  ///
-  /// Returns `null` if no resources are provisioned for the [indexList].
-  WebGL.Buffer _getIBO(IndexList indexList) => _indexListIBO[indexList];
+  _GLPrimitiveSequence _getGlPrimitiveSequence(PrimitiveSequence primitives) =>
+      _primitivesGLPrimitives[primitives];
 
-  /// Returns the Vertex Buffer Object (IBO) associated with the
-  /// [attributeDataTable].
-  ///
-  /// Returns `null` if no resources are provisioned for the
-  /// [attributeDataTable].
-  WebGL.Buffer _getVBO(AttributeDataTable attributeDataTable) =>
-      _attributeDataTableVBO[attributeDataTable];
+  _GLAttributeDataTable _getGlAttributeDataTable(
+          AttributeDataTable attributeDataTable) =>
+      _tableGLTable[attributeDataTable];
+}
 
-  void _updateIBO(IndexList indexList) {
-    if (_indexListIBOVersion[indexList] != indexList.version) {
-      context._bindIndexList(indexList);
-      _context.bufferSubData(WebGL.ELEMENT_ARRAY_BUFFER, 0, indexList.buffer);
+class _GLPrimitiveSequence {
+  final PrimitiveSequence primitiveSequence;
 
-      _indexListIBOVersion[indexList] = indexList.version;
+  final _GLIndexList indexList;
+
+  final List<_GLAttributeDataTable> tables;
+
+  WebGL.VertexArrayObjectOes vao;
+
+  _GLPrimitiveSequence(this.primitiveSequence, this.indexList, this.tables);
+
+  void updateBuffers() {
+    if (indexList != null) {
+      indexList.updateBuffer();
+    }
+
+    final tableCount = tables.length;
+
+    for (var i = 0; i < tableCount; i++) {
+      tables[i].updateBuffer();
     }
   }
+}
 
-  void _updateVBO(AttributeDataTable table) {
-    if (_attributeDataTableVBOVersion[table] != table.version) {
-      context._bindAttributeDataTable(table);
-      _context.bufferSubData(WebGL.ARRAY_BUFFER, 0, table.buffer);
+class _GLIndexList {
+  final RenderingContext context;
 
-      _attributeDataTableVBOVersion[table] = table.version;
+  final IndexList indexList;
+
+  final WebGL.Buffer IBO;
+
+  int currentIBOVersion;
+
+  int referenceCount = 1;
+
+  _GLIndexList(this.context, this.indexList, this.IBO)
+      : currentIBOVersion = indexList.version;
+
+  void updateBuffer() {
+    if (indexList.version != currentIBOVersion) {
+      context._bindIndexList(this);
+      context._context
+          .bufferSubData(WebGL.ELEMENT_ARRAY_BUFFER, 0, indexList.buffer);
+    }
+  }
+}
+
+class _GLAttributeDataTable {
+  final RenderingContext context;
+
+  final AttributeDataTable table;
+
+  final WebGL.Buffer VBO;
+
+  int currentVBOVersion;
+
+  int referenceCount = 1;
+
+  _GLAttributeDataTable(this.context, this.table, this.VBO)
+      : currentVBOVersion = table.version;
+
+  void updateBuffer() {
+    if (table.version != currentVBOVersion) {
+      context._bindAttributeDataTable(this);
+      context._context.bufferSubData(WebGL.ARRAY_BUFFER, 0, table.buffer);
     }
   }
 }

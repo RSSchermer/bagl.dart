@@ -141,67 +141,131 @@ abstract class Frame {
 
     context._useProgram(program);
 
+    final glPrimitives =
+        context.geometryResources._getGlPrimitiveSequence(primitives);
     final glProgram = context.programResources._getGLProgram(program);
+    final glIndexList = glPrimitives.indexList;
 
-    // TODO: find better way than creating a new set every time.
-    final unusedAttribLocations = context._enabledAttributeLocations.toSet();
+    glPrimitives.updateBuffers();
 
-    // Enable vertex attributes and adjust vertex attribute pointers if
-    // necessary
+    if (context._supportsVertexArrayObjects) {
+      if (glPrimitives.vao != null) {
+        context._vaoExtension.bindVertexArray(glPrimitives.vao);
+      } else {
+        context._bindAttributeDataTable(null);
+        context._bindIndexList(null);
 
-    final attributes = glProgram.attributes;
-    final attributesLength = attributes.length;
+        final vao = context._vaoExtension.createVertexArray();
 
-    for (var i = 0; i < attributesLength; i++) {
-      final attributeInfo = attributes[i];
-      final mappedName =
-          attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
-      final attribute = primitives.vertexArray.attributes[mappedName];
+        context._vaoExtension.bindVertexArray(vao);
 
-      if (attribute == null) {
-        throw new ArgumentError('The geometry does not define an attribute '
-            'matching the "${attributeInfo.name}" attribute on the shader '
-            'program.');
-      }
+        context._bindIndexList(glIndexList);
 
-      // TODO: add check to see if attributeInfo.type matches attribute?
+        final attributes = glProgram.attributes;
+        final attributesLength = attributes.length;
+        final tables = new Set<AttributeDataTable>();
 
-      final columnCount = attribute.columnCount;
-      final columnSize = attribute.columnSize;
-      final table = attribute.attributeDataTable;
-      final stride = table.elementSizeInBytes;
-      final startLocation = attributeInfo.location;
+        for (var i = 0; i < attributesLength; i++) {
+          final attributeInfo = attributes[i];
+          final mappedName =
+              attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
+          final attribute = primitives.vertexArray.attributes[mappedName];
 
-      context.geometryResources._updateVBO(table);
+          if (attribute == null) {
+            throw new ArgumentError('The geometry does not define an attribute '
+                'matching the "${attributeInfo.name}" attribute on the shader '
+                'program.');
+          }
 
-      for (var i = 0; i < columnCount; i++) {
-        var location = startLocation + i;
+          // TODO: add check to see if attributeInfo.type matches attribute?
 
-        // If the attribute bound to the location is null or an attribute other
-        // than the current attribute, set up a new vertex attribute pointer.
-        if (context._locationAttributes[location] != attribute) {
-          var offset = attribute.offsetInBytes + i * columnSize * 4;
+          final columnCount = attribute.columnCount;
+          final columnSize = attribute.columnSize;
+          final table = attribute.attributeDataTable;
+          final stride = table.elementSizeInBytes;
+          final startLocation = attributeInfo.location;
 
-          context._bindAttributeDataTable(table);
-          _context.vertexAttribPointer(
-              location, columnSize, WebGL.FLOAT, false, stride, offset);
+          for (var i = 0; i < columnCount; i++) {
+            var location = startLocation + i;
+            var offset = attribute.offsetInBytes + i * columnSize * 4;
+            var glTable =
+                context.geometryResources._getGlAttributeDataTable(table);
 
-          context._locationAttributes[location] = attribute;
+            context._bindAttributeDataTable(glTable);
+            _context.vertexAttribPointer(
+                location, columnSize, WebGL.FLOAT, false, stride, offset);
+            _context.enableVertexAttribArray(location);
+          }
+
+          tables.add(table);
         }
 
-        if (!context._enabledAttributeLocations.contains(location)) {
-          _context.enableVertexAttribArray(location);
-          context._enabledAttributeLocations.add(location);
+        glPrimitives.vao = vao;
+      }
+    } else {
+      context._bindIndexList(glIndexList);
+
+      // TODO: find better way than creating a new set every time.
+      final unusedAttribLocations = context._enabledAttributeLocations.toSet();
+
+      // Enable vertex attributes and adjust vertex attribute pointers if
+      // necessary
+
+      final attributes = glProgram.attributes;
+      final attributesLength = attributes.length;
+
+      for (var i = 0; i < attributesLength; i++) {
+        final attributeInfo = attributes[i];
+        final mappedName =
+            attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
+        final attribute = primitives.vertexArray.attributes[mappedName];
+
+        if (attribute == null) {
+          throw new ArgumentError('The geometry does not define an attribute '
+              'matching the "${attributeInfo.name}" attribute on the shader '
+              'program.');
         }
 
-        unusedAttribLocations.remove(location);
-      }
-    }
+        // TODO: add check to see if attributeInfo.type matches attribute?
 
-    // Disable unused attribute positions
-    for (var position in unusedAttribLocations) {
-      _context.disableVertexAttribArray(position);
-      context._enabledAttributeLocations.remove(position);
+        final columnCount = attribute.columnCount;
+        final columnSize = attribute.columnSize;
+        final table = attribute.attributeDataTable;
+        final stride = table.elementSizeInBytes;
+        final startLocation = attributeInfo.location;
+
+        for (var i = 0; i < columnCount; i++) {
+          var location = startLocation + i;
+
+          // If the attribute bound to the location is null or an attribute
+          // other than the current attribute, set up a new vertex attribute
+          // pointer.
+          if (context._locationAttributes[location] != attribute) {
+            var offset = attribute.offsetInBytes + i * columnSize * 4;
+            var glTable =
+                context.geometryResources._getGlAttributeDataTable(table);
+
+            context._bindAttributeDataTable(glTable);
+            _context.vertexAttribPointer(
+                location, columnSize, WebGL.FLOAT, false, stride, offset);
+
+            context._locationAttributes[location] = attribute;
+          }
+
+          if (!context._enabledAttributeLocations.contains(location)) {
+            _context.enableVertexAttribArray(location);
+            context._enabledAttributeLocations.add(location);
+          }
+
+          unusedAttribLocations.remove(location);
+        }
+      }
+
+      // Disable unused attribute positions
+      for (var position in unusedAttribLocations) {
+        _context.disableVertexAttribArray(position);
+        context._enabledAttributeLocations.remove(position);
+      }
     }
 
     // Set uniform values
@@ -260,11 +324,8 @@ abstract class Frame {
       context._enableScissorTest();
     }
 
-    final indexList = primitives.indexList;
-
-    if (indexList != null) {
-      context._bindIndexList(indexList);
-      context.geometryResources._updateIBO(indexList);
+    if (glIndexList != null) {
+      final indexList = glIndexList.indexList;
 
       if (indexList.indexSize == IndexSize.unsignedByte) {
         _context.drawElements(_topologyMap[primitives.topology],
