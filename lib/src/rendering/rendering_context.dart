@@ -39,7 +39,7 @@ class RenderingContext {
   Map<String, Object> _extensionCache = {};
 
   /// The shader program that is currently used by the WebGL context.
-  Program _activeProgram;
+  _GLProgram _activeProgram;
 
   /// The frame that is currently bound to the WebGL context as the draw
   /// context.
@@ -424,11 +424,11 @@ class RenderingContext {
     }
   }
 
-  void _useProgram(Program program) {
-    if (program != _activeProgram) {
-      _context
-          .useProgram(programResources._getGLProgram(program).glProgramObject);
-      _activeProgram = program;
+  void _useProgram(_GLProgram glProgram) {
+    if (glProgram != _activeProgram) {
+      _context.useProgram(glProgram.glProgramObject);
+
+      _activeProgram = glProgram;
     }
   }
 

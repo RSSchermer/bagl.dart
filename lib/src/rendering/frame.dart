@@ -150,7 +150,7 @@ abstract class Frame {
       }
     }
 
-    context._useProgram(program);
+    context._useProgram(glProgram);
 
     final glIndexList = glPrimitives.indexList;
 
