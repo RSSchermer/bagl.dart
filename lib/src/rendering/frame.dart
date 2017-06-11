@@ -159,7 +159,9 @@ abstract class Frame {
 
         context._vaoExtension.bindVertexArray(vao);
 
-        context._bindIndexList(glIndexList);
+        if (glIndexList != null) {
+          context._bindIndexList(glIndexList);
+        }
 
         final attributes = glProgram.attributes;
         final attributesLength = attributes.length;
