@@ -370,4 +370,19 @@ class Matrix2 extends _MatrixBase implements Matrix {
   String toString() {
     return 'Matrix2($r0c0, $r0c1, $r1c0, $r1c1)';
   }
+
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    } else if (other is Matrix2) {
+      final s = other._storage;
+
+      return _storage[0] == s[0] &&
+          _storage[1] == s[1] &&
+          _storage[2] == s[2] &&
+          _storage[3] == s[3];
+    } else {
+      return false;
+    }
+  }
 }

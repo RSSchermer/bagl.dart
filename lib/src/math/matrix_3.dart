@@ -564,4 +564,24 @@ class Matrix3 extends _MatrixBase implements Matrix {
     return 'Matrix3($r0c0, $r0c1, $r0c2, $r1c0, $r1c1, $r1c2, $r2c0, $r2c1, '
         '$r2c2)';
   }
+
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    } else if (other is Matrix3) {
+      final s = other._storage;
+
+      return _storage[0] == s[0] &&
+          _storage[1] == s[1] &&
+          _storage[2] == s[2] &&
+          _storage[3] == s[3] &&
+          _storage[4] == s[4] &&
+          _storage[5] == s[5] &&
+          _storage[6] == s[6] &&
+          _storage[7] == s[7] &&
+          _storage[8] == s[8];
+    } else {
+      return false;
+    }
+  }
 }
