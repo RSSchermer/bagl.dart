@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Programmable stage of the rendering pipeline.
 ///

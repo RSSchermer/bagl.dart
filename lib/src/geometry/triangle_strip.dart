@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// A strip of connected triangles described by a sequence of vertices.
 ///

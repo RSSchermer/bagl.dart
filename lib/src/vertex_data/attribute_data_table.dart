@@ -1,4 +1,4 @@
-part of vertex_data;
+part of bagl.vertex_data;
 
 /// Vertex attribute data viewed as rows of [double] values.
 ///

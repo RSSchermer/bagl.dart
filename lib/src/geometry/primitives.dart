@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// Point vertex geometry primitive.
 ///

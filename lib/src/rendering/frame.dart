@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Rectangular pixel surface onto which geometry primitives can be drawn.
 ///

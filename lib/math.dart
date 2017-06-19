@@ -1,5 +1,5 @@
 /// Math helpers and data structures for 2D and 3D graphics.
-library math;
+library bagl.math;
 
 import 'dart:math';
 import 'dart:typed_data';

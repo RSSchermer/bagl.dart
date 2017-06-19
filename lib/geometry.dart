@@ -1,5 +1,5 @@
 /// Data structures for describing geometry with geometric primitives.
-library geometry;
+library bagl.geometry;
 
 import 'dart:collection';
 import 'dart:typed_data';

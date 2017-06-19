@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Links the programmable shader stages of the rendering pipeline.
 class Program {

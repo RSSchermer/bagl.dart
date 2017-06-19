@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 class _GLTexture2D {
   /// The [RenderingContext] with which this [_GLTexture] is associated.

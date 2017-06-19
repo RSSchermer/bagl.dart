@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// BaGL WebGL rendering context for an HTML canvas element.
 ///

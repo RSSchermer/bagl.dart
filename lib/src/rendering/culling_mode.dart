@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Enumerates the possible face-culling modes available.
 ///

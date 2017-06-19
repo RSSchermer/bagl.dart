@@ -1,5 +1,5 @@
 /// Data structures for rendering and customizing the rendering pipeline.
-library rendering;
+library bagl.rendering;
 
 import 'dart:collection';
 import 'dart:html';

@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Describes a rendering program for a certain [RenderingContext].
 class _GLProgram {

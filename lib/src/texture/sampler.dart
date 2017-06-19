@@ -1,4 +1,4 @@
-part of texture;
+part of bagl.texture;
 
 /// Obtains texture values for texture coordinates.
 ///

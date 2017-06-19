@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Provides instructions on how depth testing should be performed.
 ///

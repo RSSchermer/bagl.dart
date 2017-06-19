@@ -1,5 +1,5 @@
 /// Data structures for viewing and managing buffered vertex data.
-library vertex_data;
+library bagl.vertex_data;
 
 import 'dart:collection';
 import 'dart:typed_data';

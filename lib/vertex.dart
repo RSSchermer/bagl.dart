@@ -1,5 +1,5 @@
 /// Defines the basic vertex data structure.
-library vertex;
+library bagl.vertex;
 
 import 'math.dart';
 

@@ -1,4 +1,4 @@
-part of math;
+part of bagl.math;
 
 abstract class _VertexBase extends _MatrixBase {
   final bool isSquare = false;

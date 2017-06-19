@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// An loop of connected line segments described by a sequence of vertices.
 ///

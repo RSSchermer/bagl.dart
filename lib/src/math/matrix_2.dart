@@ -1,4 +1,4 @@
-part of math;
+part of bagl.math;
 
 /// A 2 by 2 square matrix.
 ///

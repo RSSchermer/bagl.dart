@@ -1,4 +1,4 @@
-part of texture;
+part of bagl.texture;
 
 /// Texture for which the image is 2 dimensional.
 class Texture2D implements Texture {

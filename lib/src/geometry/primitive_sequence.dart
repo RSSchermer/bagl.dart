@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// Abstract base class for geometry described by a sequence of geometric
 /// primitives.

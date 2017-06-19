@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// An strip of connected line segments described by a vertex sequence.
 ///

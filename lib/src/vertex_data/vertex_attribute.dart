@@ -1,4 +1,4 @@
-part of vertex_data;
+part of bagl.vertex_data;
 
 /// Base class for defining typed attributes on an [AttributeDataTable].
 ///

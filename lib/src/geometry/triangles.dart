@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// An ordered collection of triangles described by a sequence of vertices.
 ///

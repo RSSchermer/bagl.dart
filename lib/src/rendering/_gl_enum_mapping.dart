@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 const Map<Topology, int> _topologyMap = const {
   Topology.points: WebGL.POINTS,

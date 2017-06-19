@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// Enumerates the ways in which a sequence of vertices connected into a
 /// sequence of geometry primitives.

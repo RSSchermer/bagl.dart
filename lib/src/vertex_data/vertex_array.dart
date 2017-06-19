@@ -1,4 +1,4 @@
-part of vertex_data;
+part of bagl.vertex_data;
 
 /// A sequence of vertices as a view on one or more [AttributeDataTable]s.
 ///

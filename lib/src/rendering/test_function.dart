@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Enumerates the functions [DepthTest] or a [StencilTest] can use to decide if
 /// the test passes.

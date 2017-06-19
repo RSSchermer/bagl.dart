@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Manages the provisioning and deprovisioning of program related GPU resources
 /// for a [RendingContext].

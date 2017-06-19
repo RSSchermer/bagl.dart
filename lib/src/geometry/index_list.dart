@@ -1,4 +1,4 @@
-part of geometry;
+part of bagl.geometry;
 
 /// Enumerates the available sizes for the indices in a [IndexList].
 enum IndexSize { unsignedByte, unsignedShort, unsignedInt }

@@ -1,4 +1,4 @@
-part of math;
+part of bagl.math;
 
 /// A column vector of length 2 (a 2 by 1 matrix).
 class Vector2 extends _VertexBase implements Matrix {

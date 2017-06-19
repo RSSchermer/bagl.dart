@@ -1,5 +1,5 @@
 /// Matrix lists as typed data views on byte buffers.
-library matrix_list;
+library bagl.matrix_list;
 
 import 'dart:collection';
 import 'dart:typed_data';

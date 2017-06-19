@@ -1,4 +1,4 @@
-part of matrix_list;
+part of bagl.matrix_list;
 
 /// A fixed-length list of [Vector3] vectors that is viewable as a [TypedData].
 class Vector3List extends ListBase<Vector3>

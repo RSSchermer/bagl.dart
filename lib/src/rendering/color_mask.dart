@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Specifies for each color components whether or not it can be written to the
 /// color buffer.

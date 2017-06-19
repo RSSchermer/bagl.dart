@@ -1,5 +1,5 @@
 /// Struct uniform type.
-library struct;
+library bagl.struct;
 
 /// Defines a value that can be used as structural uniform variable.
 class Struct {

@@ -1,4 +1,4 @@
-part of texture;
+part of bagl.texture;
 
 /// A container for one or more [TextureImage]s of the same type, the same size
 /// and the same image format.

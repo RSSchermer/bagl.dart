@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Provides instructions on how stencil testing should be performed.
 ///

@@ -1,4 +1,4 @@
-part of texture;
+part of bagl.texture;
 
 /// A collection of pixels of a certain dimensionality.
 abstract class TextureImage {

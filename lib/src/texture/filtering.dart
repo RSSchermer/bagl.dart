@@ -1,4 +1,4 @@
-part of texture;
+part of bagl.texture;
 
 /// Enumerates the methods available to a [Sampler] for minification filtering.
 ///

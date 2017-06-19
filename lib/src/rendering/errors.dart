@@ -1,4 +1,4 @@
-part of rendering;
+part of bagl.rendering;
 
 /// Error thrown when a shader fails to compile.
 class ShaderCompilationError extends Error {

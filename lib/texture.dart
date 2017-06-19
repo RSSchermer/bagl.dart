@@ -1,5 +1,5 @@
 /// Data structures for texturing.
-library texture;
+library bagl.texture;
 
 import 'dart:async';
 import 'dart:html';

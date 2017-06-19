@@ -1,4 +1,4 @@
-part of math;
+part of bagl.math;
 
 /// Base class for dimension specific matrices and vectors.
 abstract class _MatrixBase implements Matrix {
