@@ -127,7 +127,8 @@ abstract class Frame {
       if (autoProvisioning) {
         context.geometryResources.provisionFor(primitives);
 
-        glPrimitives = context.geometryResources._getGlPrimitiveSequence(primitives);
+        glPrimitives =
+            context.geometryResources._getGlPrimitiveSequence(primitives);
       } else {
         throw new StateError('GPU resources have not yet been provisioned for '
             'the primivites and `autoProvisioning` was set to `false`. '
@@ -143,10 +144,10 @@ abstract class Frame {
 
         glProgram = context.programResources._getGLProgram(program);
       } else {
-          throw new StateError('GPU resources have not yet been provisioned for '
-              'the program and `autoProvisioning` was set to `false`. Provision '
-              'resources with `context.programResources.provisionFor(program)` '
-              'or set `autoProvisioning` to `true`.');
+        throw new StateError('GPU resources have not yet been provisioned for '
+            'the program and `autoProvisioning` was set to `false`. Provision '
+            'resources with `context.programResources.provisionFor(program)` '
+            'or set `autoProvisioning` to `true`.');
       }
     }
 
@@ -508,6 +509,181 @@ abstract class Frame {
         WebGL.DEPTH_BUFFER_BIT &
         WebGL.STENCIL_BUFFER_BIT);
   }
+
+  /// Reads the pixels currently in this [Frame]'s color buffer into a
+  /// [Uint8List] where every 4 bytes represent the red, green, blue and alpha
+  /// components of a pixel respectively.
+  ///
+  /// Optionally [viewport] may be specified to restrict the read to a
+  /// sub-region of the color buffer.
+  Uint8List readPixelsByteRGBA([Rectangle<int> viewport]) {
+    var x, y, w, h;
+
+    if (viewport != null) {
+      x = viewport.left;
+      y = height - viewport.top;
+      w = viewport.width;
+      h = viewport.height;
+    } else {
+      x = 0;
+      y = 0;
+      w = width;
+      h = height;
+    }
+
+    final data = new Uint8List(w * h * 4);
+
+    _context.readPixels(x, y, w, h, WebGL.RGBA, WebGL.UNSIGNED_BYTE, data);
+
+    return data;
+  }
+
+  /// Reads the pixels currently in this [Frame]'s color buffer into a
+  /// [Uint8List] where every 3 bytes represent the red, green and blue
+  /// components of a pixel respectively.
+  ///
+  /// Optionally [viewport] may be specified to restrict the read to a
+  /// sub-region of the color buffer.
+  Uint8List readPixelsByteRGB([Rectangle<int> viewport]) {
+    var x, y, w, h;
+
+    if (viewport != null) {
+      x = viewport.left;
+      y = height - viewport.top;
+      w = viewport.width;
+      h = viewport.height;
+    } else {
+      x = 0;
+      y = 0;
+      w = width;
+      h = height;
+    }
+
+    final data = new Uint8List(w * h * 3);
+
+    _context.readPixels(x, y, w, h, WebGL.RGB, WebGL.UNSIGNED_BYTE, data);
+
+    return data;
+  }
+
+  /// Reads the pixels currently in this [Frame]'s color buffer into a
+  /// [Uint8List] where every byte represents the alpha component of a pixel.
+  ///
+  /// Optionally [viewport] may be specified to restrict the read to a
+  /// sub-region of the color buffer.
+  Uint8List readPixelsByteAlpha([Rectangle<int> viewport]) {
+    var x, y, w, h;
+
+    if (viewport != null) {
+      x = viewport.left;
+      y = height - viewport.top;
+      w = viewport.width;
+      h = viewport.height;
+    } else {
+      x = 0;
+      y = 0;
+      w = width;
+      h = height;
+    }
+
+    final data = new Uint8List(w * h);
+
+    _context.readPixels(x, y, w, h, WebGL.ALPHA, WebGL.UNSIGNED_BYTE, data);
+
+    return data;
+  }
+
+  /// Reads the pixels currently in this [Frame]'s color buffer into a
+  /// [Uint16List] where for every short, the first 5 bits represent the red
+  /// component of a pixel, the next 5 bits represent the green component, the
+  /// next 5 bits represent the blue component, and the last bit represents
+  /// the alpha component.
+  ///
+  /// Optionally [viewport] may be specified to restrict the read to a
+  /// sub-region of the color buffer.
+  Uint16List readPixelsShortRGBA_5_5_5_1([Rectangle<int> viewport]) {
+    var x, y, w, h;
+
+    if (viewport != null) {
+      x = viewport.left;
+      y = height - viewport.top;
+      w = viewport.width;
+      h = viewport.height;
+    } else {
+      x = 0;
+      y = 0;
+      w = width;
+      h = height;
+    }
+
+    final data = new Uint16List(w * h);
+
+    _context.readPixels(
+        x, y, w, h, WebGL.RGBA, WebGL.UNSIGNED_SHORT_5_5_5_1, data);
+
+    return data;
+  }
+
+  /// Reads the pixels currently in this [Frame]'s color buffer into a
+  /// [Uint16List] where for every short, the first 4 bits represent the red
+  /// component of a pixel, the next 4 bits represent the green component, the
+  /// next 4 bits represent the blue component, and the last 4 bits represent
+  /// the alpha component.
+  ///
+  /// Optionally [viewport] may be specified to restrict the read to a
+  /// sub-region of the color buffer.
+  Uint16List readPixelsShortRGBA_4_4_4_4([Rectangle<int> viewport]) {
+    var x, y, w, h;
+
+    if (viewport != null) {
+      x = viewport.left;
+      y = height - viewport.top;
+      w = viewport.width;
+      h = viewport.height;
+    } else {
+      x = 0;
+      y = 0;
+      w = width;
+      h = height;
+    }
+
+    final data = new Uint16List(w * h);
+
+    _context.readPixels(
+        x, y, w, h, WebGL.RGBA, WebGL.UNSIGNED_SHORT_4_4_4_4, data);
+
+    return data;
+  }
+
+  /// Reads the pixels currently in this [Frame]'s color buffer into a
+  /// [Uint16List] where for every short, the first 5 bits represent the red
+  /// component of a pixel, the next 6 bits represent the green component, and
+  /// the last 5 bits represent the blue component.
+  ///
+  /// Optionally [viewport] may be specified to restrict the read to a
+  /// sub-region of the color buffer.
+  Uint16List readPixelsShortRGB_5_6_5([Rectangle<int> viewport]) {
+    var x, y, w, h;
+
+    if (viewport != null) {
+      x = viewport.left;
+      y = height - viewport.top;
+      w = viewport.width;
+      h = viewport.height;
+    } else {
+      x = 0;
+      y = 0;
+      w = width;
+      h = height;
+    }
+
+    final data = new Uint16List(w * h);
+
+    _context.readPixels(
+        x, y, w, h, WebGL.RGB, WebGL.UNSIGNED_SHORT_5_6_5, data);
+
+    return data;
+  }
 }
 
 class _DefaultFrame extends Frame {
@@ -591,6 +767,42 @@ class _DefaultFrame extends Frame {
     context._bindDefaultFrame();
 
     super.clearAll(color, depth, stencil, region);
+  }
+
+  Uint8List readPixelsByteRGBA([Rectangle<int> viewport]) {
+    context._bindDefaultFrame();
+
+    return super.readPixelsByteRGBA(viewport);
+  }
+
+  Uint8List readPixelsByteRGB([Rectangle<int> viewport]) {
+    context._bindDefaultFrame();
+
+    return super.readPixelsByteRGB(viewport);
+  }
+
+  Uint8List readPixelsByteAlpha([Rectangle<int> viewport]) {
+    context._bindDefaultFrame();
+
+    return super.readPixelsByteAlpha(viewport);
+  }
+
+  Uint16List readPixelsShortRGBA_5_5_5_1([Rectangle<int> viewport]) {
+    context._bindDefaultFrame();
+
+    return super.readPixelsShortRGBA_5_5_5_1(viewport);
+  }
+
+  Uint16List readPixelsShortRGBA_4_4_4_4([Rectangle<int> viewport]) {
+    context._bindDefaultFrame();
+
+    return super.readPixelsShortRGBA_4_4_4_4(viewport);
+  }
+
+  Uint16List readPixelsShortRGB_5_6_5([Rectangle<int> viewport]) {
+    context._bindDefaultFrame();
+
+    return super.readPixelsShortRGB_5_6_5(viewport);
   }
 }
 
@@ -878,6 +1090,42 @@ class FrameBuffer extends Frame {
     context._bindFrameBuffer(this);
 
     super.clearAll(color, depth, stencil, region);
+  }
+
+  Uint8List readPixelsByteRGBA([Rectangle<int> viewport]) {
+    context._bindFrameBuffer(this);
+
+    return super.readPixelsByteRGBA(viewport);
+  }
+
+  Uint8List readPixelsByteRGB([Rectangle<int> viewport]) {
+    context._bindFrameBuffer(this);
+
+    return super.readPixelsByteRGB(viewport);
+  }
+
+  Uint8List readPixelsByteAlpha([Rectangle<int> viewport]) {
+    context._bindFrameBuffer(this);
+
+    return super.readPixelsByteAlpha(viewport);
+  }
+
+  Uint16List readPixelsShortRGBA_5_5_5_1([Rectangle<int> viewport]) {
+    context._bindFrameBuffer(this);
+
+    return super.readPixelsShortRGBA_5_5_5_1(viewport);
+  }
+
+  Uint16List readPixelsShortRGBA_4_4_4_4([Rectangle<int> viewport]) {
+    context._bindFrameBuffer(this);
+
+    return super.readPixelsShortRGBA_4_4_4_4(viewport);
+  }
+
+  Uint16List readPixelsShortRGB_5_6_5([Rectangle<int> viewport]) {
+    context._bindFrameBuffer(this);
+
+    return super.readPixelsShortRGB_5_6_5(viewport);
   }
 }
 
