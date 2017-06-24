@@ -832,7 +832,7 @@ class FrameBuffer extends Frame {
   /// a stencil test.
   final dynamic stencilAttachment;
 
-  Map<RenderBuffer, WebGL.Renderbuffer> _renderBufferRBOs;
+  Map<RenderBuffer, WebGL.Renderbuffer> _renderBufferRBOs = {};
 
   WebGL.Framebuffer _framebufferObject;
 
