@@ -26,7 +26,8 @@ abstract class Matrix2 implements Matrix {
   ///       3.0, 4.0
   ///     );
   ///
-  factory Matrix2(double val0, double val1, double val2, double val3) = _Matrix2;
+  factory Matrix2(double val0, double val1, double val2, double val3) =
+      _Matrix2;
 
   /// Instantiates a new [Matrix2] from the given [Float32List], partitioned
   /// into columns of length 2.
@@ -42,7 +43,8 @@ abstract class Matrix2 implements Matrix {
   ///     ]);
   ///
   /// Throws an [ArgumentError] if the list does not have a length of 4.
-  factory Matrix2.fromColumnPackedList(List<double> values) = _Matrix2.fromColumnPackedList;
+  factory Matrix2.fromColumnPackedList(List<double> values) =
+      _Matrix2.fromColumnPackedList;
 
   /// Instantiates a new [Matrix2] where every position is set to the given
   /// value.
@@ -65,7 +67,7 @@ abstract class Matrix2 implements Matrix {
   ///     //
   ///     var matrix = new Matrix2.zero();
   ///
-  factory Matrix2.zero()  = _Matrix2.zero;
+  factory Matrix2.zero() = _Matrix2.zero;
 
   /// Instantiates a new [Matrix2] as an identity matrix.
   ///
@@ -431,13 +433,10 @@ class _Matrix2Identity implements Matrix2 {
   final double r1c0 = 0.0;
   final double r1c1 = 1.0;
 
-  final List<double> valuesColumnPacked = const [
-    1.0, 0.0,
-    0.0, 1.0
-  ];
+  final List<double> valuesColumnPacked = const <double>[1.0, 0.0, 0.0, 1.0];
 
-  final List<double> _r0 = const [1.0, 0.0];
-  final List<double> _r1 = const [0.0, 1.0];
+  final List<double> _r0 = const <double>[1.0, 0.0];
+  final List<double> _r1 = const <double>[0.0, 1.0];
 
   const _Matrix2Identity();
 
@@ -634,10 +633,7 @@ class _Matrix2Identity implements Matrix2 {
     } else if (other is _Matrix2) {
       final s = other._storage;
 
-      return s[0] == 1.0 &&
-          s[1] == 0.0 &&
-          s[2] == 0.0 &&
-          s[3] == 1.0;
+      return s[0] == 1.0 && s[1] == 0.0 && s[2] == 0.0 && s[3] == 1.0;
     } else {
       return false;
     }

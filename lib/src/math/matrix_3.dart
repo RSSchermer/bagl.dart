@@ -31,8 +31,16 @@ abstract class Matrix3 implements Matrix {
   ///       7.0, 8.0, 9.0
   ///     );
   ///
-  factory Matrix3(double val0, double val1, double val2, double val3,
-      double val4, double val5, double val6, double val7, double val8)  = _Matrix3;
+  factory Matrix3(
+      double val0,
+      double val1,
+      double val2,
+      double val3,
+      double val4,
+      double val5,
+      double val6,
+      double val7,
+      double val8) = _Matrix3;
 
   /// Instantiates a new [Matrix3] from the given list, partitioned into columns
   /// of length 3.
@@ -50,7 +58,8 @@ abstract class Matrix3 implements Matrix {
   ///     ]);
   ///
   /// Throws an [ArgumentError] if the list does not have a length of 9.
-  factory Matrix3.fromColumnPackedList(List<double> values)  = _Matrix3.fromColumnPackedList;
+  factory Matrix3.fromColumnPackedList(List<double> values) =
+      _Matrix3.fromColumnPackedList;
 
   /// Instantiates a new [Matrix3] where every position is set to the given
   /// value.
@@ -63,7 +72,7 @@ abstract class Matrix3 implements Matrix {
   ///     //
   ///     var matrix = new Matrix3.constant(2);
   ///
-  factory Matrix3.constant(double value)  = _Matrix3.constant;
+  factory Matrix3.constant(double value) = _Matrix3.constant;
 
   /// Instantiates a new [Matrix3] where every position is set to zero.
   ///
@@ -75,7 +84,7 @@ abstract class Matrix3 implements Matrix {
   ///     //
   ///     var matrix = new Matrix3.zero();
   ///
-  factory Matrix3.zero()  = _Matrix3.zero;
+  factory Matrix3.zero() = _Matrix3.zero;
 
   /// Instantiates a new [Matrix3] as an identity matrix.
   ///
@@ -92,12 +101,14 @@ abstract class Matrix3 implements Matrix {
   /// Instantiates a [Matrix3] that when multiplied with a [Vector3] translates
   /// it by [translateX] in the X direction and by [translateY] in the Y
   /// direction.
-  factory Matrix3.translation(double translateX, double translateY) = _Matrix3.translation;
+  factory Matrix3.translation(double translateX, double translateY) =
+      _Matrix3.translation;
 
   /// Instantiates a [Matrix3] that when multiplied with a [Vector3] scales it
   /// by [scaleX] in the X direction, by [scaleY] in the Y direction, and by
   /// [scaleZ] in the Z direction.
-  factory Matrix3.scale(double scaleX, double scaleY, double scaleZ) = _Matrix3.scale;
+  factory Matrix3.scale(double scaleX, double scaleY, double scaleZ) =
+      _Matrix3.scale;
 
   /// Instantiates a [Matrix3] that when multiplied with a [Vector3] will rotate
   /// it around the [axis] by [radians].
@@ -657,15 +668,21 @@ class _Matrix3Identity implements Matrix3 {
   final double r2c1 = 0.0;
   final double r2c2 = 1.0;
 
-  final List<double> valuesColumnPacked = const [
-    1.0, 0.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 0.0, 1.0
+  final List<double> valuesColumnPacked = const <double>[
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
   ];
 
-  final List<double> _r0 = const [1.0, 0.0, 0.0];
-  final List<double> _r1 = const [0.0, 1.0, 0.0];
-  final List<double> _r2 = const [0.0, 0.0, 1.0];
+  final List<double> _r0 = const <double>[1.0, 0.0, 0.0];
+  final List<double> _r1 = const <double>[0.0, 1.0, 0.0];
+  final List<double> _r2 = const <double>[0.0, 0.0, 1.0];
 
   const _Matrix3Identity();
 

@@ -128,8 +128,7 @@ abstract class Matrix4 implements Matrix {
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
   /// it around the [axis] by [radians].
-  factory Matrix4.rotation(Vector3 axis, double radians) =
-      _Matrix4.rotation;
+  factory Matrix4.rotation(Vector3 axis, double radians) = _Matrix4.rotation;
 
   /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
   /// it around the X axis by [radians].
@@ -357,11 +356,9 @@ class _Matrix4 extends _MatrixBase implements Matrix4 {
   }
 
   factory _Matrix4.constant(double value) =>
-      new _Matrix4._internal(
-          new Float32List(16)..fillRange(0, 16, value));
+      new _Matrix4._internal(new Float32List(16)..fillRange(0, 16, value));
 
-  factory _Matrix4.zero() =>
-      new _Matrix4._internal(new Float32List(16));
+  factory _Matrix4.zero() => new _Matrix4._internal(new Float32List(16));
 
   factory _Matrix4.translation(
       double translateX, double translateY, double translateZ) {
@@ -459,8 +456,8 @@ class _Matrix4 extends _MatrixBase implements Matrix4 {
     return new _Matrix4._internal(values);
   }
 
-  factory _Matrix4.frustum(double left, double right, double bottom,
-      double top, double near, double far) {
+  factory _Matrix4.frustum(double left, double right, double bottom, double top,
+      double near, double far) {
     final values = new Float32List(16);
     final x = 2.0 * near / (right - left);
     final y = 2.0 * near / (top - bottom);
@@ -1005,12 +1002,12 @@ class _Matrix4Identity implements Matrix4 {
   final double r3c2 = 0.0;
   final double r3c3 = 1.0;
 
-  final List<double> _r0 = const [1.0, 0.0, 0.0, 0.0];
-  final List<double> _r1 = const [1.0, 0.0, 0.0, 0.0];
-  final List<double> _r2 = const [1.0, 0.0, 0.0, 0.0];
-  final List<double> _r3 = const [1.0, 0.0, 0.0, 0.0];
+  final List<double> _r0 = const <double>[1.0, 0.0, 0.0, 0.0];
+  final List<double> _r1 = const <double>[1.0, 0.0, 0.0, 0.0];
+  final List<double> _r2 = const <double>[1.0, 0.0, 0.0, 0.0];
+  final List<double> _r3 = const <double>[1.0, 0.0, 0.0, 0.0];
 
-  final List<double> valuesRowPacked = const [
+  final List<double> valuesRowPacked = const <double>[
     1.0,
     0.0,
     0.0,
