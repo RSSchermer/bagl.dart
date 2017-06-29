@@ -668,27 +668,17 @@ class _Matrix3Identity implements Matrix3 {
   final double r2c1 = 0.0;
   final double r2c2 = 1.0;
 
-  final List<double> valuesColumnPacked = const <double>[
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0
-  ];
-
   final List<double> _r0 = const <double>[1.0, 0.0, 0.0];
   final List<double> _r1 = const <double>[0.0, 1.0, 0.0];
   final List<double> _r2 = const <double>[0.0, 0.0, 1.0];
 
   const _Matrix3Identity();
 
-  List<double> get values => valuesColumnPacked;
+  Float32List get values => _matrix3IdentityValues;
 
-  List<double> get valuesRowPacked => valuesColumnPacked;
+  Float32List get valuesRowPacked => _matrix3IdentityValues;
+
+  Float32List get valuesColumnPacked => _matrix3IdentityValues;
 
   Matrix3 get transpose => this;
 
@@ -919,3 +909,6 @@ class _Matrix3Identity implements Matrix3 {
     }
   }
 }
+
+final _matrix3IdentityValues =
+    new Float32List.fromList([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);

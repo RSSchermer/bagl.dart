@@ -433,16 +433,16 @@ class _Matrix2Identity implements Matrix2 {
   final double r1c0 = 0.0;
   final double r1c1 = 1.0;
 
-  final List<double> valuesColumnPacked = const <double>[1.0, 0.0, 0.0, 1.0];
-
   final List<double> _r0 = const <double>[1.0, 0.0];
   final List<double> _r1 = const <double>[0.0, 1.0];
 
   const _Matrix2Identity();
 
-  List<double> get values => valuesColumnPacked;
+  Float32List get values => _matrix2IdentityValues;
 
-  List<double> get valuesRowPacked => valuesColumnPacked;
+  Float32List get valuesRowPacked => _matrix2IdentityValues;
+
+  Float32List get valuesColumnPacked => _matrix2IdentityValues;
 
   Matrix2 get transpose => this;
 
@@ -639,3 +639,5 @@ class _Matrix2Identity implements Matrix2 {
     }
   }
 }
+
+final _matrix2IdentityValues = new Float32List.fromList([1.0, 0.0, 0.0, 1.0]);

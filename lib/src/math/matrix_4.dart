@@ -1007,33 +1007,16 @@ class _Matrix4Identity implements Matrix4 {
   final List<double> _r2 = const <double>[1.0, 0.0, 0.0, 0.0];
   final List<double> _r3 = const <double>[1.0, 0.0, 0.0, 0.0];
 
-  final List<double> valuesRowPacked = const <double>[
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0
-  ];
-
   final double determinant = 1.0;
   final bool isNonSingular = true;
 
   const _Matrix4Identity();
 
-  Iterable<double> get values => valuesRowPacked;
+  Float32List get valuesRowPacked => _matrix4IdentityValues;
 
-  Iterable<double> get valuesColumnPacked => valuesRowPacked;
+  Float32List get values => _matrix4IdentityValues;
+
+  Float32List get valuesColumnPacked => _matrix4IdentityValues;
 
   Matrix4 get transpose => this;
 
@@ -1306,3 +1289,22 @@ class _Matrix4Identity implements Matrix4 {
     }
   }
 }
+
+final _matrix4IdentityValues = new Float32List.fromList([
+  1.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.0
+]);
