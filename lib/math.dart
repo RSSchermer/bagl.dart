@@ -4,8 +4,7 @@ library bagl.math;
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:collection/equality.dart';
-import 'package:collection/wrappers.dart';
+import 'package:collection/collection.dart';
 import 'package:quiver/core.dart';
 import 'package:rl_matrix/rl_matrix.dart';
 
