@@ -16,23 +16,7 @@ part of bagl.math;
 ///       13.0, 14.0, 15.0, 16.0
 ///     );
 ///
-class Matrix4 extends _MatrixBase implements Matrix {
-  final Float32List _storage;
-
-  final int columnDimension = 4;
-
-  final int rowDimension = 4;
-
-  final bool isSquare = true;
-
-  Matrix4 _transpose;
-
-  Matrix4 _inverse;
-
-  double _determinant;
-
-  Float32List _valuesRowPacked;
-
+abstract class Matrix4 implements Matrix {
   /// Instantiates a new [Matrix4] from the given values, partitioned into rows
   /// of length 4.
   ///
@@ -51,6 +35,280 @@ class Matrix4 extends _MatrixBase implements Matrix {
   ///     );
   ///
   factory Matrix4(
+      double r0c0,
+      double r0c1,
+      double r0c2,
+      double r0c3,
+      double r1c0,
+      double r1c1,
+      double r1c2,
+      double r1c3,
+      double r2c0,
+      double r2c1,
+      double r2c2,
+      double r2c3,
+      double r3c0,
+      double r3c1,
+      double r3c2,
+      double r3c3) = _Matrix4;
+
+  /// Instantiates a new [Matrix4] from the given list, partitioned into rows
+  /// of length 4.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 5.0  9.0 13.0
+  ///     //    2.0 6.0 10.0 14.0
+  ///     //    3.0 7.0 11.0 15.0
+  ///     //    4.0 8.0 12.0 16.0
+  ///     //
+  ///     var matrix = new Matrix4([
+  ///        1.0,  2.0,  3.0,  4.0,
+  ///        5.0,  6.0,  7.0,  8.0,
+  ///        9.0, 10.0, 11.0, 12.0,
+  ///       13.0, 14.0, 15.0, 16.0
+  ///     ]);
+  ///
+  /// Throws an [ArgumentError] if the list does not have a length of 16.
+  factory Matrix4.fromColumnPackedList(List<double> values) =
+      _Matrix4.fromColumnPackedList;
+
+  /// Instantiates a new [Matrix4] where every position is set to the given
+  /// value.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //    2.0 2.0 2.0 2.0
+  ///     //
+  ///     var matrix = new Matrix4.constant(2);
+  ///
+  factory Matrix4.constant(double value) = _Matrix4.constant;
+
+  /// Instantiates a new [Matrix4] where every position is set to zero.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //    0.0 0.0 0.0 0.0
+  ///     //
+  ///     var matrix = new Matrix4.zero();
+  ///
+  factory Matrix4.zero() = _Matrix4.zero;
+
+  /// Instantiates a new [Matrix4] as an identity matrix.
+  ///
+  ///     // Instantiates the following matrix:
+  ///     //
+  ///     //    1.0 0.0 0.0 0.0
+  ///     //    0.0 1.0 0.0 0.0
+  ///     //    0.0 0.0 1.0 0.0
+  ///     //    0.0 0.0 0.0 1.0
+  ///     //
+  ///     var matrix = new Matrix4.identity();
+  ///
+  const factory Matrix4.identity() = _Matrix4Identity;
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] translates
+  /// it by [translateX] in the X direction, by [translateY] in the Y direction,
+  /// and by [translateZ] in the Z direction.
+  factory Matrix4.translation(
+          double translateX, double translateY, double translateZ) =
+      _Matrix4.translation;
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] scales it
+  /// by [scaleX] in the X direction, by [scaleY] in the Y direction, and by
+  /// [scaleZ] in the Z direction.
+  factory Matrix4.scale(double scaleX, double scaleY, double scaleZ) =
+      _Matrix4.scale;
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the [axis] by [radians].
+  factory Matrix4.rotation(Vector3 axis, double radians) =
+      _Matrix4.rotation;
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the X axis by [radians].
+  factory Matrix4.rotationX(double radians) = _Matrix4.rotationX;
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the Y axis by [radians].
+  factory Matrix4.rotationY(double radians) = _Matrix4.rotationY;
+
+  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
+  /// it around the Z axis by [radians].
+  factory Matrix4.rotationZ(double radians) = _Matrix4.rotationZ;
+
+  /// Instantiates a new [Matrix4] as a frustum projection matrix for a frustum
+  /// for which the near plane is the rectangle defined by [left], [right],
+  /// [bottom] and [top] at [near] distance and the far plane at [far] distance.
+  ///
+  /// A frustum projection matrix projects coordinates inside a frustum onto
+  /// clip coordinates.
+  factory Matrix4.frustum(double left, double right, double bottom, double top,
+      double near, double far) = _Matrix4.frustum;
+
+  /// Instantiates a new [Matrix4] as a perspective projection matrix for a
+  /// view frustum with a field-of-view of [fovRadians], a `width / height`
+  /// aspect ratio of [aspectRatio], the near frustum plane at a distance of
+  /// [near] and the far frustum plane at a distance of [far].
+  ///
+  /// A perspective projection matrix projects coordinates inside its view
+  /// frustum onto clip coordinates.
+  factory Matrix4.perspective(
+          double fovRadians, double aspectRatio, double near, double far) =
+      _Matrix4.perspective;
+
+  /// Instantiates a new [Matrix4] as an orthographic projection matrix for a
+  /// view cuboid for which the near plane is the rectangle defined by [left],
+  /// [right], [bottom] and [top] at [near] distance and the far plane at [far]
+  /// distance.
+  ///
+  /// An orthographic projection matrix project coordinates inside its view
+  /// cuboid onto clip coordinates.
+  factory Matrix4.orthographic(double left, double right, double top,
+      double bottom, double near, double far) = _Matrix4.orthographic;
+
+  /// Returns the value in the first column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c0;
+
+  /// Returns the value in the second column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c1;
+
+  /// Returns the value in the third column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c2;
+
+  /// Returns the value in the fourth column of the first row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r0c3;
+
+  /// Returns the value in the first column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c0;
+
+  /// Returns the value in the second column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c1;
+
+  /// Returns the value in the third column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c2;
+
+  /// Returns the value in the fourth column of the second row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r1c3;
+
+  /// Returns the value in the first column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c0;
+
+  /// Returns the value in the second column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c1;
+
+  /// Returns the value in the third column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c2;
+
+  /// Returns the value in the fourth column of the third row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r2c3;
+
+  /// Returns the value in the first column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c0;
+
+  /// Returns the value in the second column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c1;
+
+  /// Returns the value in the third column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c2;
+
+  /// Returns the value in the fourth column of the fourth row.
+  ///
+  /// This should provide better performance than using [valueAt] or the array
+  /// operator `[]` to retrieve a specific value, as no bounds checks need to
+  /// be performed on value indices.
+  double get r3c3;
+
+  /// Returns the row at the specified index.
+  ///
+  /// Throws a [RangeError] if the specified index is out of bounds.
+  List<double> operator [](int index);
+}
+
+class _Matrix4 extends _MatrixBase implements Matrix4 {
+  final Float32List _storage;
+
+  final int columnDimension = 4;
+
+  final int rowDimension = 4;
+
+  final bool isSquare = true;
+
+  Matrix4 _transpose;
+
+  Matrix4 _inverse;
+
+  double _determinant;
+
+  Float32List _valuesRowPacked;
+
+  factory _Matrix4(
       double r0c0,
       double r0c1,
       double r0c2,
@@ -86,90 +344,26 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[14] = r2c3;
     values[15] = r3c3;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a new [Matrix4] from the given list, partitioned into rows
-  /// of length 4.
-  ///
-  ///     // Instantiates the following matrix:
-  ///     //
-  ///     //    1.0 5.0  9.0 13.0
-  ///     //    2.0 6.0 10.0 14.0
-  ///     //    3.0 7.0 11.0 15.0
-  ///     //    4.0 8.0 12.0 16.0
-  ///     //
-  ///     var matrix = new Matrix4([
-  ///        1.0,  2.0,  3.0,  4.0,
-  ///        5.0,  6.0,  7.0,  8.0,
-  ///        9.0, 10.0, 11.0, 12.0,
-  ///       13.0, 14.0, 15.0, 16.0
-  ///     ]);
-  ///
-  /// Throws an [ArgumentError] if the list does not have a length of 16.
-  factory Matrix4.fromColumnPackedList(List<double> values) {
+  factory _Matrix4.fromColumnPackedList(List<double> values) {
     if (values.length != 16) {
       throw new ArgumentError(
           'A list of length 16 required to instantiate a Matrix4.');
     }
 
-    return new Matrix4._internal(new Float32List.fromList(values));
+    return new _Matrix4._internal(new Float32List.fromList(values));
   }
 
-  /// Instantiates a new [Matrix4] where every position is set to the given
-  /// value.
-  ///
-  ///     // Instantiates the following matrix:
-  ///     //
-  ///     //    2.0 2.0 2.0 2.0
-  ///     //    2.0 2.0 2.0 2.0
-  ///     //    2.0 2.0 2.0 2.0
-  ///     //    2.0 2.0 2.0 2.0
-  ///     //
-  ///     var matrix = new Matrix4.constant(2);
-  ///
-  factory Matrix4.constant(double value) =>
-      new Matrix4._internal(new Float32List(16)..fillRange(0, 16, value));
+  factory _Matrix4.constant(double value) =>
+      new _Matrix4._internal(
+          new Float32List(16)..fillRange(0, 16, value));
 
-  /// Instantiates a new [Matrix4] where every position is set to zero.
-  ///
-  ///     // Instantiates the following matrix:
-  ///     //
-  ///     //    0.0 0.0 0.0 0.0
-  ///     //    0.0 0.0 0.0 0.0
-  ///     //    0.0 0.0 0.0 0.0
-  ///     //    0.0 0.0 0.0 0.0
-  ///     //
-  ///     var matrix = new Matrix4.zero();
-  ///
-  factory Matrix4.zero() => new Matrix4._internal(new Float32List(16));
+  factory _Matrix4.zero() =>
+      new _Matrix4._internal(new Float32List(16));
 
-  /// Instantiates a new [Matrix4] as an identity matrix.
-  ///
-  ///     // Instantiates the following matrix:
-  ///     //
-  ///     //    1.0 0.0 0.0 0.0
-  ///     //    0.0 1.0 0.0 0.0
-  ///     //    0.0 0.0 1.0 0.0
-  ///     //    0.0 0.0 0.0 1.0
-  ///     //
-  ///     var matrix = new Matrix4.identity();
-  ///
-  factory Matrix4.identity() {
-    final values = new Float32List(16);
-
-    values[0] = 1.0;
-    values[5] = 1.0;
-    values[10] = 1.0;
-    values[15] = 1.0;
-
-    return new Matrix4._internal(values);
-  }
-
-  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] translates
-  /// it by [translateX] in the X direction, by [translateY] in the Y direction,
-  /// and by [translateZ] in the Z direction.
-  factory Matrix4.translation(
+  factory _Matrix4.translation(
       double translateX, double translateY, double translateZ) {
     final values = new Float32List(16);
 
@@ -181,13 +375,10 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[14] = translateZ;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] scales it
-  /// by [scaleX] in the X direction, by [scaleY] in the Y direction, and by
-  /// [scaleZ] in the Z direction.
-  factory Matrix4.scale(double scaleX, double scaleY, double scaleZ) {
+  factory _Matrix4.scale(double scaleX, double scaleY, double scaleZ) {
     final values = new Float32List(16);
 
     values[0] = scaleX;
@@ -195,12 +386,10 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[10] = scaleZ;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
-  /// it around the [axis] by [radians].
-  factory Matrix4.rotation(Vector3 axis, double radians) {
+  factory _Matrix4.rotation(Vector3 axis, double radians) {
     final values = new Float32List(16);
     final x = axis.x;
     final y = axis.y;
@@ -222,12 +411,10 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[10] = t * z * z + c;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
-  /// it around the X axis by [radians].
-  factory Matrix4.rotationX(double radians) {
+  factory _Matrix4.rotationX(double radians) {
     final values = new Float32List(16);
     final c = cos(radians);
     final s = sin(radians);
@@ -239,12 +426,10 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[10] = c;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
-  /// it around the Y axis by [radians].
-  factory Matrix4.rotationY(double radians) {
+  factory _Matrix4.rotationY(double radians) {
     final values = new Float32List(16);
     final c = cos(radians);
     final s = sin(radians);
@@ -256,12 +441,10 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[10] = c;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a [Matrix4] that when multiplied with a [Vector4] will rotate
-  /// it around the Z axis by [radians].
-  factory Matrix4.rotationZ(double radians) {
+  factory _Matrix4.rotationZ(double radians) {
     final values = new Float32List(16);
     final c = cos(radians);
     final s = sin(radians);
@@ -273,17 +456,11 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[10] = 1.0;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a new [Matrix4] as a frustum projection matrix for a frustum
-  /// for which the near plane is the rectangle defined by [left], [right],
-  /// [bottom] and [top] at [near] distance and the far plane at [far] distance.
-  ///
-  /// A frustum projection matrix projects coordinates inside a frustum onto
-  /// clip coordinates.
-  factory Matrix4.frustum(double left, double right, double bottom, double top,
-      double near, double far) {
+  factory _Matrix4.frustum(double left, double right, double bottom,
+      double top, double near, double far) {
     final values = new Float32List(16);
     final x = 2.0 * near / (right - left);
     final y = 2.0 * near / (top - bottom);
@@ -300,34 +477,20 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[11] = -1.0;
     values[14] = d;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  /// Instantiates a new [Matrix4] as a perspective projection matrix for a
-  /// view frustum with a field-of-view of [fovRadians], a `width / height`
-  /// aspect ratio of [aspectRatio], the near frustum plane at a distance of
-  /// [near] and the far frustum plane at a distance of [far].
-  ///
-  /// A perspective projection matrix projects coordinates inside its view
-  /// frustum onto clip coordinates.
-  factory Matrix4.perspective(
+  factory _Matrix4.perspective(
       double fovRadians, double aspectRatio, double near, double far) {
     final yMax = near * tan(fovRadians / 2.0);
     final yMin = -yMax;
     final xMin = yMin * aspectRatio;
     final xMax = yMax * aspectRatio;
 
-    return new Matrix4.frustum(xMin, xMax, yMin, yMax, near, far);
+    return new _Matrix4.frustum(xMin, xMax, yMin, yMax, near, far);
   }
 
-  /// Instantiates a new [Matrix4] as an orthographic projection matrix for a
-  /// view cuboid for which the near plane is the rectangle defined by [left],
-  /// [right], [bottom] and [top] at [near] distance and the far plane at [far]
-  /// distance.
-  ///
-  /// An orthographic projection matrix project coordinates inside its view
-  /// cuboid onto clip coordinates.
-  factory Matrix4.orthographic(double left, double right, double top,
+  factory _Matrix4.orthographic(double left, double right, double top,
       double bottom, double near, double far) {
     final values = new Float32List(16);
     final w = 1.0 / (right - left);
@@ -345,121 +508,41 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[14] = -z;
     values[15] = 1.0;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
-  Matrix4._internal(this._storage);
+  _Matrix4._internal(this._storage);
 
-  /// Returns the value in the first column of the first row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r0c0 => _storage[0];
 
-  /// Returns the value in the second column of the first row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r0c1 => _storage[4];
 
-  /// Returns the value in the third column of the first row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r0c2 => _storage[8];
 
-  /// Returns the value in the fourth column of the first row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r0c3 => _storage[12];
 
-  /// Returns the value in the first column of the second row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r1c0 => _storage[1];
 
-  /// Returns the value in the second column of the second row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r1c1 => _storage[5];
 
-  /// Returns the value in the third column of the second row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r1c2 => _storage[9];
 
-  /// Returns the value in the fourth column of the second row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r1c3 => _storage[13];
 
-  /// Returns the value in the first column of the third row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r2c0 => _storage[2];
 
-  /// Returns the value in the second column of the third row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r2c1 => _storage[6];
 
-  /// Returns the value in the third column of the third row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r2c2 => _storage[10];
 
-  /// Returns the value in the fourth column of the third row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r2c3 => _storage[14];
 
-  /// Returns the value in the first column of the fourth row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r3c0 => _storage[3];
 
-  /// Returns the value in the second column of the fourth row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r3c1 => _storage[7];
 
-  /// Returns the value in the third column of the fourth row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r3c2 => _storage[11];
 
-  /// Returns the value in the fourth column of the fourth row.
-  ///
-  /// This should provide better performance than using [valueAt] or the array
-  /// operator `[]` to retrieve a specific value, as no bounds checks need to
-  /// be performed on value indices.
   double get r3c3 => _storage[15];
 
   bool get isNonSingular => determinant != 0;
@@ -510,7 +593,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
       values[14] = r3c2;
       values[15] = r3c3;
 
-      _transpose = new Matrix4._internal(values);
+      _transpose = new _Matrix4._internal(values);
     }
 
     return _transpose;
@@ -585,7 +668,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
       values[14] = detInv * (-r0c3 * b03 + r1c3 * b01 - r2c3 * b00);
       values[15] = detInv * (r0c2 * b03 - r1c2 * b01 + r2c2 * b00);
 
-      _inverse = new Matrix4._internal(values);
+      _inverse = new _Matrix4._internal(values);
     }
 
     return _inverse;
@@ -611,7 +694,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[14] = r2c3 * s;
     values[15] = r3c3 * s;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
   Matrix4 scalarDivision(num s) {
@@ -634,7 +717,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
     values[14] = r2c3 / s;
     values[15] = r3c3 / s;
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
   Matrix4 entrywiseSum(Matrix B) {
@@ -678,7 +761,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
       values[15] = r3c3 + B.valueAt(3, 3);
     }
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
   Matrix4 entrywiseDifference(Matrix B) {
@@ -722,7 +805,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
       values[15] = r3c3 - B.valueAt(3, 3);
     }
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
   Matrix4 entrywiseProduct(Matrix B) {
@@ -766,11 +849,11 @@ class Matrix4 extends _MatrixBase implements Matrix {
       values[15] = r3c3 * B.valueAt(3, 3);
     }
 
-    return new Matrix4._internal(values);
+    return new _Matrix4._internal(values);
   }
 
   matrixProduct(Matrix B) {
-    if (B is Matrix4) {
+    if (B is _Matrix4) {
       final m00 = r0c0;
       final m01 = r0c1;
       final m02 = r0c2;
@@ -824,7 +907,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
       values[14] = (m20 * n03) + (m21 * n13) + (m22 * n23) + (m23 * n33);
       values[15] = (m30 * n03) + (m31 * n13) + (m32 * n23) + (m33 * n33);
 
-      return new Matrix4._internal(values);
+      return new _Matrix4._internal(values);
     } else if (B is Vector4) {
       final n0 = B.x;
       final n1 = B.y;
@@ -836,6 +919,8 @@ class Matrix4 extends _MatrixBase implements Matrix {
           (r1c0 * n0) + (r1c1 * n1) + (r1c2 * n2) + (r1c3 * n3),
           (r2c0 * n0) + (r2c1 * n1) + (r2c2 * n2) + (r2c3 * n3),
           (r3c0 * n0) + (r3c1 * n1) + (r3c2 * n2) + (r3c3 * n3));
+    } else if (B is _Matrix4Identity) {
+      return this;
     } else {
       return super.matrixProduct(B);
     }
@@ -845,9 +930,6 @@ class Matrix4 extends _MatrixBase implements Matrix {
 
   Matrix4 operator -(Matrix B) => entrywiseDifference(B);
 
-  /// Returns the row at the specified index.
-  ///
-  /// Throws a [RangeError] if the specified index is out of bounds.
   List<double> operator [](int index) => rowAt(index);
 
   String toString() {
@@ -858,7 +940,7 @@ class Matrix4 extends _MatrixBase implements Matrix {
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
       return true;
-    } else if (other is Matrix4) {
+    } else if (other is _Matrix4) {
       final s = other._storage;
 
       return _storage[0] == s[0] &&
@@ -877,6 +959,351 @@ class Matrix4 extends _MatrixBase implements Matrix {
           _storage[13] == s[13] &&
           _storage[14] == s[14] &&
           _storage[15] == s[15];
+    } else if (other is _Matrix4Identity) {
+      return _storage[0] == 1.0 &&
+          _storage[1] == 0.0 &&
+          _storage[2] == 0.0 &&
+          _storage[3] == 0.0 &&
+          _storage[4] == 0.0 &&
+          _storage[5] == 1.0 &&
+          _storage[6] == 0.0 &&
+          _storage[7] == 0.0 &&
+          _storage[8] == 0.0 &&
+          _storage[9] == 0.0 &&
+          _storage[10] == 1.0 &&
+          _storage[11] == 0.0 &&
+          _storage[12] == 0.0 &&
+          _storage[13] == 0.0 &&
+          _storage[14] == 0.0 &&
+          _storage[15] == 1.0;
+    } else {
+      return false;
+    }
+  }
+}
+
+class _Matrix4Identity implements Matrix4 {
+  final int rowDimension = 4;
+  final int columnDimension = 4;
+
+  final bool isSquare = true;
+
+  final double r0c0 = 1.0;
+  final double r0c1 = 0.0;
+  final double r0c2 = 0.0;
+  final double r0c3 = 0.0;
+  final double r1c0 = 0.0;
+  final double r1c1 = 1.0;
+  final double r1c2 = 0.0;
+  final double r1c3 = 0.0;
+  final double r2c0 = 0.0;
+  final double r2c1 = 0.0;
+  final double r2c2 = 1.0;
+  final double r2c3 = 0.0;
+  final double r3c0 = 0.0;
+  final double r3c1 = 0.0;
+  final double r3c2 = 0.0;
+  final double r3c3 = 1.0;
+
+  final List<double> _r0 = const [1.0, 0.0, 0.0, 0.0];
+  final List<double> _r1 = const [1.0, 0.0, 0.0, 0.0];
+  final List<double> _r2 = const [1.0, 0.0, 0.0, 0.0];
+  final List<double> _r3 = const [1.0, 0.0, 0.0, 0.0];
+
+  final List<double> valuesRowPacked = const [
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+  ];
+
+  final double determinant = 1.0;
+  final bool isNonSingular = true;
+
+  const _Matrix4Identity();
+
+  Iterable<double> get values => valuesRowPacked;
+
+  Iterable<double> get valuesColumnPacked => valuesRowPacked;
+
+  Matrix4 get transpose => this;
+
+  Matrix4 get inverse => this;
+
+  Matrix4 scalarProduct(num s) {
+    final values = new Float32List(16);
+
+    values[0] = s;
+    values[5] = s;
+    values[10] = s;
+    values[15] = s;
+
+    return new _Matrix4._internal(values);
+  }
+
+  Matrix4 scalarDivision(num s) {
+    final values = new Float32List(16);
+
+    values[0] = 1.0 / s;
+    values[5] = 1.0 / s;
+    values[10] = 1.0 / s;
+    values[15] = 1.0 / s;
+
+    return new _Matrix4._internal(values);
+  }
+
+  Matrix4 entrywiseSum(Matrix B) {
+    final values = new Float32List(16);
+
+    if (B is Matrix4) {
+      values[0] = 1.0 + B.r0c0;
+      values[1] = B.r1c0;
+      values[2] = B.r2c0;
+      values[3] = B.r3c0;
+      values[4] = B.r0c1;
+      values[5] = 1.0 + B.r1c1;
+      values[6] = B.r2c1;
+      values[7] = B.r3c1;
+      values[8] = B.r0c2;
+      values[9] = B.r1c2;
+      values[10] = 1.0 + B.r2c2;
+      values[11] = B.r3c2;
+      values[12] = B.r0c3;
+      values[13] = B.r1c3;
+      values[14] = B.r2c3;
+      values[15] = 1.0 + B.r3c3;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = 1.0 + B.valueAt(0, 0);
+      values[1] = B.valueAt(1, 0);
+      values[2] = B.valueAt(2, 0);
+      values[3] = B.valueAt(3, 0);
+      values[4] = B.valueAt(0, 1);
+      values[5] = 1.0 + B.valueAt(1, 1);
+      values[6] = B.valueAt(2, 1);
+      values[7] = B.valueAt(3, 1);
+      values[8] = B.valueAt(0, 2);
+      values[9] = B.valueAt(1, 2);
+      values[10] = 1.0 + B.valueAt(2, 2);
+      values[11] = B.valueAt(3, 2);
+      values[12] = B.valueAt(0, 3);
+      values[13] = B.valueAt(1, 3);
+      values[14] = B.valueAt(2, 3);
+      values[15] = 1.0 + B.valueAt(3, 3);
+    }
+
+    return new _Matrix4._internal(values);
+  }
+
+  Matrix4 entrywiseDifference(Matrix B) {
+    final values = new Float32List(16);
+
+    if (B is Matrix4) {
+      values[0] = 1.0 - B.r0c0;
+      values[1] = -B.r1c0;
+      values[2] = -B.r2c0;
+      values[3] = -B.r3c0;
+      values[4] = -B.r0c1;
+      values[5] = 1.0 - B.r1c1;
+      values[6] = -B.r2c1;
+      values[7] = -B.r3c1;
+      values[8] = -B.r0c2;
+      values[9] = -B.r1c2;
+      values[10] = 1.0 - B.r2c2;
+      values[11] = -B.r3c2;
+      values[12] = -B.r0c3;
+      values[13] = -B.r1c3;
+      values[14] = -B.r2c3;
+      values[15] = 1.0 - B.r3c3;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = 1.0 - B.valueAt(0, 0);
+      values[1] = -B.valueAt(1, 0);
+      values[2] = -B.valueAt(2, 0);
+      values[3] = -B.valueAt(3, 0);
+      values[4] = -B.valueAt(0, 1);
+      values[5] = 1.0 - B.valueAt(1, 1);
+      values[6] = -B.valueAt(2, 1);
+      values[7] = -B.valueAt(3, 1);
+      values[8] = -B.valueAt(0, 2);
+      values[9] = -B.valueAt(1, 2);
+      values[10] = 1.0 - B.valueAt(2, 2);
+      values[11] = -B.valueAt(3, 2);
+      values[12] = -B.valueAt(0, 3);
+      values[13] = -B.valueAt(1, 3);
+      values[14] = -B.valueAt(2, 3);
+      values[15] = 1.0 - B.valueAt(3, 3);
+    }
+
+    return new _Matrix4._internal(values);
+  }
+
+  Matrix4 entrywiseProduct(Matrix B) {
+    final values = new Float32List(16);
+
+    if (B is Matrix4) {
+      values[0] = B.r0c0;
+      values[5] = B.r1c1;
+      values[10] = B.r2c2;
+      values[15] = B.r3c3;
+    } else {
+      _assertEqualDimensions(this, B);
+
+      values[0] = B.valueAt(0, 0);
+      values[5] = B.valueAt(1, 1);
+      values[10] = B.valueAt(2, 2);
+      values[15] = B.valueAt(3, 3);
+    }
+
+    return new _Matrix4._internal(values);
+  }
+
+  matrixProduct(Matrix B) {
+    if (B is Matrix4) {
+      return B;
+    } else if (B is Vector4) {
+      return B;
+    } else if (B.rowDimension == 4) {
+      return B;
+    } else {
+      throw new ArgumentError('The row dimension of the given matrix B '
+          '(${B.rowDimension}), does not match this matrix\'s column dimension '
+          '(4).');
+    }
+  }
+
+  List<double> rowAt(int index) {
+    if (index == 0) {
+      return _r0;
+    } else if (index == 1) {
+      return _r1;
+    } else if (index == 2) {
+      return _r2;
+    } else if (index == 3) {
+      return _r3;
+    } else {
+      throw new RangeError('Invalid index. Index must be 0, 1, 2 or 3.');
+    }
+  }
+
+  double valueAt(int row, int column) {
+    RangeError.checkValueInInterval(row, 0, rowDimension);
+    RangeError.checkValueInInterval(column, 0, columnDimension);
+
+    return valuesRowPacked[column * rowDimension + row];
+  }
+
+  Matrix subMatrix(int rowStart, int rowEnd, int colStart, int colEnd) {
+    if (rowEnd <= rowStart) {
+      throw new ArgumentError(
+          'The rowEnd index must be greater than the rowStart index.');
+    }
+
+    if (colEnd <= colStart) {
+      throw new ArgumentError(
+          'The colEnd index must be greater than the colStart index.');
+    }
+
+    final rows = (rowEnd - rowStart);
+    final cols = (colEnd - colStart);
+    final subMatrixVals = new Float32List(rows * cols);
+
+    for (var i = rowStart; i < rowEnd; i++) {
+      final m = (i - rowStart) * cols;
+
+      for (var j = colStart; j < colEnd; j++) {
+        subMatrixVals[m + j - colStart] = valueAt(i, j);
+      }
+    }
+
+    return new Matrix.fromList(subMatrixVals, cols);
+  }
+
+  Matrix solve(Matrix B) {
+    if (B.rowDimension == 4) {
+      return B;
+    } else {
+      throw new ArgumentError('The row dimension of the given matrix B '
+          '(${B.rowDimension}), does not match this matrix\'s column dimension '
+          '(4).');
+    }
+  }
+
+  Matrix solveTranspose(Matrix B) {
+    if (B.columnDimension == 4) {
+      return B;
+    } else {
+      throw new ArgumentError('The column dimension of the given matrix B '
+          '(${B.rowDimension}), does not match this matrix\'s row dimension '
+          '(4).');
+    }
+  }
+
+  PivotingLUDecomposition get luDecomposition =>
+      new PivotingLUDecomposition(this);
+
+  ReducedQRDecomposition get qrDecomposition =>
+      new ReducedQRDecomposition(this);
+
+  Matrix4 operator +(Matrix B) => entrywiseSum(B);
+
+  Matrix4 operator -(Matrix B) => entrywiseDifference(B);
+
+  operator *(a) {
+    if (a is num) {
+      return scalarProduct(a);
+    } else if (a is Matrix) {
+      return matrixProduct(a);
+    } else {
+      throw new ArgumentError('Expected num or Matrix.');
+    }
+  }
+
+  List<double> operator [](int index) => rowAt(index);
+
+  String toString() {
+    return 'Matrix4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, '
+        '0.0, 0.0, 0.0, 0.0, 1.0)';
+  }
+
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    } else if (other is _Matrix4Identity) {
+      return true;
+    } else if (other is _Matrix4) {
+      final s = other._storage;
+
+      return s[0] == 1.0 &&
+          s[1] == 0.0 &&
+          s[2] == 0.0 &&
+          s[3] == 0.0 &&
+          s[4] == 0.0 &&
+          s[5] == 1.0 &&
+          s[6] == 0.0 &&
+          s[7] == 0.0 &&
+          s[8] == 0.0 &&
+          s[9] == 0.0 &&
+          s[10] == 1.0 &&
+          s[11] == 0.0 &&
+          s[12] == 0.0 &&
+          s[13] == 0.0 &&
+          s[14] == 0.0 &&
+          s[15] == 1.0;
     } else {
       return false;
     }
