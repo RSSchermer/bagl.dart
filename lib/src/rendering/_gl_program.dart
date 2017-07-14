@@ -133,7 +133,7 @@ class _GLProgram {
             } else if (type == WebGL.FLOAT_VEC3) {
               uniforms.add(
                   new _Vector3Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC3) {
+            } else if (type == WebGL.FLOAT_VEC4) {
               uniforms.add(
                   new _Vector4Uniform(context, this, location, info, name));
             } else if (type == WebGL.FLOAT_MAT2) {
@@ -171,7 +171,7 @@ class _GLProgram {
             } else if (type == WebGL.FLOAT_VEC3) {
               uniforms.add(new _Vector3ArrayUniform(
                   context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC3) {
+            } else if (type == WebGL.FLOAT_VEC4) {
               uniforms.add(new _Vector4ArrayUniform(
                   context, this, location, info, name));
             } else if (type == WebGL.FLOAT_MAT2) {
@@ -938,7 +938,7 @@ class _StructUniform implements _GLUniform {
           } else if (type == WebGL.FLOAT_VEC3) {
             components.add(new _Vector3Uniform(
                 context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC3) {
+          } else if (type == WebGL.FLOAT_VEC4) {
             components.add(new _Vector4Uniform(
                 context, glProgram, location, info, relativeName));
           } else if (type == WebGL.FLOAT_MAT2) {
@@ -976,7 +976,7 @@ class _StructUniform implements _GLUniform {
           } else if (type == WebGL.FLOAT_VEC3) {
             components.add(new _Vector3ArrayUniform(
                 context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC3) {
+          } else if (type == WebGL.FLOAT_VEC4) {
             components.add(new _Vector4ArrayUniform(
                 context, glProgram, location, info, relativeName));
           } else if (type == WebGL.FLOAT_MAT2) {
