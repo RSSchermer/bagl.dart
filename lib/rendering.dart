@@ -22,7 +22,7 @@ part 'src/rendering/blending.dart';
 part 'src/rendering/color_mask.dart';
 part 'src/rendering/context_geometry_resources.dart';
 part 'src/rendering/context_program_resources.dart';
-part 'src/rendering/context_sampler_resources.dart';
+part 'src/rendering/context_texture_resources.dart';
 part 'src/rendering/culling_mode.dart';
 part 'src/rendering/depth_test.dart';
 part 'src/rendering/errors.dart';
@@ -35,5 +35,3 @@ part 'src/rendering/test_function.dart';
 part 'src/rendering/winding_order.dart';
 
 part 'src/rendering/_gl_enum_mapping.dart';
-part 'src/rendering/_gl_program.dart';
-part 'src/rendering/_gl_texture.dart';
