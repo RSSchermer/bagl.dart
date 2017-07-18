@@ -25,6 +25,8 @@ class _GLProgram {
   /// by the uniform variable's name.
   List<_GLUniform> uniforms;
 
+  final Expando<WebGL.VertexArrayObjectOes> geometryVAOs = new Expando();
+
   /// Returns a new [_GLProgram].
   _GLProgram(this.context, this.program, this.glProgramObject,
       this.glVertexShaderObject, this.glFragmentShaderObject) {

@@ -158,8 +158,10 @@ abstract class Frame {
     glPrimitives.updateBuffers();
 
     if (context._supportsVertexArrayObjects) {
-      if (glPrimitives.vao != null) {
-        context._bindVertexArrayObject(glPrimitives.vao);
+      final vao = glProgram.geometryVAOs[glPrimitives];
+
+      if (vao != null) {
+        context._bindVertexArrayObject(vao);
       } else {
         context._bindAttributeDataTable(null);
         context._bindIndexList(null);
@@ -207,7 +209,7 @@ abstract class Frame {
           tables.add(table);
         }
 
-        glPrimitives.vao = vao;
+        glProgram.geometryVAOs[glPrimitives] = vao;
       }
     } else {
       // TODO: find better way than creating a new set every time.

@@ -157,8 +157,6 @@ class _GLPrimitiveSequence {
 
   final List<_GLAttributeDataTable> tables;
 
-  WebGL.VertexArrayObjectOes vao;
-
   _GLPrimitiveSequence(this.primitiveSequence, this.indexList, this.tables);
 
   void updateBuffers() {
