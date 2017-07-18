@@ -135,7 +135,7 @@ class _GLProgram {
 
     // Set up attribute info
     final activeAttributes =
-    glContext.getProgramParameter(glProgramObject, WebGL.ACTIVE_ATTRIBUTES);
+        glContext.getProgramParameter(glProgramObject, WebGL.ACTIVE_ATTRIBUTES);
     attributes = new List<_GLAttributeInfo>(activeAttributes);
 
     for (var i = 0; i < activeAttributes; i++) {
@@ -150,7 +150,7 @@ class _GLProgram {
 
     // Set up uniform info
     final activeUniforms =
-    glContext.getProgramParameter(glProgramObject, WebGL.ACTIVE_UNIFORMS);
+        glContext.getProgramParameter(glProgramObject, WebGL.ACTIVE_UNIFORMS);
     final structs = <String, _StructUniform>{};
     final structArrays = <String, _StructArrayUniform>{};
 
@@ -182,7 +182,7 @@ class _GLProgram {
               existing.addComponent(info, location);
             } else {
               final struct =
-              new _StructUniform(context, this, fullName, fullName);
+                  new _StructUniform(context, this, fullName, fullName);
 
               struct.addComponent(info, location);
               structs[fullName] = struct;
@@ -208,7 +208,7 @@ class _GLProgram {
               existing.addComponent(info, location);
             } else {
               final struct =
-              new _StructUniform(context, this, fullName, fullName);
+                  new _StructUniform(context, this, fullName, fullName);
 
               struct.addComponent(info, location);
               structs[fullName] = struct;
@@ -216,86 +216,124 @@ class _GLProgram {
             }
           }
         } else {
-          final type = info.type;
-
           if (info.size == 1) {
             // We're dealing with a singular basic uniform
 
-            if (type == WebGL.BOOL) {
-              uniforms
-                  .add(new _BoolUniform(context, this, location, info, name));
-            } else if (type == WebGL.INT) {
-              uniforms
-                  .add(new _Int32Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT) {
-              uniforms
-                  .add(new _FloatUniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC2) {
-              uniforms.add(
-                  new _Vector2Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC3) {
-              uniforms.add(
-                  new _Vector3Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC4) {
-              uniforms.add(
-                  new _Vector4Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_MAT2) {
-              uniforms.add(
-                  new _Matrix2Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_MAT3) {
-              uniforms.add(
-                  new _Matrix3Uniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_MAT4) {
-              uniforms.add(
-                  new _Matrix4Uniform(context, this, location, info, name));
-            } else if (type == WebGL.SAMPLER_2D) {
-              uniforms.add(
-                  new _Sampler2DUniform(context, this, location, info, name));
-            } else {
-              throw new ArgumentError('Unsupported uniform type in program for '
-                  'uniform "${info.name}". Currently supported types are: '
-                  '`bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, `mat2`, '
-                  '`mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, `vec2[]`, '
-                  '`vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, `mat4[]`, '
-                  '`sampled2D[]`.');
+            switch (info.type) {
+              case WebGL.BOOL:
+                uniforms
+                    .add(new _BoolUniform(context, this, location, info, name));
+
+                break;
+              case WebGL.INT:
+                uniforms.add(
+                    new _Int32Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT:
+                uniforms.add(
+                    new _FloatUniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_VEC2:
+                uniforms.add(
+                    new _Vector2Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_VEC3:
+                uniforms.add(
+                    new _Vector3Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_VEC4:
+                uniforms.add(
+                    new _Vector4Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_MAT2:
+                uniforms.add(
+                    new _Matrix2Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_MAT3:
+                uniforms.add(
+                    new _Matrix3Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_MAT4:
+                uniforms.add(
+                    new _Matrix4Uniform(context, this, location, info, name));
+
+                break;
+              case WebGL.SAMPLER_2D:
+                uniforms.add(
+                    new _Sampler2DUniform(context, this, location, info, name));
+
+                break;
+              default:
+                throw new ArgumentError('Unsupported uniform type in program '
+                    'for uniform "${info.name}". Currently supported types '
+                    'are: `bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, '
+                    '`mat2`, `mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, '
+                    '`vec2[]`, `vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, '
+                    '`mat4[]`, `sampled2D[]`.');
             }
           } else {
             // We're dealing with a basic array uniform
 
-            if (type == WebGL.INT) {
-              uniforms.add(
-                  new _Int32ArrayUniform(context, this, location, info, name));
-            } else if (type == WebGL.FLOAT) {
-              uniforms.add(new _Float32ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC2) {
-              uniforms.add(new _Vector2ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC3) {
-              uniforms.add(new _Vector3ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_VEC4) {
-              uniforms.add(new _Vector4ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_MAT2) {
-              uniforms.add(new _Matrix2ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_MAT3) {
-              uniforms.add(new _Matrix3ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.FLOAT_MAT4) {
-              uniforms.add(new _Matrix4ArrayUniform(
-                  context, this, location, info, name));
-            } else if (type == WebGL.SAMPLER_2D) {
-              uniforms.add(new _Sampler2DArrayUniform(
-                  context, this, location, info, name));
-            } else {
-              throw new ArgumentError('Unsupported uniform type in program for '
-                  'uniform "${info.name}". Currently supported types are: '
-                  '`bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, `mat2`, '
-                  '`mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, `vec2[]`, '
-                  '`vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, `mat4[]`, '
-                  '`sampled2D[]`.');
+            switch (info.type) {
+              case WebGL.INT:
+                uniforms.add(new _Int32ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT:
+                uniforms.add(new _Float32ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_VEC2:
+                uniforms.add(new _Vector2ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_VEC3:
+                uniforms.add(new _Vector3ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_VEC4:
+                uniforms.add(new _Vector4ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_MAT2:
+                uniforms.add(new _Matrix2ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_MAT3:
+                uniforms.add(new _Matrix3ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.FLOAT_MAT4:
+                uniforms.add(new _Matrix4ArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              case WebGL.SAMPLER_2D:
+                uniforms.add(new _Sampler2DArrayUniform(
+                    context, this, location, info, name));
+
+                break;
+              default:
+                throw new ArgumentError('Unsupported uniform type in program '
+                    'for uniform "${info.name}". Currently supported types '
+                    'are: `bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, '
+                    '`mat2`, `mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, '
+                    '`vec2[]`, `vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, '
+                    '`mat4[]`, `sampled2D[]`.');
             }
           }
         }
@@ -322,7 +360,9 @@ class _GLAttributeInfo {
   final int size;
 
   _GLAttributeInfo(this.glProgram, this.location, WebGL.ActiveInfo activeInfo)
-      : name = activeInfo.name, type = activeInfo.type, size = activeInfo.size;
+      : name = activeInfo.name,
+        type = activeInfo.type,
+        size = activeInfo.size;
 }
 
 /// Information about an active rendering program uniform variable.
@@ -997,7 +1037,7 @@ class _StructUniform implements _GLUniform {
               existingArray.elements.add(struct);
             } else {
               final structArray =
-              new _StructArrayUniform(fullName + '.' + arrayName);
+                  new _StructArrayUniform(fullName + '.' + arrayName);
 
               structArray.elements.add(struct);
               _structArrayComponentsByName[arrayName] = structArray;
@@ -1021,86 +1061,124 @@ class _StructUniform implements _GLUniform {
           }
         }
       } else {
-        final type = info.type;
-
         if (info.size == 1) {
           // We're dealing with a singular basic uniform
 
-          if (type == WebGL.BOOL) {
-            components.add(new _BoolUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.INT) {
-            components.add(new _Int32Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT) {
-            components.add(new _FloatUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC2) {
-            components.add(new _Vector2Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC3) {
-            components.add(new _Vector3Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC4) {
-            components.add(new _Vector4Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_MAT2) {
-            components.add(new _Matrix2Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_MAT3) {
-            components.add(new _Matrix3Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_MAT4) {
-            components.add(new _Matrix4Uniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.SAMPLER_2D) {
-            components.add(new _Sampler2DUniform(
-                context, glProgram, location, info, name));
-          } else {
-            throw new ArgumentError('Unsupported uniform type in program for '
-                'uniform "${info.name}". Currently supported types are: '
-                '`bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, `mat2`, '
-                '`mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, `vec2[]`, '
-                '`vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, `mat4[]`, '
-                '`sampled2D[]`.');
+          switch (info.type) {
+            case WebGL.BOOL:
+              components.add(new _BoolUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.INT:
+              components.add(new _Int32Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT:
+              components.add(new _FloatUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_VEC2:
+              components.add(new _Vector2Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_VEC3:
+              components.add(new _Vector3Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_VEC4:
+              components.add(new _Vector4Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_MAT2:
+              components.add(new _Matrix2Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_MAT3:
+              components.add(new _Matrix3Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_MAT4:
+              components.add(new _Matrix4Uniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.SAMPLER_2D:
+              components.add(new _Sampler2DUniform(
+                  context, glProgram, location, info, name));
+
+              break;
+            default:
+              throw new ArgumentError('Unsupported uniform type in program for '
+                  'uniform "${info.name}". Currently supported types are: '
+                  '`bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, `mat2`, '
+                  '`mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, `vec2[]`, '
+                  '`vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, `mat4[]`, '
+                  '`sampled2D[]`.');
           }
         } else {
           // We're dealing with a basic array uniform
 
-          if (type == WebGL.INT) {
-            components.add(new _Int32ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT) {
-            components.add(new _Float32ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC2) {
-            components.add(new _Vector2ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC3) {
-            components.add(new _Vector3ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_VEC4) {
-            components.add(new _Vector4ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_MAT2) {
-            components.add(new _Matrix2ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_MAT3) {
-            components.add(new _Matrix3ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.FLOAT_MAT4) {
-            components.add(new _Matrix4ArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else if (type == WebGL.SAMPLER_2D) {
-            components.add(new _Sampler2DArrayUniform(
-                context, glProgram, location, info, relativeName));
-          } else {
-            throw new ArgumentError('Unsupported uniform type in program for '
-                'uniform "${info.name}". Currently supported types are: '
-                '`bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, `mat2`, '
-                '`mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, `vec2[]`, '
-                '`vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, `mat4[]`, '
-                '`sampled2D[]`.');
+          switch (info.type) {
+            case WebGL.INT:
+              components.add(new _Int32ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT:
+              components.add(new _Float32ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_VEC2:
+              components.add(new _Vector2ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_VEC3:
+              components.add(new _Vector3ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_VEC4:
+              components.add(new _Vector4ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_MAT2:
+              components.add(new _Matrix2ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_MAT3:
+              components.add(new _Matrix3ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.FLOAT_MAT4:
+              components.add(new _Matrix4ArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            case WebGL.SAMPLER_2D:
+              components.add(new _Sampler2DArrayUniform(
+                  context, glProgram, location, info, relativeName));
+
+              break;
+            default:
+              throw new ArgumentError('Unsupported uniform type in program for '
+                  'uniform "${info.name}". Currently supported types are: '
+                  '`bool`, `int`, `float`, `vec2`, `vec3`, `vec4`, `mat2`, '
+                  '`mat3`, `mat4`, `sampled2D`, `int[]`, `float[]`, `vec2[]`, '
+                  '`vec3[]`, `vec4[]`, `mat2[]`, `mat3[]`, `mat4[]`, '
+                  '`sampled2D[]`.');
           }
         }
       }
