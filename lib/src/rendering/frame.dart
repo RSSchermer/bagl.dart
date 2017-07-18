@@ -163,12 +163,17 @@ abstract class Frame {
       if (vao != null) {
         context._bindVertexArrayObject(vao);
       } else {
+        context._bindVertexArrayObject(null);
         context._bindAttributeDataTable(null);
         context._bindIndexList(null);
 
         final vao = context._vaoExtension.createVertexArray();
 
         context._bindVertexArrayObject(vao);
+
+        if (glIndexList != null) {
+          context._bindIndexList(glIndexList);
+        }
 
         final attributes = glProgram.attributes;
         final attributesLength = attributes.length;
@@ -332,33 +337,46 @@ abstract class Frame {
     }
 
     if (glIndexList != null) {
-      context._bindIndexList(glIndexList);
+      if (!context._supportsVertexArrayObjects) {
+        context._bindIndexList(glIndexList);
+      }
 
       final indexList = glIndexList.indexList;
 
-      if (indexList.indexSize == IndexSize.unsignedByte) {
-        _context.drawElements(_topologyMap[primitives.topology],
-            primitives.count, WebGL.UNSIGNED_BYTE, primitives.offset * 8);
-      } else if (indexList.indexSize == IndexSize.unsignedShort) {
-        _context.drawElements(_topologyMap[primitives.topology],
-            primitives.count, WebGL.UNSIGNED_SHORT, primitives.offset * 16);
-      } else {
-        if (context._supportsElementIndexUint == null) {
-          context._supportsElementIndexUint =
-              context.requestExtension('OES_element_index_uint') != null;
-        }
-
-        if (context._supportsElementIndexUint) {
+      switch (indexList.indexSize) {
+        case IndexSize.unsignedByte:
           _context.drawElements(_topologyMap[primitives.topology],
-              primitives.count, WebGL.UNSIGNED_INT, primitives.offset * 32);
-        } else {
-          throw new ArgumentError('The current context does not support 32 bit '
-              'index lists.');
-        }
+              primitives.count, WebGL.UNSIGNED_BYTE, primitives.offset * 8);
+
+          break;
+        case IndexSize.unsignedShort:
+          _context.drawElements(_topologyMap[primitives.topology],
+              primitives.count, WebGL.UNSIGNED_SHORT, primitives.offset * 16);
+
+          break;
+        case IndexSize.unsignedInt:
+          if (context._supportsElementIndexUint == null) {
+            context._supportsElementIndexUint =
+                context.requestExtension('OES_element_index_uint') != null;
+          }
+
+          if (context._supportsElementIndexUint) {
+            _context.drawElements(_topologyMap[primitives.topology],
+                primitives.count, WebGL.UNSIGNED_INT, primitives.offset * 32);
+          } else {
+            throw new ArgumentError('The current context does not support 32 '
+                'bit index lists.');
+          }
+
+          break;
       }
     } else {
       _context.drawArrays(_topologyMap[primitives.topology], primitives.offset,
           primitives.count);
+    }
+
+    if (context._supportsVertexArrayObjects) {
+      context._bindVertexArrayObject(null);
     }
   }
 
