@@ -49,8 +49,8 @@ main() {
 
   var mainProgram =
       const Program(mainVertexShaderSource, mainFragmentShaderSource);
-  var bufferProgram = const Program(
-      bufferVertexShaderSource, bufferFragmentShaderSource);
+  var bufferProgram =
+      const Program(bufferVertexShaderSource, bufferFragmentShaderSource);
 
   var triangleVertices = new VertexArray([
     new Vertex({
@@ -87,7 +87,8 @@ main() {
       new FrameBuffer(context, 128, 128, colorAttachment: texture);
 
   frameBuffer.clearColor(new Vector4(0.0, 0.0, 1.0, 1.0));
-  frameBuffer.draw(lines, bufferProgram, {}, lineWidth: 3);
+  frameBuffer.draw(lines, bufferProgram, const Uniforms.empty(), lineWidth: 3);
 
-  context.defaultFrame.draw(triangles, mainProgram, {'samplerA': sampler});
+  context.defaultFrame
+      .draw(triangles, mainProgram, new Uniforms({'samplerA': sampler}));
 }

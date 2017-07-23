@@ -67,7 +67,7 @@ void main() {
       final triangles =
           new TriangleStrip(vertices);
 
-      context.defaultFrame.draw(triangles, program, {});
+      context.defaultFrame.draw(triangles, program, const Uniforms.empty());
 
       test('draws the correct frame', () {
         expect(canvas,

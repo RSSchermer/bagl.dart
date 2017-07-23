@@ -211,12 +211,12 @@ main() {
     context.defaultFrame.draw(
         triangles,
         program,
-        {
+        new Uniforms({
           'model': model,
           'projection': projection,
           'view': view,
           'samplerA': sampler
-        },
+        }),
         depthTest: const DepthTest());
   });
 }

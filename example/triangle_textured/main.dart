@@ -54,6 +54,7 @@ main() {
       magnificationFilter: MagnificationFilter.linear);
 
   texture.asFuture().whenComplete(() {
-    context.defaultFrame.draw(triangles, program, {'samplerA': sampler});
+    context.defaultFrame
+        .draw(triangles, program, new Uniforms({'samplerA': sampler}));
   });
 }

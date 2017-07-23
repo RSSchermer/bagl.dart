@@ -47,5 +47,5 @@ main() {
 
   var triangles = new Triangles(vertices);
 
-  context.defaultFrame.draw(triangles, program, {});
+  context.defaultFrame.draw(triangles, program, const Uniforms.empty());
 }

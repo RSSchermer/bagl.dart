@@ -32,6 +32,7 @@ part 'src/rendering/rendering_context.dart';
 part 'src/rendering/shader.dart';
 part 'src/rendering/stencil_test.dart';
 part 'src/rendering/test_function.dart';
+part 'src/rendering/uniforms.dart';
 part 'src/rendering/winding_order.dart';
 
 part 'src/rendering/_gl_enum_mapping.dart';

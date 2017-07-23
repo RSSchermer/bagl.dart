@@ -59,7 +59,8 @@ main() {
           document.querySelector('#checkerboard_color_gradient'));
       final sampler = new Sampler2D(texture);
 
-      context.defaultFrame.draw(triangles, program, {'samplerA': sampler});
+      context.defaultFrame.draw(
+          triangles, program, new Uniforms({'samplerA': sampler}));
 
       test('draws the correct frame', () {
         expect(canvas,

@@ -66,7 +66,7 @@ void main() {
 
       final triangles = new Triangles(vertices);
 
-      context.defaultFrame.draw(triangles, program, {},
+      context.defaultFrame.draw(triangles, program, const Uniforms.empty(),
           attributeNameMap: {'aPos': 'position', 'aColor': 'color'});
 
       test('draws the correct frame', () {

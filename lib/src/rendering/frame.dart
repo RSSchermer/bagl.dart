@@ -106,7 +106,7 @@ abstract class Frame {
   /// Throws a [StateError] if [autoProvisioning] is `false` and not all of the
   /// required geometry, program or sampler resources have been provisioned.
   void draw(PrimitiveSequence primitives, Program program,
-      Map<String, dynamic> uniforms,
+      Uniforms uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,
@@ -713,7 +713,7 @@ class _DefaultFrame extends Frame {
   int get height => context.canvas.height;
 
   void draw(PrimitiveSequence primitives, Program program,
-      Map<String, dynamic> uniforms,
+      Uniforms uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,
@@ -1036,7 +1036,7 @@ class FrameBuffer extends Frame {
   dynamic get colorAttachment => _colorAttachment;
 
   void draw(PrimitiveSequence primitives, Program program,
-      Map<String, dynamic> uniforms,
+      Uniforms uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,

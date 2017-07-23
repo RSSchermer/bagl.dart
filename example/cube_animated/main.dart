@@ -94,7 +94,7 @@ main() {
         new Matrix4.rotationY(time / 1000) * new Matrix4.rotationX(time / 1000);
 
     context.defaultFrame.draw(triangles, program,
-        {'model': model, 'projection': projection, 'view': view},
+        new Uniforms({'model': model, 'projection': projection, 'view': view}),
         depthTest: const DepthTest());
 
     window.requestAnimationFrame(update);

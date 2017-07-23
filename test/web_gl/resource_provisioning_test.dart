@@ -66,7 +66,8 @@ void main() {
           context.textureResources.provisionFor(texture);
 
           expect(() {
-            context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
+            context.defaultFrame.draw(
+                triangles, program, new Uniforms({'samplerA': sampler}),
                 autoProvisioning: false);
           }, throwsStateError);
         });
@@ -77,7 +78,8 @@ void main() {
           context.textureResources.provisionFor(texture);
 
           expect(() {
-            context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
+            context.defaultFrame.draw(
+                triangles, program, new Uniforms({'samplerA': sampler}),
                 autoProvisioning: false);
           }, throwsStateError);
         });
@@ -88,7 +90,8 @@ void main() {
           context.textureResources.deprovisionFor(texture);
 
           expect(() {
-            context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
+            context.defaultFrame.draw(
+                triangles, program, new Uniforms({'samplerA': sampler}),
                 autoProvisioning: false);
           }, throwsStateError);
         });
@@ -98,7 +101,8 @@ void main() {
           context.programResources.provisionFor(program);
           context.textureResources.provisionFor(texture);
 
-          context.defaultFrame.draw(triangles, program, {'samplerA': sampler},
+          context.defaultFrame.draw(
+              triangles, program, new Uniforms({'samplerA': sampler}),
               autoProvisioning: false);
 
           expect(canvas,

@@ -56,9 +56,9 @@ void main() {
 
       final triangles = new Triangles(vertices);
 
-      context.defaultFrame.draw(triangles, program, {
+      context.defaultFrame.draw(triangles, program, new Uniforms({
         'translation': new Matrix3(1.0, 0.0, -0.5, 0.0, 1.0, 0.5, 0.0, 0.0, 1.0)
-      });
+      }));
 
       test('draws the correct frame', () {
         expect(canvas,

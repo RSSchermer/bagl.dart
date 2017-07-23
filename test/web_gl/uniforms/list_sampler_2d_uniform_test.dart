@@ -64,9 +64,9 @@ main() {
       final sampler1 = new Sampler2D(texture1);
       final sampler2 = new Sampler2D(texture2);
 
-      context.defaultFrame.draw(triangles, program, {
+      context.defaultFrame.draw(triangles, program, new Uniforms({
         'samplers': <Sampler2D>[sampler1, sampler2]
-      });
+      }));
 
       test('draws the correct frame', () {
         expect(canvas,

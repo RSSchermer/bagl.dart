@@ -92,6 +92,6 @@ main() {
   var view = new Matrix4.translation(0.0, 0.0, 30.0).inverse;
 
   context.defaultFrame.draw(triangles, program,
-      {'model': model, 'projection': projection, 'view': view},
+      new Uniforms({'model': model, 'projection': projection, 'view': view}),
       depthTest: const DepthTest());
 }

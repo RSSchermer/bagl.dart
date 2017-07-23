@@ -51,7 +51,8 @@ main() {
   var triangles = new Triangles(vertices);
 
   update(num time) {
-    context.defaultFrame.draw(triangles, program, {'scale': sin(time / 1000)});
+    context.defaultFrame
+        .draw(triangles, program, new Uniforms({'scale': sin(time / 1000)}));
 
     window.requestAnimationFrame(update);
   }

@@ -82,7 +82,7 @@ void main() {
 
       final triangles = new Triangles(vertices);
 
-      context.defaultFrame.draw(triangles, program, {
+      context.defaultFrame.draw(triangles, program, new Uniforms({
         'colorPairs': <Struct>[
           new Struct({
             'color1': new Vector3(1.0, 0.0, 0.0),
@@ -93,7 +93,7 @@ void main() {
             'color2': new Vector3(0.0, 0.0, 1.0)
           })
         ]
-      });
+      }));
 
       test('draws the correct frame', () {
         expect(canvas,

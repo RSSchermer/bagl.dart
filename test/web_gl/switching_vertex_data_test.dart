@@ -72,8 +72,8 @@ void main() {
       final triangles2 =
           new Triangles(vertices2);
 
-      context.defaultFrame.draw(triangles1, program, {});
-      context.defaultFrame.draw(triangles2, program, {});
+      context.defaultFrame.draw(triangles1, program, const Uniforms.empty());
+      context.defaultFrame.draw(triangles2, program, const Uniforms.empty());
 
       test('draws the correct frame', () {
         expect(canvas,
