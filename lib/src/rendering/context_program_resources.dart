@@ -132,6 +132,7 @@ class _GLProgram {
   _GLProgram(this.context, this.program, this.glProgramObject,
       this.glVertexShaderObject, this.glFragmentShaderObject) {
     final glContext = context._context;
+    var textureSlotCount = 0;
 
     // Set up attribute info
     final activeAttributes =
@@ -162,6 +163,10 @@ class _GLProgram {
           ? info.name.substring(0, info.name.length - 3)
           : info.name;
       final location = glContext.getUniformLocation(glProgramObject, name);
+
+      if (info.type == WebGL.SAMPLER_2D) {
+        textureSlotCount += info.size;
+      }
 
       if (location != null) {
         final dotPosition = name.indexOf('.');
@@ -338,6 +343,12 @@ class _GLProgram {
           }
         }
       }
+    }
+
+    if (textureSlotCount > context.maxTextureUnits) {
+      throw new StateError('Program uses $textureSlotCount texture slots, but '
+          'only ${context.maxTextureUnits} are available in the current '
+          'context.');
     }
   }
 }

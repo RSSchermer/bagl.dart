@@ -281,11 +281,6 @@ abstract class Frame {
     }
 
     // Set uniform values
-    // final missingUniforms = glProgram.uniformInfoByName.keys.toSet();
-    var samplerCount = 0;
-
-    // TODO: check if this instantiates an iterator, otherwise switch to
-    // a classic for loop.
     final programUniforms = glProgram.uniforms;
     final programUniformsLength = programUniforms.length;
 
@@ -298,17 +293,8 @@ abstract class Frame {
             '"${uniform.name}". Values must be provided for all active '
             'uniforms.');
       } else {
-        if (value is Sampler) {
-          samplerCount++;
-        }
-
         uniform.bindValue(value, autoProvisioning);
       }
-    }
-
-    if (samplerCount > context.maxTextureUnits) {
-      throw new ArgumentError('Tried to bind $samplerCount sampler uniforms, '
-          'but the current context only supports ${context.maxTextureUnits}.');
     }
 
     // Set the remaining draw options
