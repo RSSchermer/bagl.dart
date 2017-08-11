@@ -155,8 +155,6 @@ abstract class Frame {
 
     final glIndexList = glPrimitives.indexList;
 
-    glPrimitives.updateBuffers();
-
     if (context._supportsVertexArrayObjects) {
       final vao = glProgram.geometryVAOs[glPrimitives];
 
@@ -169,7 +167,7 @@ abstract class Frame {
 
         final vao = context._vaoExtension.createVertexArray();
 
-        context._bindVertexArrayObject(vao);
+        context._vaoExtension.bindVertexArray(vao);
 
         if (glIndexList != null) {
           context._bindIndexList(glIndexList);
@@ -214,7 +212,10 @@ abstract class Frame {
           tables.add(table);
         }
 
-        glProgram.geometryVAOs[glPrimitives] = vao;
+        final glVAO = new _GLVertexArrayObject(vao, glIndexList);
+
+        glProgram.geometryVAOs[glPrimitives] = glVAO;
+        context._boundVertexArrayObject = glVAO;
       }
     } else {
       // TODO: find better way than creating a new set every time.
@@ -322,6 +323,8 @@ abstract class Frame {
       context._enableScissorTest();
     }
 
+    glPrimitives.updateBuffers();
+
     if (glIndexList != null) {
       if (!context._supportsVertexArrayObjects) {
         context._bindIndexList(glIndexList);
@@ -359,10 +362,6 @@ abstract class Frame {
     } else {
       _context.drawArrays(_topologyMap[primitives.topology], primitives.offset,
           primitives.count);
-    }
-
-    if (context._supportsVertexArrayObjects) {
-      context._bindVertexArrayObject(null);
     }
   }
 

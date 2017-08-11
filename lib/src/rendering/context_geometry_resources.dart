@@ -53,6 +53,10 @@ class ContextGeometryResources {
 
           _indexListGLIndexList[indexList] = glIndexList;
 
+          if (context._boundVertexArrayObject != null) {
+            context._bindVertexArrayObject(null);
+          }
+
           context._bindIndexList(glIndexList);
           _context.bufferData(
               WebGL.ELEMENT_ARRAY_BUFFER, indexList.buffer, usage);
@@ -107,6 +111,10 @@ class ContextGeometryResources {
           _indexListGLIndexList[primitives.indexList] = null;
 
           if (glIndexList == context._boundIndexList) {
+            if (context._boundVertexArrayObject != null) {
+              context._bindVertexArrayObject(null);
+            }
+
             context._bindIndexList(null);
           }
         }

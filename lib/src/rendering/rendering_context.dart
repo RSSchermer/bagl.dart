@@ -190,7 +190,7 @@ class RenderingContext {
 
   bool _supportsVertexArrayObjects;
 
-  WebGL.VertexArrayObjectOes _boundVertexArrayObject;
+  _GLVertexArrayObject _boundVertexArrayObject;
 
   RenderingContext._internal(this.canvas,
       {bool alpha: true,
@@ -361,9 +361,15 @@ class RenderingContext {
     }
   }
 
-  void _bindVertexArrayObject(WebGL.VertexArrayObjectOes vertexArrayObject) {
+  void _bindVertexArrayObject(_GLVertexArrayObject vertexArrayObject) {
     if (vertexArrayObject != _boundVertexArrayObject) {
-      _vaoExtension.bindVertexArray(vertexArrayObject);
+      if (vertexArrayObject == null) {
+        _vaoExtension.bindVertexArray(null);
+        _boundIndexList = null;
+      } else {
+        _vaoExtension.bindVertexArray(vertexArrayObject.vertexArrayObject);
+        _boundIndexList = vertexArrayObject.indexList;
+      }
 
       _boundVertexArrayObject = vertexArrayObject;
     }
