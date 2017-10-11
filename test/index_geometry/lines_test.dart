@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/geometry.dart';
+import 'package:bagl/index_list.dart';
 import 'package:bagl/vertex.dart';
 import 'package:bagl/vertex_data.dart';
 
@@ -50,7 +51,7 @@ void main() {
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
-            expect(() => new Lines(vertices, indexList: indexList, offset: 8), throwsRangeError);
+            expect(() => new Lines(vertices, indices: indexList, offset: 8), throwsRangeError);
           });
         });
 
@@ -62,7 +63,7 @@ void main() {
 
         group('with a valid offset and count', () {
           test('returns an instance with the correct length', () {
-            expect(new Lines(vertices, indexList: indexList, offset: 2, count: 6).length, equals(3));
+            expect(new Lines(vertices, indices: indexList, offset: 2, count: 6).length, equals(3));
           });
         });
       });
@@ -143,7 +144,7 @@ void main() {
 
     group('instance with an index list', () {
       final indexList = new Index16List.fromList([0, 5, 4, 3, 2, 1]);
-      final lines = new Lines(vertices, indexList: indexList);
+      final lines = new Lines(vertices, indices: indexList);
 
       group('iterator', () {
         final iterator = lines.iterator;
@@ -248,7 +249,7 @@ void main() {
 
     group('instance defined on Lines with an index list', () {
       final indexList = new Index16List.fromList([3, 2, 1, 0]);
-      final lines = new Lines(vertices, indexList: indexList);
+      final lines = new Lines(vertices, indices: indexList);
       final lineView = new LinesLineView(lines, 1);
 
       test('startIndex returns the correct value', () {

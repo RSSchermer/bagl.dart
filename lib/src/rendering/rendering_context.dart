@@ -12,9 +12,13 @@ class RenderingContext {
   /// The canvas element this rendering context is associated with.
   final CanvasElement canvas;
 
-  /// Manages the provisioning and deprovisioning of geometry related GPU
+  /// Manages the provisioning and deprovisioning of attribute data related GPU
   /// resources for this [RenderingContext].
-  ContextGeometryResources geometryResources;
+  ContextAttributeDataResources attributeDataResources;
+
+  /// Manages the provisioning and deprovisioning of index data related GPU
+  /// resources for this [RenderingContext].
+  ContextIndexDataResources indexDataResources;
 
   /// Manages the provisioning and deprovisioning of program related GPU
   /// resources for this [RenderingContext].
@@ -45,21 +49,21 @@ class RenderingContext {
   /// context.
   Frame _boundFrameBuffer;
 
-  /// The [AttributeDataTable] currently bound to the WebGL context.
-  _GLAttributeDataTable _boundAttributeDataTable;
+  /// The [AttributeData] currently bound to the WebGL context.
+  _GLAttributeData _boundAttributeData;
 
-  /// The [IndexList] currently bound to the WebGL context.
-  _GLIndexList _boundIndexList;
+  /// The [IndexData] currently bound to the WebGL context.
+  _GLIndexData _boundIndexData;
 
   /// The [Texture2D] currently bound to the WebGL context.
   Texture2D _boundTexture2D;
 
-  /// List of [VertexAttributes] currently bound to shader program attribute
-  /// locations to the [VertexAttribute].
+  /// List of [VertexAttributePointer]s currently bound to shader program
+  /// attribute locations.
   ///
   /// Used to verify if the vertexAttribPointer needs to be changed or if the
   /// vertexAttribPointer is already set up correctly.
-  List<VertexAttribute> _locationAttributes;
+  List<VertexAttributePointer> _locationAttributePointers;
 
   /// The shader program attribute locations that are currently enabled.
   Set<int> _enabledAttributeLocations = new Set();
@@ -222,14 +226,15 @@ class RenderingContext {
           'failIfMajorPerformanceCaveat': failIfMajorPerformanceCaveat
         });
 
-    geometryResources = new ContextGeometryResources._internal(this);
+    attributeDataResources = new ContextAttributeDataResources._internal(this);
+    indexDataResources = new ContextIndexDataResources._internal(this);
     programResources = new ContextProgramResources._internal(this);
     textureResources = new ContextTextureResources._internal(this);
     _defaultFrame = new _DefaultFrame(this);
     _boundFrameBuffer = _defaultFrame;
     _recentlyUsedTextureUnits =
         new Queue.from(new List.generate(maxTextureUnits, (i) => i));
-    _locationAttributes = new List<VertexAttribute>(
+    _locationAttributePointers = new List<VertexAttributePointer>(
         _context.getParameter(WebGL.MAX_VERTEX_ATTRIBS));
     _vaoExtension = _context.getExtension('OES_vertex_array_object');
     _supportsVertexArrayObjects = _vaoExtension != null;
@@ -337,27 +342,27 @@ class RenderingContext {
     }
   }
 
-  void _bindAttributeDataTable(_GLAttributeDataTable table) {
-    if (table != _boundAttributeDataTable) {
-      if (table == null) {
+  void _bindAttributeData(_GLAttributeData attributeData) {
+    if (attributeData != _boundAttributeData) {
+      if (attributeData == null) {
         _context.bindBuffer(WebGL.ARRAY_BUFFER, null);
       } else {
-        _context.bindBuffer(WebGL.ARRAY_BUFFER, table.VBO);
+        _context.bindBuffer(WebGL.ARRAY_BUFFER, attributeData.VBO);
       }
 
-      _boundAttributeDataTable = table;
+      _boundAttributeData = attributeData;
     }
   }
 
-  void _bindIndexList(_GLIndexList indexList) {
-    if (indexList != _boundIndexList) {
-      if (indexList == null) {
+  void _bindIndexData(_GLIndexData indexData) {
+    if (indexData != _boundIndexData) {
+      if (indexData == null) {
         _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, null);
       } else {
-        _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, indexList.IBO);
+        _context.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, indexData.IBO);
       }
 
-      _boundIndexList = indexList;
+      _boundIndexData = indexData;
     }
   }
 
@@ -365,10 +370,10 @@ class RenderingContext {
     if (vertexArrayObject != _boundVertexArrayObject) {
       if (vertexArrayObject == null) {
         _vaoExtension.bindVertexArray(null);
-        _boundIndexList = null;
+        _boundIndexData = null;
       } else {
         _vaoExtension.bindVertexArray(vertexArrayObject.vertexArrayObject);
-        _boundIndexList = vertexArrayObject.indexList;
+        _boundIndexData = vertexArrayObject.glIndexData;
       }
 
       _boundVertexArrayObject = vertexArrayObject;

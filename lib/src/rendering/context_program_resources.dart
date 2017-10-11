@@ -126,7 +126,7 @@ class _GLProgram {
   /// by the uniform variable's name.
   List<_GLUniform> uniforms;
 
-  final Expando<_GLVertexArrayObject> geometryVAOs = new Expando();
+  final Expando<_GLVertexArrayObject> vertexDataVAOs = new Expando();
 
   /// Returns a new [_GLProgram].
   _GLProgram(this.context, this.program, this.glProgramObject,
@@ -354,11 +354,29 @@ class _GLProgram {
 }
 
 class _GLVertexArrayObject {
+  final VertexDataSource vertexData;
+
+  _GLIndexData glIndexData;
+
+  final int vertexDataVersion;
+
   final WebGL.VertexArrayObjectOes vertexArrayObject;
 
-  final _GLIndexList indexList;
+  final List<_GLAttributeData> dataSources = [];
 
-  _GLVertexArrayObject(this.vertexArrayObject, this.indexList);
+  _GLVertexArrayObject(
+      this.vertexArrayObject, this.vertexData, this.glIndexData)
+      : vertexDataVersion = vertexData.version;
+
+  void updateBuffers() {
+    glIndexData?.updateBuffer();
+
+    final length = dataSources.length;
+
+    for (var i = 0; i < length; i++) {
+      dataSources[i].updateBuffer();
+    }
+  }
 }
 
 /// Information about an active rendering program attribute variable.

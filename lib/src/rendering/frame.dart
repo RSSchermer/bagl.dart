@@ -105,8 +105,7 @@ abstract class Frame {
   ///
   /// Throws a [StateError] if [autoProvisioning] is `false` and not all of the
   /// required geometry, program or sampler resources have been provisioned.
-  void draw(PrimitiveSequence primitives, Program program,
-      Uniforms uniforms,
+  void draw(PrimitiveSource primitives, Program program, Uniforms uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,
@@ -119,24 +118,7 @@ abstract class Frame {
       bool dithering: true,
       Map<String, String> attributeNameMap: const {},
       bool autoProvisioning: true}) {
-    var glPrimitives =
-        context.geometryResources._getGlPrimitiveSequence(primitives);
     var glProgram = context.programResources._getGLProgram(program);
-
-    if (glPrimitives == null) {
-      if (autoProvisioning) {
-        context.geometryResources.provisionFor(primitives);
-
-        glPrimitives =
-            context.geometryResources._getGlPrimitiveSequence(primitives);
-      } else {
-        throw new StateError('GPU resources have not yet been provisioned for '
-            'the primivites and `autoProvisioning` was set to `false`. '
-            'Provision resources with '
-            '`context.geometryResources.provisionFor(geometry)` or set '
-            '`autoProvisioning` to `true`.');
-      }
-    }
 
     if (glProgram == null) {
       if (autoProvisioning) {
@@ -153,37 +135,68 @@ abstract class Frame {
 
     context._useProgram(glProgram);
 
-    final glIndexList = glPrimitives.indexList;
+    final indexData = primitives.indices;
+
+    var glIndexData = null;
+
+    if (indexData != null) {
+      final indexDataResources = context.indexDataResources;
+
+      if (autoProvisioning) {
+        indexDataResources.provisionFor(indexData);
+      }
+
+      glIndexData = indexDataResources._getGlIndexData(indexData);
+
+      if (glIndexData == null) {
+        throw new StateError('No resources have been provisioned for the '
+            'index data for the primitives used in this draw call. Either set '
+            '`autoProvisioning` to `true` or provision resources with '
+            '`context.indexDataResources(data)` before making this draw call.');
+      }
+    }
 
     if (context._supportsVertexArrayObjects) {
-      final vao = glProgram.geometryVAOs[glPrimitives];
+      final vertexData = primitives.vertices;
+      final glVao = glProgram.vertexDataVAOs[vertexData];
 
-      if (vao != null) {
-        context._bindVertexArrayObject(vao);
+      if (glVao != null &&
+          glVao.vertexData == vertexData &&
+          glVao.vertexDataVersion == vertexData.version) {
+        context._bindVertexArrayObject(glVao);
+
+        if (glIndexData != glVao.glIndexData) {
+          context._bindIndexData(glIndexData);
+
+          glVao.glIndexData = glIndexData;
+        }
+
+        glVao.updateBuffers();
       } else {
         context._bindVertexArrayObject(null);
-        context._bindAttributeDataTable(null);
-        context._bindIndexList(null);
+        context._bindAttributeData(null);
+        context._bindIndexData(null);
 
         final vao = context._vaoExtension.createVertexArray();
+        final glVAO = new _GLVertexArrayObject(vao, vertexData, glIndexData);
 
         context._vaoExtension.bindVertexArray(vao);
 
-        if (glIndexList != null) {
-          context._bindIndexList(glIndexList);
+        if (glIndexData != null) {
+          context._bindIndexData(glIndexData);
         }
 
         final attributes = glProgram.attributes;
         final attributesLength = attributes.length;
-        final tables = new Set<AttributeDataTable>();
+        final attributeDataResources = context.attributeDataResources;
 
         for (var i = 0; i < attributesLength; i++) {
           final attributeInfo = attributes[i];
           final mappedName =
               attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
-          final attribute = primitives.vertexArray.attributes[mappedName];
+          final pointer = primitives.vertices.attributePointer(mappedName);
 
-          if (attribute == null) {
+          if (pointer == null) {
             throw new ArgumentError('The geometry does not define an attribute '
                 'matching the "${attributeInfo.name}" attribute on the shader '
                 'program.');
@@ -191,30 +204,46 @@ abstract class Frame {
 
           // TODO: add check to see if attributeInfo.type matches attribute?
 
-          final columnCount = attribute.columnCount;
-          final columnSize = attribute.columnSize;
-          final table = attribute.attributeDataTable;
-          final stride = table.elementSizeInBytes;
+          final columnCount = pointer.columnCount;
+          final columnSize = pointer.columnSize;
+          final data = pointer.data;
+          final stride = pointer.strideInBytes;
           final startLocation = attributeInfo.location;
 
-          for (var i = 0; i < columnCount; i++) {
-            var location = startLocation + i;
-            var offset = attribute.offsetInBytes + i * columnSize * 4;
-            var glTable =
-                context.geometryResources._getGlAttributeDataTable(table);
+          if (autoProvisioning) {
+            attributeDataResources.provisionFor(data);
+          }
 
-            context._bindAttributeDataTable(glTable);
+          final glAttributeData =
+              context.attributeDataResources._getGlAttributeData(data);
+
+          if (glAttributeData == null) {
+            throw new StateError('No resources have been provisioned for the '
+                'attribute data on which the `$mappedName` attribute is '
+                'defined. Either set `autoProvisioning` to `true` or provision '
+                'resources with `context.attributeDataResources(data)` before '
+                'making this draw call.');
+          }
+
+          for (var i = 0; i < columnCount; i++) {
+            final location = startLocation + i;
+            final offset = pointer.offsetInBytes + i * columnSize * 4;
+
+            context._bindAttributeData(glAttributeData);
             _context.vertexAttribPointer(
-                location, columnSize, WebGL.FLOAT, false, stride, offset);
+                location,
+                columnSize,
+                _attributeDataTypeMap[data.type],
+                pointer.normalize,
+                stride,
+                offset);
             _context.enableVertexAttribArray(location);
           }
 
-          tables.add(table);
+          glVAO.dataSources.add(glAttributeData);
         }
 
-        final glVAO = new _GLVertexArrayObject(vao, glIndexList);
-
-        glProgram.geometryVAOs[glPrimitives] = glVAO;
+        glProgram.vertexDataVAOs[vertexData] = glVAO;
         context._boundVertexArrayObject = glVAO;
       }
     } else {
@@ -226,14 +255,15 @@ abstract class Frame {
 
       final attributes = glProgram.attributes;
       final attributesLength = attributes.length;
+      final attributeDataResources = context.attributeDataResources;
 
       for (var i = 0; i < attributesLength; i++) {
         final attributeInfo = attributes[i];
         final mappedName =
             attributeNameMap[attributeInfo.name] ?? attributeInfo.name;
-        final attribute = primitives.vertexArray.attributes[mappedName];
+        final pointer = primitives.vertices.attributePointer(mappedName);
 
-        if (attribute == null) {
+        if (pointer == null) {
           throw new ArgumentError('The geometry does not define an attribute '
               'matching the "${attributeInfo.name}" attribute on the shader '
               'program.');
@@ -241,11 +271,28 @@ abstract class Frame {
 
         // TODO: add check to see if attributeInfo.type matches attribute?
 
-        final columnCount = attribute.columnCount;
-        final columnSize = attribute.columnSize;
-        final table = attribute.attributeDataTable;
-        final stride = table.elementSizeInBytes;
+        final columnCount = pointer.columnCount;
+        final columnSize = pointer.columnSize;
+        final data = pointer.data;
+        final stride = pointer.strideInBytes;
         final startLocation = attributeInfo.location;
+
+        if (autoProvisioning) {
+          attributeDataResources.provisionFor(data);
+        }
+
+        final glAttributeData =
+            context.attributeDataResources._getGlAttributeData(data);
+
+        if (glAttributeData == null) {
+          throw new StateError('No resources have been provisioned for the '
+              'attribute data on which the `$mappedName` attribute is '
+              'defined. Either set `autoProvisioning` to `true` or provision '
+              'resources with `context.attributeDataResources(data)` before '
+              'making this draw call.');
+        }
+
+        glAttributeData.updateBuffer();
 
         for (var i = 0; i < columnCount; i++) {
           var location = startLocation + i;
@@ -253,16 +300,19 @@ abstract class Frame {
           // If the attribute bound to the location is null or an attribute
           // other than the current attribute, set up a new vertex attribute
           // pointer.
-          if (context._locationAttributes[location] != attribute) {
-            var offset = attribute.offsetInBytes + i * columnSize * 4;
-            var glTable =
-                context.geometryResources._getGlAttributeDataTable(table);
+          if (context._locationAttributePointers[location] != pointer) {
+            var offset = pointer.offsetInBytes + i * columnSize * 4;
 
-            context._bindAttributeDataTable(glTable);
+            context._bindAttributeData(glAttributeData);
             _context.vertexAttribPointer(
-                location, columnSize, WebGL.FLOAT, false, stride, offset);
+                location,
+                columnSize,
+                _attributeDataTypeMap[data.type],
+                pointer.normalize,
+                stride,
+                offset);
 
-            context._locationAttributes[location] = attribute;
+            context._locationAttributePointers[location] = pointer;
           }
 
           if (!context._enabledAttributeLocations.contains(location)) {
@@ -279,6 +329,9 @@ abstract class Frame {
         _context.disableVertexAttribArray(position);
         context._enabledAttributeLocations.remove(position);
       }
+
+      context._bindIndexData(glIndexData);
+      glIndexData?.updateBuffer();
     }
 
     // Set uniform values
@@ -323,27 +376,19 @@ abstract class Frame {
       context._enableScissorTest();
     }
 
-    glPrimitives.updateBuffers();
-
-    if (glIndexList != null) {
-      if (!context._supportsVertexArrayObjects) {
-        context._bindIndexList(glIndexList);
-      }
-
-      final indexList = glIndexList.indexList;
-
-      switch (indexList.indexSize) {
-        case IndexSize.unsignedByte:
+    if (glIndexData != null) {
+      switch (indexData.type) {
+        case IndexDataType.unsignedByte:
           _context.drawElements(_topologyMap[primitives.topology],
               primitives.count, WebGL.UNSIGNED_BYTE, primitives.offset * 8);
 
           break;
-        case IndexSize.unsignedShort:
+        case IndexDataType.unsignedShort:
           _context.drawElements(_topologyMap[primitives.topology],
               primitives.count, WebGL.UNSIGNED_SHORT, primitives.offset * 16);
 
           break;
-        case IndexSize.unsignedInt:
+        case IndexDataType.unsignedInt:
           if (context._supportsElementIndexUint == null) {
             context._supportsElementIndexUint =
                 context.requestExtension('OES_element_index_uint') != null;
@@ -697,8 +742,7 @@ class _DefaultFrame extends Frame {
   int get width => context.canvas.width;
   int get height => context.canvas.height;
 
-  void draw(PrimitiveSequence primitives, Program program,
-      Uniforms uniforms,
+  void draw(PrimitiveSource primitives, Program program, Uniforms uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,
@@ -1020,8 +1064,7 @@ class FrameBuffer extends Frame {
   /// output channel.
   dynamic get colorAttachment => _colorAttachment;
 
-  void draw(PrimitiveSequence primitives, Program program,
-      Uniforms uniforms,
+  void draw(PrimitiveSource primitives, Program program, Uniforms uniforms,
       {DepthTest depthTest: null,
       StencilTest stencilTest: null,
       Blending blending: null,

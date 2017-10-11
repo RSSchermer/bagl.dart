@@ -28,37 +28,36 @@ part of bagl.geometry;
 ///     //     \ /       \ /
 ///     //      v6        v1
 ///
-/// The vertex sequence is described by the [vertexArray], the [indexList],
-/// the [offset] and the [count].
+/// The vertex sequence is described by the [vertices], the [indices], the
+/// [offset] and the [count].
 ///
-/// The [indexList] may be `null`. If the [indexList] is `null`, then the
-/// vertex sequence is the identical to the vertex sequence of the
-/// [vertexArray]: the first vertex in the sequence is the first vertex in the
-/// [vertexArray], the second vertex in the sequence is the second vertex in the
-/// [vertexArray], etc.
+/// The [indices] may be `null`. If the [indices] is `null`, then the vertex
+/// sequence is the identical to the vertex sequence of the [vertices]: the
+/// first vertex in the sequence is the first vertex in the [vertices], the
+/// second vertex in the sequence is the second vertex in the [vertices], etc.
 ///
-/// If the [indexList] is not `null`, then the vertex sequence is the sequence
-/// of indices, mapped to the vertices they identify in the [vertexArray]: the
-/// first vertex in the sequence is the vertex in the [vertexArray] identified
-/// by the first index in the [indexList], the second vertex in the sequence is
-/// the vertex in the [vertexArray] identified by the second index in the
-/// [indexList], etc. The indices in the [indexList] must all be valid indices
-/// for vertices in the [vertexArray].
+/// If the [indices] is not `null`, then the vertex sequence is the sequence of
+/// indices, mapped to the vertices they identify in the [vertices]: the first
+/// vertex in the sequence is the vertex in the [vertices] identified by the
+/// first index in the [indices], the second vertex in the sequence is the
+/// vertex in the [vertices] identified by the second index in the [indices],
+/// etc. The indices in the [indices] must all be valid indices for vertices in
+/// the [vertices].
 ///
-/// The [offset] and [count] can be used to constrain the vertex sequence to
-/// a subrange of the sequence described by the [vertexArray] and the
-/// [indexList]. The [offset] declares the number of vertices that are to be
-/// skipped at the beginning of the sequence. The [count] declares the number of
-/// vertices that are to be drawn from the sequence (starting at the [offset]).
+/// The [offset] and [count] can be used to constrain the vertex sequence to a
+/// subrange of the sequence described by the [vertices] and the [indices]. The
+/// [offset] declares the number of vertices that are to be skipped at the
+/// beginning of the sequence. The [count] declares the number of vertices that
+/// are to be drawn from the sequence (starting at the [offset]).
 ///
 /// See also [Triangles] and [TriangleStrip].
 class TriangleFan extends IterableBase<TriangleFanTriangleView>
     implements PrimitiveSequence<TriangleFanTriangleView> {
   final topology = Topology.triangleFan;
 
-  final VertexArray vertexArray;
+  final VertexArray vertices;
 
-  final IndexList indexList;
+  final IndexList indices;
 
   final int offset;
 
@@ -71,21 +70,21 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
   /// Throws a [RangeError] if the [offset] is negative.
   ///
   /// Throws a [RangeError] if the [offset] is equal to or greater than the
-  /// length of the [vertexArray] if no [indexList] is specified.
+  /// length of the [vertices] if no [indices] is specified.
   ///
   /// Throws a [RangeError] if the [offset] is equal to or greater than the
-  /// length of the [indexList] if an [indexList] is specified.
+  /// length of the [indices] if an [indices] is specified.
   ///
   /// Throws a [RangeError] if the [count] is negative.
   ///
   /// Throws a [RangeError] if `offset + count` is greater than the length of
-  /// the [vertexArray] if no [indexList] is specified.
+  /// the [vertices] if no [indices] is specified.
   ///
   /// Throws a [RangeError] if `offset + count` is greater than the length of
-  /// the [indexList] if an [indexList] is specified.
-  factory TriangleFan(VertexArray vertexArray,
-      {IndexList indexList, int offset: 0, int count}) {
-    final maxCount = indexList == null ? vertexArray.length : indexList.length;
+  /// the [indices] if an [indices] is specified.
+  factory TriangleFan(VertexArray vertices,
+      {IndexList indices, int offset: 0, int count}) {
+    final maxCount = indices == null ? vertices.length : indices.length;
 
     count ??= maxCount;
 
@@ -93,11 +92,10 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
     RangeError.checkValueInInterval(count, 0, maxCount - offset, 'count');
 
     return new TriangleFan._internal(
-        vertexArray, indexList, offset, count ?? maxCount);
+        vertices, indices, offset, count ?? maxCount);
   }
 
-  TriangleFan._internal(
-      this.vertexArray, this.indexList, this.offset, this._count);
+  TriangleFan._internal(this.vertices, this.indices, this.offset, this._count);
 
   Iterator<TriangleFanTriangleView> get iterator =>
       new _TriangleFanIterator(this);
@@ -105,7 +103,7 @@ class TriangleFan extends IterableBase<TriangleFanTriangleView>
   int get count => _count;
 
   void set count(int count) {
-    final maxCount = indexList == null ? vertexArray.length : indexList.length;
+    final maxCount = indices == null ? vertices.length : indices.length;
 
     RangeError.checkValueInInterval(count, 0, maxCount - offset, 'count');
 
@@ -167,7 +165,7 @@ class TriangleFanTriangleView implements Triangle {
 
   final int _offset;
 
-  final IndexList _indexList;
+  final IndexList _indices;
 
   /// Instantiates a new [TriangleFanTriangleView] on the triangle at the
   /// given [index] in the [triangleFan].
@@ -175,7 +173,7 @@ class TriangleFanTriangleView implements Triangle {
       : triangleFan = triangleFan,
         index = index,
         _offset = triangleFan.offset + index,
-        _indexList = triangleFan.indexList;
+        _indices = triangleFan.indices;
 
   /// The offset of the index for vertex [a] in the [IndexList] used by the
   /// [triangleFan].
@@ -201,8 +199,8 @@ class TriangleFanTriangleView implements Triangle {
   /// The index of vertex [a] in the [VertexArray] on which this triangle view
   /// is defined.
   int get aIndex {
-    if (_indexList != null) {
-      return _indexList[aOffset];
+    if (_indices != null) {
+      return _indices[aOffset];
     } else {
       return aOffset;
     }
@@ -211,8 +209,8 @@ class TriangleFanTriangleView implements Triangle {
   /// The index of vertex [b] in the [VertexArray] on which this triangle view
   /// is defined.
   int get bIndex {
-    if (_indexList != null) {
-      return _indexList[bOffset];
+    if (_indices != null) {
+      return _indices[bOffset];
     } else {
       return bOffset;
     }
@@ -221,14 +219,14 @@ class TriangleFanTriangleView implements Triangle {
   /// The index of vertex [c] in the [VertexArray] on which this triangle view
   /// is defined.
   int get cIndex {
-    if (_indexList != null) {
-      return _indexList[cOffset];
+    if (_indices != null) {
+      return _indices[cOffset];
     } else {
       return cOffset;
     }
   }
 
-  Vertex get a => triangleFan.vertexArray[aIndex];
-  Vertex get b => triangleFan.vertexArray[bIndex];
-  Vertex get c => triangleFan.vertexArray[cIndex];
+  Vertex get a => triangleFan.vertices[aIndex];
+  Vertex get b => triangleFan.vertices[bIndex];
+  Vertex get c => triangleFan.vertices[cIndex];
 }

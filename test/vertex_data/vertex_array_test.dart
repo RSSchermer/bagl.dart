@@ -68,15 +68,19 @@ void main () {
         });
 
         test('returns a vertex array with the correct attributes', () {
-          expect(vertices.attributes.keys, unorderedEquals(['position', 'color']));
+          expect(vertices.attributeNames, unorderedEquals(['position', 'color']));
         });
 
-        test('returns a vertex array backed by a single attribute data table not marked as dynamic with the correct row length', () {
-          final tables = vertices.attributes.values.map((a) => a.attributeDataTable).toSet();
+        test('defines the `position` and `color` attributes on the same table', () {
+          expect(vertices.attributePointer('position').data, equals(vertices.attributePointer('color').data));
+        });
 
-          expect(tables.length, equals(1));
-          expect(tables.first.isDynamic, isFalse);
-          expect(tables.first.rowLength, equals(5));
+        test('the table has the correct row length', () {
+          expect(vertices.attributePointer('position').data.rowLength, equals(5));
+        });
+
+        test('the table is not marked as dynamic', () {
+          expect(vertices.attributePointer('position').data.isDynamic, isFalse);
         });
       });
     });
@@ -143,15 +147,17 @@ void main () {
         });
 
         test('returns a vertex array with the correct attributes', () {
-          expect(vertices.attributes.keys, unorderedEquals(['position', 'color']));
+          expect(vertices.attributeNames, unorderedEquals(['position', 'color']));
         });
 
-        test('returns a vertex array backed by a single attribute data table marked as dynamic with the correct row length', () {
-          final tables = vertices.attributes.values.map((a) => a.attributeDataTable).toSet();
+        test('defines the `position` and `color` attributes on the same table', () {
+          expect(vertices.attributePointer('position').data, equals(vertices.attributePointer('color').data));
+        });
 
-          expect(tables.length, equals(1));
-          expect(tables.first.isDynamic, isTrue);
-          expect(tables.first.rowLength, equals(5));
+
+
+        test('the table is not marked as dynamic', () {
+          expect(vertices.attributePointer('position').data.isDynamic, isTrue);
         });
       });
     });
@@ -187,8 +193,12 @@ void main () {
           'color': new Vector3Attribute(colorData)
         });
 
-        test('instantiates a new vertex array with 2 tables', () {
-          expect(vertices.attributeDataTables.length, equals(2));
+        test('with the `position` attribute defined on the correct table', () {
+          expect(vertices.attributePointer('position').data, equals(positionData));
+        });
+
+        test('with the `color` attribute defined on the correct table', () {
+          expect(vertices.attributePointer('color').data, equals(colorData));
         });
 
         test('instantiates a new vertex array with the correct length', () {
@@ -202,8 +212,12 @@ void main () {
           'color': new Vector3Attribute(interleavedAttributeData, offset: 2)
         });
 
-        test('instantiates a new vertex array with 1 tables', () {
-          expect(vertices.attributeDataTables.length, equals(1));
+        test('with the `position` attribute defined on the correct table', () {
+          expect(vertices.attributePointer('position').data, equals(interleavedAttributeData));
+        });
+
+        test('with the `color` attribute defined on the correct table', () {
+          expect(vertices.attributePointer('color').data, equals(interleavedAttributeData));
         });
 
         test('instantiates a new vertex array with the correct length', () {
@@ -355,8 +369,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].attributeDataTable, equals(subArray.attributes['color'].attributeDataTable));
-            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(5));
+            expect(subArray.attributePointer('position').data, equals(subArray.attributePointer('color').data));
+            expect(subArray.attributePointer('position').data.rowLength, equals(5));
           });
         });
 
@@ -369,8 +383,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].attributeDataTable, equals(subArray.attributes['color'].attributeDataTable));
-            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(5));
+            expect(subArray.attributePointer('position').data, equals(subArray.attributePointer('color').data));
+            expect(subArray.attributePointer('position').data.rowLength, equals(5));
           });
         });
       });
@@ -419,8 +433,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(2));
-            expect(subArray.attributes['color'].attributeDataTable.rowLength, equals(3));
+            expect(subArray.attributePointer('position').data.rowLength, equals(2));
+            expect(subArray.attributePointer('color').data.rowLength, equals(3));
           });
         });
 
@@ -433,8 +447,8 @@ void main () {
 
           test('returns a new vertex array with the correct attributes', () {
             expect(subArray.attributeNames, unorderedEquals(['position', 'color']));
-            expect(subArray.attributes['position'].attributeDataTable.rowLength, equals(2));
-            expect(subArray.attributes['color'].attributeDataTable.rowLength, equals(3));
+            expect(subArray.attributePointer('position').data.rowLength, equals(2));
+            expect(subArray.attributePointer('color').data.rowLength, equals(3));
           });
         });
       });
@@ -538,7 +552,7 @@ void main () {
           });
 
           test('correctly updates the attribute data', () {
-            expect(vertices.attributeDataTables.first[1], orderedCloseTo([0.5, 0.5, 1.0, 0.0, 0.0], 0.00001));
+            expect(vertices.attributePointer('position').data[1], orderedCloseTo([0.5, 0.5, 1.0, 0.0, 0.0], 0.00001));
           });
         });
       });

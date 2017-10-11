@@ -16,29 +16,5 @@ part of bagl.geometry;
 ///
 /// See [Points] for a concrete implementation of [PrimitiveSequence] for
 /// describing [Point] geometry.
-abstract class PrimitiveSequence<Primitive> extends Iterable<Primitive> {
-  /// The [Topology] for this [PrimitiveSequence].
-  Topology get topology;
-
-  /// The [VertexArray] on which this [PrimitiveSequence] is defined.
-  VertexArray get vertexArray;
-
-  /// A list of indices that describes which of vertices the [vertexArray], and
-  /// in which order, are used to compose primitive sequence.
-  ///
-  /// May be `null`, in which case an implicit index list is used that ranges
-  /// from `0` to `vertexArray.length - 1`:
-  /// `0, 1, 2, .., vertexArray.length - 1`.
-  IndexList get indexList;
-
-  /// The number of vertices that are skipped before the vertices used by these
-  /// [PrimitiveSequence] begin.
-  ///
-  /// If an [indexList] is specified, then this value represents the number of
-  /// indices that are skipped before the indices used by this [PrimitiveSequence]
-  /// begin.
-  int get offset;
-
-  /// The number of vertices used to define this [PrimitiveSequence].
-  int get count;
-}
+abstract class PrimitiveSequence<Primitive>
+    implements PrimitiveSource, Iterable<Primitive> {}

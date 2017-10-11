@@ -28,7 +28,9 @@ part of bagl.vertex_data;
 /// for a `position` attribute, and a separate [AttributeDataTable] might be
 /// used to store data for a `color` attribute.
 class AttributeDataTable extends IterableBase<AttributeDataRowView>
-    with TypedData {
+    implements AttributeData {
+  final AttributeDataType type = AttributeDataType.float;
+
   /// The length of the rows in this [AttributeDataTable].
   ///
   /// Represents the number of Float32 values per row, not the number of bytes

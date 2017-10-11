@@ -2,14 +2,12 @@
 library bagl.geometry;
 
 import 'dart:collection';
-import 'dart:typed_data';
 
-import 'package:quiver/collection.dart';
-
+import 'index_list.dart';
+import 'primitive_source.dart';
 import 'vertex.dart';
 import 'vertex_data.dart';
 
-part 'src/geometry/index_list.dart';
 part 'src/geometry/line_loop.dart';
 part 'src/geometry/line_strip.dart';
 part 'src/geometry/lines.dart';

@@ -106,3 +106,11 @@ const Map<RenderBufferFormat, int> _renderBufferFormatMap = const {
   RenderBufferFormat.stencil_index_8: WebGL.STENCIL_INDEX8,
   RenderBufferFormat.depth_stencil: WebGL.DEPTH_STENCIL
 };
+
+const Map<AttributeDataType, int> _attributeDataTypeMap = const {
+  AttributeDataType.byte: WebGL.BYTE,
+  AttributeDataType.short: WebGL.SHORT,
+  AttributeDataType.unsignedByte: WebGL.UNSIGNED_BYTE,
+  AttributeDataType.unsignedShort: WebGL.UNSIGNED_SHORT,
+  AttributeDataType.float: WebGL.FLOAT
+};

@@ -292,7 +292,9 @@ class Vector2 extends _VertexBase implements Matrix {
     return 'Vector2($x, $y)';
   }
 
-  bool operator ==(Object other) => identical(this, other) || other is Vector2 && other.x == x && other.y == y;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Vector2 && other.x == x && other.y == y;
 
   int get hashCode => hash2(x, y);
 }

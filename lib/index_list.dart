@@ -1,34 +1,14 @@
-part of bagl.geometry;
+library bagl.index_list;
 
-/// Enumerates the available sizes for the indices in a [IndexList].
-enum IndexSize { unsignedByte, unsignedShort, unsignedInt }
+import 'dart:typed_data';
+
+import 'package:quiver/collection.dart';
+
+import 'primitive_source.dart';
 
 /// List of integers used to describe how the vertices in a [VertexArray] are
 /// connected into geometry primitives.
-abstract class IndexList implements List<int>, TypedData {
-  /// Whether or not this [IndexList] is marked as dynamic.
-  ///
-  /// When `true` it signals to the rendering back-end that this [IndexList] is
-  /// intended to be modified regularly, allowing the rendering back-end to
-  /// optimize for this.
-  ///
-  /// Note that this is merely a hint that can be used for tuning the
-  /// performance of a rendering back-end: an [IndexList] that is not marked as
-  /// dynamic can still be modified.
-  bool get isDynamic;
-
-  /// The size of the indices stored in this [IndexList].
-  IndexSize get indexSize;
-
-  /// Returns a version number for the data in this [IndexList].
-  ///
-  /// Starts at `0` but may increase if changes are made to the data in this
-  /// [IndexList]. May be used by a rendering backend that buffers a copy of the
-  /// data to determine if the copy is out of date.
-  ///
-  /// See also [markVersionOutdated].
-  int get version;
-
+abstract class IndexList implements List<int>, IndexData {
   /// Marks the current [version] as outdated.
   ///
   /// The next time the [version] is requested a new version number will be
@@ -46,7 +26,7 @@ class Index8List extends DelegatingList<int> implements IndexList, Uint8List {
 
   final bool isDynamic;
 
-  final IndexSize indexSize = IndexSize.unsignedShort;
+  final IndexDataType type = IndexDataType.unsignedShort;
 
   static const int BYTES_PER_ELEMENT = Uint8List.BYTES_PER_ELEMENT;
 
@@ -212,7 +192,7 @@ class Index16List extends DelegatingList<int> implements IndexList, Uint16List {
 
   final bool isDynamic;
 
-  final IndexSize indexSize = IndexSize.unsignedShort;
+  final IndexDataType type = IndexDataType.unsignedShort;
 
   static const int BYTES_PER_ELEMENT = Uint16List.BYTES_PER_ELEMENT;
 
@@ -379,7 +359,7 @@ class Index32List extends DelegatingList<int> implements IndexList, Uint16List {
 
   final bool isDynamic;
 
-  final IndexSize indexSize = IndexSize.unsignedInt;
+  final IndexDataType type = IndexDataType.unsignedInt;
 
   static const int BYTES_PER_ELEMENT = Uint32List.BYTES_PER_ELEMENT;
 

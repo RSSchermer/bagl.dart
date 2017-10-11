@@ -71,7 +71,7 @@ main() {
   ]);
 
   var triangles = new Triangles(vertices,
-      indexList: new Index16List.fromList([
+      indices: new Index16List.fromList([
         0, 2, 1, // Back
         1, 2, 3,
         0, 6, 2, // Left

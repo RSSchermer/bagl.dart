@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/geometry.dart';
+import 'package:bagl/index_list.dart';
 import 'package:bagl/vertex.dart';
 import 'package:bagl/vertex_data.dart';
 
@@ -53,7 +54,7 @@ void main() {
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
-            expect(() => new Triangles(vertices, indexList: indexList, offset: 10), throwsRangeError);
+            expect(() => new Triangles(vertices, indices: indexList, offset: 10), throwsRangeError);
           });
         });
 
@@ -65,7 +66,7 @@ void main() {
 
         group('with a valid offset and count', () {
           test('returns an instance with the correct length', () {
-            expect(new Triangles(vertices, indexList: indexList, offset: 2, count: 6).length, equals(2));
+            expect(new Triangles(vertices, indices: indexList, offset: 2, count: 6).length, equals(2));
           });
         });
       });
@@ -146,7 +147,7 @@ void main() {
 
     group('instance with an index list', () {
       final indexList = new Index16List.fromList([0, 5, 4, 3, 2, 1]);
-      final triangles = new Triangles(vertices, indexList: indexList);
+      final triangles = new Triangles(vertices, indices: indexList);
 
       group('iterator', () {
         final iterator = triangles.iterator;
@@ -263,7 +264,7 @@ void main() {
 
     group('instance defined on Triangles with an index list', () {
       final indexList = new Index16List.fromList([5, 4, 3, 2, 1, 0]);
-      final triangles = new Triangles(vertices, indexList: indexList);
+      final triangles = new Triangles(vertices, indices: indexList);
       final triangleView = new TrianglesTriangleView(triangles, 1);
 
       test('aIndex returns the correct value', () {

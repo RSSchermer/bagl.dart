@@ -78,9 +78,9 @@ void main() {
       ]);
 
       final triangles1 =
-          new Triangles(vertices, indexList: new Index16List.fromList([0, 1, 2]));
+          new Triangles(vertices, indices: new Index16List.fromList([0, 1, 2]));
       final triangles2 =
-          new Triangles(vertices, indexList: new Index16List.fromList([3, 4, 5]));
+          new Triangles(vertices, indices: new Index16List.fromList([3, 4, 5]));
 
       context.defaultFrame.draw(triangles1, program1, const Uniforms.empty());
       context.defaultFrame.draw(triangles2, program2, const Uniforms.empty());

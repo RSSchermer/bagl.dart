@@ -11,16 +11,16 @@ import 'package:collection/wrappers.dart';
 import 'package:quiver/core.dart';
 import 'package:quiver/collection.dart';
 
-import 'geometry.dart';
 import 'math.dart';
 import 'matrix_list.dart';
+import 'primitive_source.dart';
 import 'struct.dart';
 import 'texture.dart';
-import 'vertex_data.dart';
 
 part 'src/rendering/blending.dart';
 part 'src/rendering/color_mask.dart';
-part 'src/rendering/context_geometry_resources.dart';
+part 'src/rendering/context_attribute_data_resources.dart';
+part 'src/rendering/context_index_data_resources.dart';
 part 'src/rendering/context_program_resources.dart';
 part 'src/rendering/context_texture_resources.dart';
 part 'src/rendering/culling_mode.dart';

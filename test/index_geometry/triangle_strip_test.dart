@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/geometry.dart';
+import 'package:bagl/index_list.dart';
 import 'package:bagl/vertex.dart';
 import 'package:bagl/vertex_data.dart';
 
@@ -53,7 +54,7 @@ void main() {
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
-            expect(() => new TriangleStrip(vertices, indexList: indexList, offset: 10), throwsRangeError);
+            expect(() => new TriangleStrip(vertices, indices: indexList, offset: 10), throwsRangeError);
           });
         });
 
@@ -65,7 +66,7 @@ void main() {
 
         group('with a valid offset and count', () {
           test('returns an instance with the correct length', () {
-            expect(new TriangleStrip(vertices, indexList: indexList, offset: 2, count: 6).length, equals(4));
+            expect(new TriangleStrip(vertices, indices: indexList, offset: 2, count: 6).length, equals(4));
           });
         });
       });
@@ -146,7 +147,7 @@ void main() {
 
     group('instance with an index list', () {
       final indexList = new Index16List.fromList([0, 5, 4, 3, 2, 1]);
-      final triangleStrip = new TriangleStrip(vertices, indexList: indexList);
+      final triangleStrip = new TriangleStrip(vertices, indices: indexList);
 
       group('iterator', () {
         final iterator = triangleStrip.iterator;
@@ -263,7 +264,7 @@ void main() {
 
     group('instance with an even index defined on TriangleStrip with an index list', () {
       final indexList = new Index16List.fromList([5, 4, 3, 2, 1, 0]);
-      final triangleStrip = new TriangleStrip(vertices, indexList: indexList);
+      final triangleStrip = new TriangleStrip(vertices, indices: indexList);
       final triangleView = new TriangleStripTriangleView(triangleStrip, 2);
 
       test('aIndex returns the correct value', () {

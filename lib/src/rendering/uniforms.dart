@@ -11,7 +11,7 @@ abstract class Uniforms {
 class _EmptyUniforms implements Uniforms {
   const _EmptyUniforms();
 
-  Object operator[](String uniformName) => null;
+  Object operator [](String uniformName) => null;
 }
 
 class _MapUniforms implements Uniforms {
@@ -19,5 +19,5 @@ class _MapUniforms implements Uniforms {
 
   const _MapUniforms(this._map);
 
-  Object operator[](String uniformName) => _map[uniformName];
+  Object operator [](String uniformName) => _map[uniformName];
 }

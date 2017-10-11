@@ -93,7 +93,8 @@ abstract class _MatrixBase implements Matrix {
         var sum = 0.0;
 
         for (var j = 0; j < columnDimension; j++) {
-          sum += _storage[j * columnDimension + row] * bVals.elementAt(j * bCols + col);
+          sum += _storage[j * columnDimension + row] *
+              bVals.elementAt(j * bCols + col);
         }
 
         productValues[counter] = sum;

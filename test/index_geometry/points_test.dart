@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:bagl/geometry.dart';
+import 'package:bagl/index_list.dart';
 import 'package:bagl/vertex.dart';
 import 'package:bagl/vertex_data.dart';
 
@@ -48,7 +49,7 @@ void main() {
 
         group('with an offset equal to the length of the index list', () {
           test('throws a RangeError', () {
-            expect(() => new Points(vertices, indexList: indexList, offset: 8), throwsRangeError);
+            expect(() => new Points(vertices, indices: indexList, offset: 8), throwsRangeError);
           });
         });
 
@@ -60,7 +61,7 @@ void main() {
 
         group('with a valid offset and count', () {
           test('returns an instance with the correct length', () {
-            expect(new Points(vertices, indexList: indexList, offset: 1, count: 7).length, equals(7));
+            expect(new Points(vertices, indices: indexList, offset: 1, count: 7).length, equals(7));
           });
         });
       });
@@ -141,7 +142,7 @@ void main() {
 
     group('instance with an index list', () {
       final indexList = new Index16List.fromList([0, 3, 2, 1, 0]);
-      final points = new Points(vertices, indexList: indexList);
+      final points = new Points(vertices, indices: indexList);
 
       group('iterator', () {
         final iterator = points.iterator;
@@ -234,7 +235,7 @@ void main() {
 
     group('instance defined on Points with an index list', () {
       final indexList = new Index16List.fromList([3, 2, 1, 0]);
-      final points = new Points(vertices, indexList: indexList);
+      final points = new Points(vertices, indices: indexList);
       final pointView = new PointsPointView(points, 1);
 
       test('vertexIndex returns the correct value', () {

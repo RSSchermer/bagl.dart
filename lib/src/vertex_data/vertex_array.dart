@@ -50,12 +50,15 @@ part of bagl.vertex_data;
 ///
 ///     vertices[2]['position'] = new Vector2(0.5, 0.5);
 ///
-class VertexArray extends IterableBase<VertexArrayVertexView> {
+class VertexArray extends IterableBase<VertexArrayVertexView>
+    implements VertexDataSource {
   /// Map of the [VertexAttribute]s defined on the attribute data, keyed by the
   /// attribute names.
-  final Map<String, VertexAttribute> attributes;
+  final Map<String, VertexAttribute> _attributes;
 
   final int length;
+
+  final int version = 0;
 
   /// Instantiates a new [VertexArray] from a collection of vertices.
   ///
@@ -291,10 +294,10 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
   /// example: two objects might share the same position data, but each uses
   /// different color data.
   VertexArray.fromAttributes(Map<String, VertexAttribute> attributes)
-      : attributes = attributes,
-        length = attributes.values.first.attributeDataTable.length {
+      : _attributes = attributes,
+        length = attributes.values.first.data.length {
     attributes.forEach((name, attribute) {
-      if (attribute.attributeDataTable.length != length) {
+      if (attribute.data.length != length) {
         throw new ArgumentError(
             'The attribute named "$name" is defined on an AttributeDataTable '
             'of a different length than the attribute named '
@@ -308,16 +311,18 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
       new _VertexArrayIterator(this);
 
   /// The names of the attributes defined for the vertices in this vertex array.
-  Iterable<String> get attributeNames => attributes.keys;
+  Iterable<String> get attributeNames => _attributes.keys;
 
   /// Returns `true` if an attribute with the given [name] is defined for the
   /// vertices in this vertex array, `false` otherwise.
-  bool hasAttribute(String name) => attributes.containsKey(name);
+  bool hasAttribute(String name) => _attributes.containsKey(name);
 
   /// Returns the [AttributeDataTable]s that contain the attribute data for
   /// this vertex array.
-  Set<AttributeDataTable> get attributeDataTables =>
-      attributes.values.map((a) => a.attributeDataTable).toSet();
+  Set<AttributeDataTable> get _attributeDataTables =>
+      _attributes.values.map((a) => a.data).toSet();
+
+  VertexAttribute attributePointer(String attribute) => _attributes[attribute];
 
   VertexArrayVertexView elementAt(int index) => this[index];
 
@@ -346,15 +351,15 @@ class VertexArray extends IterableBase<VertexArrayVertexView> {
     // Create map of old tables to corresponding new tables.
     final oldNewTableMap = new Map<AttributeDataTable, AttributeDataTable>();
 
-    attributeDataTables.forEach((table) {
+    _attributeDataTables.forEach((table) {
       oldNewTableMap[table] = table.subTable(start, end ?? length);
     });
 
     // Create new attribute map on the new tables
     final newAttributeMap = new Map<String, VertexAttribute>();
 
-    attributes.forEach((name, oldAttribute) {
-      final newTable = oldNewTableMap[oldAttribute.attributeDataTable];
+    _attributes.forEach((name, oldAttribute) {
+      final newTable = oldNewTableMap[oldAttribute.data];
 
       newAttributeMap[name] = oldAttribute.onTable(newTable);
     });
@@ -416,8 +421,8 @@ class VertexArrayVertexView implements Vertex {
 
   bool hasAttribute(String name) => vertexArray.hasAttribute(name);
 
-  Iterable<dynamic> get attributeValues => attributeNames
-      .map((name) => vertexArray.attributes[name].extractValueAtRow(index));
+  Iterable<dynamic> get attributeValues => attributeNames.map(
+      (name) => vertexArray.attributePointer(name).extractValueAtRow(index));
 
   Map<String, dynamic> toMap() {
     final map = new Map<String, dynamic>();
@@ -430,7 +435,7 @@ class VertexArrayVertexView implements Vertex {
   }
 
   operator [](String attributeName) =>
-      vertexArray.attributes[attributeName]?.extractValueAtRow(index);
+      vertexArray.attributePointer(attributeName)?.extractValueAtRow(index);
 
   /// Sets the attribute with the specified [attributeName] to the given
   /// [value].
@@ -447,7 +452,7 @@ class VertexArrayVertexView implements Vertex {
   ///
   /// Throws an [ArgumentError] if the [value] is not of a valid type.
   void operator []=(String attributeName, value) {
-    final attribute = vertexArray.attributes[attributeName];
+    final attribute = vertexArray.attributePointer(attributeName);
 
     if (attribute == null) {
       throw new ArgumentError(

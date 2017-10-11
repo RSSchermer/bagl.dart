@@ -1276,7 +1276,13 @@ class Vector4 extends _VertexBase implements Matrix {
     return 'Vector4($x, $y, $z, $w)';
   }
 
-  bool operator ==(Object other) => identical(this, other) || other is Vector4 && other.x == x && other.y == y && other.z == z && other.w == w;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Vector4 &&
+          other.x == x &&
+          other.y == y &&
+          other.z == z &&
+          other.w == w;
 
   int get hashCode => hash4(x, y, z, w);
 }
