@@ -168,10 +168,26 @@ abstract class Vector2 implements Matrix {
   /// Computes the dot product of this [Vector2] `A` and another [Vector2] [B].
   double dotProduct(Vector2 B);
 
+  Vector2 scalarProduct(num s);
+
+  Vector2 scalarDivision(num s);
+
+  Vector2 entrywiseSum(Matrix B);
+
+  Vector2 entrywiseDifference(Matrix B);
+
+  Vector2 entrywiseProduct(Matrix B);
+
   /// Returns the value at the [index].
   ///
   /// Throws a [RangeError] if the [index] is out of bounds.
   double operator [](int index);
+
+  operator *(a);
+
+  Vector2 operator +(Matrix B);
+
+  Vector2 operator -(Matrix B);
 }
 
 class _Vector2 extends _VertexBase implements Vector2 {

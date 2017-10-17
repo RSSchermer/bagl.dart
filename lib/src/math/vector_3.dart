@@ -460,10 +460,26 @@ abstract class Vector3 implements Matrix {
   /// [B].
   Vector3 crossProduct(Vector3 B);
 
+  Vector3 scalarProduct(num s);
+
+  Vector3 scalarDivision(num s);
+
+  Vector3 entrywiseSum(Matrix B);
+
+  Vector3 entrywiseDifference(Matrix B);
+
+  Vector3 entrywiseProduct(Matrix B);
+
   /// Returns the value at the [index].
   ///
   /// Throws a [RangeError] if the [index] is out of bounds.
   double operator [](int index);
+
+  operator *(a);
+
+  Vector3 operator +(Matrix B);
+
+  Vector3 operator -(Matrix B);
 }
 
 /// A column vector of length 3 (a 3 by 1 matrix).

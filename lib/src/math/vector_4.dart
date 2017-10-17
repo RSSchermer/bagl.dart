@@ -1135,10 +1135,26 @@ abstract class Vector4 implements Matrix {
   /// Computes the dot product of this [Vector4] `A` and another [Vector4] [B].
   double dotProduct(Vector4 B);
 
+  Vector4 scalarProduct(num s);
+
+  Vector4 scalarDivision(num s);
+
+  Vector4 entrywiseSum(Matrix B);
+
+  Vector4 entrywiseDifference(Matrix B);
+
+  Vector4 entrywiseProduct(Matrix B);
+
   /// Returns the value at the [index].
   ///
   /// Throws a [RangeError] if the [index] is out of bounds.
   double operator [](int index);
+
+  operator *(a);
+
+  Vector4 operator +(Matrix B);
+
+  Vector4 operator -(Matrix B);
 }
 
 /// A column vector of length 4 (a 4 by 1 matrix).
