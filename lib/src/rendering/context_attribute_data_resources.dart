@@ -74,15 +74,30 @@ class _GLAttributeData {
 
   int currentVBOVersion;
 
+  int currentLengthInBytes;
+
   int referenceCount = 1;
 
   _GLAttributeData(this.context, this.dataSource, this.VBO)
-      : currentVBOVersion = dataSource.version;
+      : currentVBOVersion = dataSource.version,
+        currentLengthInBytes = dataSource.lengthInBytes;
 
   void updateBuffer() {
     if (dataSource.version != currentVBOVersion) {
       context._bindAttributeData(this);
-      context._context.bufferSubData(WebGL.ARRAY_BUFFER, 0, dataSource.buffer);
+
+      if (currentLengthInBytes == dataSource.lengthInBytes) {
+        context._context
+            .bufferSubData(WebGL.ARRAY_BUFFER, 0, dataSource.buffer);
+      } else {
+        final usage =
+            dataSource.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
+
+        context._context
+            .bufferData(WebGL.ARRAY_BUFFER, dataSource.buffer, usage);
+
+        currentLengthInBytes = dataSource.lengthInBytes;
+      }
 
       currentVBOVersion = dataSource.version;
     }

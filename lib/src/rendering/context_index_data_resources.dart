@@ -80,16 +80,30 @@ class _GLIndexData {
 
   int currentIBOVersion;
 
+  int currentLengthInBytes;
+
   int referenceCount = 1;
 
   _GLIndexData(this.context, this.indexData, this.IBO)
-      : currentIBOVersion = indexData.version;
+      : currentIBOVersion = indexData.version,
+        currentLengthInBytes = indexData.lengthInBytes;
 
   void updateBuffer() {
     if (indexData.version != currentIBOVersion) {
       context._bindIndexData(this);
-      context._context
-          .bufferSubData(WebGL.ELEMENT_ARRAY_BUFFER, 0, indexData.buffer);
+
+      if (currentLengthInBytes == indexData.lengthInBytes) {
+        context._context
+            .bufferSubData(WebGL.ELEMENT_ARRAY_BUFFER, 0, indexData.buffer);
+      } else {
+        final usage =
+            indexData.isDynamic ? WebGL.DYNAMIC_DRAW : WebGL.STATIC_DRAW;
+
+        context._context
+            .bufferData(WebGL.ELEMENT_ARRAY_BUFFER, indexData.buffer, usage);
+
+        currentLengthInBytes = indexData.lengthInBytes;
+      }
 
       currentIBOVersion = indexData.version;
     }
