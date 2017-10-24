@@ -1,5 +1,5 @@
 language: dart
 dart_task:
 - test: --platform vm
-- test: --platform dartium
+- test: --platform chrome
   install_dartium: true
