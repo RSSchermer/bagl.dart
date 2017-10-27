@@ -416,6 +416,8 @@ class _Matrix2 extends _MatrixBase implements Matrix2 {
       return false;
     }
   }
+
+  int get hashCode => hashObjects(_storage);
 }
 
 class _Matrix2Identity implements Matrix2 {

@@ -977,6 +977,8 @@ class _Matrix4 extends _MatrixBase implements Matrix4 {
       return false;
     }
   }
+
+  int get hashCode => hashObjects(_storage);
 }
 
 class _Matrix4Identity implements Matrix4 {

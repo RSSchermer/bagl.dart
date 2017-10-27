@@ -646,6 +646,8 @@ class _Matrix3 extends _MatrixBase implements Matrix3 {
       return false;
     }
   }
+
+  int get hashCode => hashObjects(_storage);
 }
 
 class _Matrix3Identity implements Matrix3 {
